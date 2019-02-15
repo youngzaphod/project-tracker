@@ -15,7 +15,9 @@ class App extends Component {
         <Col m={6} lg={6}>
           <Form.Control size='lg' type='text' placeholder='Project name' />
         </Col>
-        <ProjectFields />
+        <Col m={6} lg={6}>
+          <ProjectFields />
+        </Col>
       </Container>
     );
   }
