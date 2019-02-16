@@ -12,11 +12,15 @@ class Milestone extends Component {
 
     render() {
         return (
-            <div className='milestone'>
+            <div className='milestone'
+            onMouseEnter={this.props.hoverOn}
+            onMouseLeave={this.props.hoverOff}
+            
+            >
             <Row>
             <Col md={8}>
-            <button style={{visibility: this.props.visible}} onClick={this.props.moveMilestone}><FaArrowDown /></button>
-            <button style={{visibility: this.props.visible}} onClick={this.props.moveMilestone}><FaArrowUp /></button>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemDown}><FaArrowDown /></button>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemUp}><FaArrowUp /></button>
             <input
                 id={this.props.id}
                 name='milestone'
@@ -38,7 +42,7 @@ class Milestone extends Component {
             
             </Col>
             <Col md={1}>
-                <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaTrashAlt /></button>
+                <button style={{visibility: this.props.visible}} onClick={this.props.deleteItem}><FaTrashAlt /></button>
             </Col>
             </Row>
             </div>
