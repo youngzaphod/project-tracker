@@ -1,0 +1,47 @@
+{
+    "Name": "Website Redesign",
+    "Start": "1/5/2019",
+    "End": "5/4/2019",
+    "Milestones": [
+      {
+        "Name": "Planning",
+        "Days": 22,
+        "Tasks": [
+          {
+            "Name": "Kick-off meeting",
+            "Days": 5
+          },
+          {
+            "Name": "Project roadmap",
+            "Days": 4
+          },
+          {
+            "Name": "User stories",
+            "Days": 10
+          }
+        ]
+      },
+      {
+        "Name": "Design",
+        "Days": 30,
+        "Tasks": [
+          {
+            "Name": "Design meeting",
+            "Days": 5
+          },
+          {
+            "Name": "Moodboards",
+            "Days": 4
+          },
+          {
+            "Name": "Wireframes",
+            "Days": 10
+          },
+          {
+            "Name": "Complete design",
+            "Days": 10
+          }
+        ]
+      }
+    ]
+  }

@@ -1,22 +1,25 @@
 import React, { Component } from 'react';
-import { Grid} from 'semantic-ui-react';
-import Form from './Components/Form';
 import Header from './Components/Header';
+import ProjectFields from './Components/ProjectFields';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
 import './App.css';
 
 class App extends Component {
   
   render() {
     return (
-      <Grid centered={true}>
-        <Grid.Row width={16}>
-          <Header />
-          <Header />
-        </Grid.Row>
-        <Grid.Column mobile={16} tablet={8} computer={4}>
-          <Form />
-        </Grid.Column>
-      </Grid>
+      <Container>
+        <Header />
+        <Col m={6} lg={6}>
+          <br/>
+          <Form.Control size='lg' type='text' placeholder='Project name' />
+        </Col>
+        <Col m={6} lg={6}>
+          <ProjectFields />
+        </Col>
+      </Container>
     );
   }
 }
