@@ -12,23 +12,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
-
-/* Custom css classes */
-.task-input, .milestone-input {
-  border: 0;
-  padding: 0;
-  margin: 10px 0 0 0;
-  transition: width .35s ease-in-out;
-  width: 100%;
-}
-
-.task-input:focus, .milestone-input:focus {
-  outline: none;
-  border-bottom: 1px solid gray;
-  /* background: #EFEFEF; */
-}
-
-.item-outline:focus {
-  border: 1px solid gray;
-}

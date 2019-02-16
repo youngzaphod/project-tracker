@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Task from './Task';
-
+//import Button from 'react-bootstrap/Button';
+import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
 
 class Milestone extends Component {
 
-    displayOptions = () => {
-
+    moveUp = () => {
+        console.log("Arrow clicked");
     }
 
     render() {
         return (
-            <div onmouseover={this.displayOptions}>
+            <div className='milestone'>
             <Row>
-            <Col md={2}>
-                
-            </Col>
             <Col md={8}>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveMilestone}><FaArrowDown /></button>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveMilestone}><FaArrowUp /></button>
             <input
                 id={this.props.id}
                 name='milestone'
                 type='text'
-                class='milestone-input'
+                className='milestone-input'
                 placeholder='New milestone'
+                defaultValue={this.props.name}
             />
             </Col>
             <Col md={2}>
@@ -31,10 +31,14 @@ class Milestone extends Component {
                 id={this.props.id}
                 name='days'
                 type='text'
-                class='milestone-input'
+                className='days-input'
                 placeholder='Days'
-                value={this.props.days}
+                defaultValue={this.props.days}
             />
+            
+            </Col>
+            <Col md={1}>
+                <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaTrashAlt /></button>
             </Col>
             </Row>
             </div>

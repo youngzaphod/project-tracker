@@ -13,6 +13,7 @@ class App extends Component {
       <Container>
         <Header />
         <Col m={6} lg={6}>
+          <br/>
           <Form.Control size='lg' type='text' placeholder='Project name' />
         </Col>
         <Col m={6} lg={6}>
