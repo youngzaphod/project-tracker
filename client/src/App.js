@@ -4,6 +4,7 @@ import ProjectFields from './Components/ProjectFields';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
+import InputGroup from 'react-bootstrap/InputGroup';
 import './App.css';
 
 class App extends Component {
@@ -14,7 +15,11 @@ class App extends Component {
         <Header />
         <Col m={6} lg={6}>
           <br/>
-          <Form.Control size='lg' type='text' placeholder='Project name' />
+          <InputGroup className='mb-3'>
+            <Form.Control style={{width: '60%'}} size='lg' type='text' placeholder='Project name' />
+            <Form.Control size='lg' type='text' placeholder='Start' />
+            <Form.Control size='lg' type='text' placeholder='Finish' />
+          </InputGroup>
         </Col>
         <Col m={6} lg={6}>
           <ProjectFields />
