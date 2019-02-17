@@ -1,22 +1,45 @@
 import React, { Component } from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-//import Button from 'react-bootstrap/Button';
-import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { FaArrowDown, FaArrowUp, FaTrashAlt, } from 'react-icons/fa';
+import { MdAdd } from 'react-icons/md';
 
 class Task extends Component {
+    state = {
+        name: this.props.name
+    };
 
-    moveUp = () => {
-        console.log("Arrow clicked");
+    onNameChange = (e) => {
+        this.props.onType(e.target.value);
     }
 
     render() {
         return (
-            <div className='milestone'>
+            <div className='milestone'
+                onMouseEnter={this.props.hoverOn}
+                onMouseLeave={this.props.hoverOff}
+            >
             <Row>
             <Col md={8}>
-            <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaArrowDown /></button>
-            <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaArrowUp /></button>
+            <OverlayTrigger
+                placement='top'
+                overlay={
+                    <Tooltip id='tooltip-top'>
+                        Add task above
+                    </Tooltip>
+                }
+            >
+                <button
+                    style={{visibility: this.props.visible}}
+                    onClick={this.props.addAbove}
+                >
+                    <MdAdd />
+                </button>
+            </OverlayTrigger>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemDown}><FaArrowDown /></button>
+            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemUp}><FaArrowUp /></button>
             <input
                 id={this.props.id}
                 name='milestone'
@@ -24,6 +47,7 @@ class Task extends Component {
                 className='milestone-input'
                 placeholder='New task'
                 defaultValue={this.props.name}
+                onChange={this.onNameChange}
             />
             </Col>
             <Col md={2}>
@@ -38,7 +62,7 @@ class Task extends Component {
             
             </Col>
             <Col md={1}>
-                <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaTrashAlt /></button>
+                <button style={{visibility: this.props.visible}} onClick={this.props.deleteItem}><FaTrashAlt /></button>
             </Col>
             </Row>
             </div>
