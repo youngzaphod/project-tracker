@@ -9,52 +9,53 @@ const project = {
   Name: "Website Redesign",
   Start: "1/5/2019",
   End: "5/4/2019",
+  Units: "Days",
   Milestones: [
     {
       Name: "Planning",
-      Days: 22,
+      Units: 22,
       Order: 0,
       Tasks: [
         {
           Name: "Kick-off meeting",
-          Days: 5,
+          Units: 5,
           Order: 0
         },
         {
           Name: 'Project roadmap',
-          Days: 4,
+          Units: 4,
           Order: 1
         },
         {
           Name: 'User stories',
-          Days: 10,
+          Units: 10,
           Order: 2
         }
       ]
     },
     {
       Name: "Design",
-      Days: 30,
+      Units: 30,
       Order: 1,
       Tasks: [
         {
           Name: "Design meeting",
-          Days: 5,
+          Units: 5,
           Order: 0
         },
         {
           Name: 'Moodboards',
-          Days: 4,
+          Units: 4,
           Order: 1
         },
         {
           Name: 'Wireframes',
-          Days: 10,
+          Units: 10,
           Order: 2
         },
         {
           Name: 'Complete design',
-          Days: 10,
+          Units: 10,
           Order: 3
         }
       ]
@@ -176,7 +177,7 @@ class ProjectFields extends Component {
     //Create new blank task to be added at given index
     let newTask = {
       Name: '',
-      Days: '',
+      Units: '',
       Order: j,
       id: shortid.generate(),
     }
@@ -200,13 +201,13 @@ class ProjectFields extends Component {
     //Create new blank task to be added at given index
     let newMilestone = {
       Name: '',
-      Days: '',
+      Units: '',
       Order: i,
       id: shortid.generate(),
       Tasks: [
         {
           Name: '',
-          Days: '',
+          Units: '',
           Order: 0,
           id: shortid.generate(),
         }
@@ -258,6 +259,7 @@ class ProjectFields extends Component {
                   hoverOn={() => this.hoverChange('ms' + i, true)}
                   hoverOff={() => this.hoverChange('ms' + i, false)}
                   name={ms.Name}
+                  units={ms.Units}
                   visible={this.state['ms' + i] ? 'visible' : 'hidden'}
                   id={i}
                   moveItemUp={() => this.moveMilestoneUp(i)}
@@ -275,6 +277,7 @@ class ProjectFields extends Component {
                         hoverOn={() => this.hoverChange('tk'+i+'-'+j, true)}
                         hoverOff={() => this.hoverChange('tk'+i+'-'+j, false)}
                         name={task.Name}
+                        units={task.Units}
                         id={j}
                         visible={this.state['tk'+i+'-'+j] ? 'visible' : 'hidden'}
                         moveItemUp={() => this.moveTaskUp(i, j)}

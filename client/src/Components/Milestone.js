@@ -55,11 +55,11 @@ class Milestone extends Component {
             <Col md={2}>
             <input
                 id={this.props.id}
-                name='days'
+                name='units'
                 type='text'
-                className='days-input'
-                placeholder='Days'
-                defaultValue={this.props.days}
+                className='units-input'
+                placeholder='Units'
+                defaultValue={this.props.units}
             />
             
             </Col>
