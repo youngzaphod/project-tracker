@@ -67,7 +67,7 @@ class ProjectFields extends Component {
   state = project;
 
   componentDidMount() {
-    let newState = this.state;
+    let newState = project;
     newState.Milestones.forEach(ms => {
       ms.id = shortid.generate();
       ms.Tasks.forEach(task => {
@@ -273,6 +273,7 @@ class ProjectFields extends Component {
                 {ms.Tasks.sort((a, b) => a.Order - b.Order)
                 .map((task, j) =>
                     <li key={task.id}>
+                      {console.log(task.id)}
                       <Task
                         hoverOn={() => this.hoverChange('tk'+i+'-'+j, true)}
                         hoverOff={() => this.hoverChange('tk'+i+'-'+j, false)}

@@ -6,10 +6,12 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaCog } from 'react-icons/fa';
-import DayPickerInput from 'react-day-picker/DayPickerInput';
-import 'react-day-picker/lib/style.css';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+
 import './App.css';
 
 class App extends Component {
@@ -18,7 +20,9 @@ class App extends Component {
     name: '',
     start: '',
     finish: '',
-    test: '',
+    startErrorMsg: '',
+    finishErrorMsg: '',
+    errMessage: '',
   }
 
   handleName = (e) => {
@@ -27,8 +31,17 @@ class App extends Component {
     });
   }
 
-  handleDayChange = (day, which) => {
-    this.setState({[which]: day});
+  handleDayChange = (date, which) => {
+    let error = '';
+    console.log(date);
+    if ((which === 'start' && this.state.finish !== '' && date > this.state.finish) ||
+      (which === 'finish' && this.state.start !== '' && date < this.state.start)) {
+      error = 'Start date must come before finish date!';
+    }
+    this.setState({
+      [which]: date,
+      errMessage: error
+    });
   }
   
   render() {
@@ -40,26 +53,42 @@ class App extends Component {
           </Col>
         </Row>
         <Row noGutters className='justify-content-center'>
-          <Col lg={4} md={6} sm={10}>
+          <Col lg={4} md={5} sm={10}>
             <br/>
             <Form.Control onChange={this.handleName} name='name' size='lg' type='text' placeholder='Project name' />
           </Col>
-          <Col lg={1} md={1}>
+          <Col lg={2} md={2} sm={5} xs={12}>
             <br/>
-            <DayPickerInput
-              onDayChange={day => this.handleDayChange(day, 'start')}
-              component={props => <Form.Control {...props} size='lg' />}
-              placeholder='Start'
-              inputProps={{size: 6}}
+            <DatePicker
+              maxDate={this.state.finish !== '' ? this.state.finish : null}
+              placeholderText='Start'
+              showMonthDropdown
+              showYearDropdown
+              customInput={
+                <Form.Control
+                  onClick={this.props.onClick}
+                  size='lg'
+                  value={this.props.value}
+                />
+              }
+              onChange={date => this.handleDayChange(date, 'start')}
+              selected={this.state.start !== '' ? this.state.start : null}
             />
           </Col>
-          <Col lg={1} md={1}>
+          <Col lg={2} md={2} sm={5} xs={12}>
             <br/>
-            <DayPickerInput
-              onDayChange={day => this.handleDayChange(day, 'finish')}
-              component={props => <Form.Control {...props} size='lg' />}
-              placeholder='Finish'
-              inputProps={{size: 6}}
+            <DatePicker
+              minDate={this.state.start !== '' ? this.state.start : null}
+              placeholderText='Finish'
+              customInput={
+                <Form.Control
+                  onClick={this.props.onClick}
+                  size='lg'
+                  value={this.props.value}
+                />
+              }
+              onChange={date => this.handleDayChange(date, 'finish')}
+              selected={this.state.finish !== '' ? this.state.finish : null}
             />
           </Col>
           <Col sm={1}>
@@ -70,12 +99,22 @@ class App extends Component {
           </Col>
         </Row>
         <Row className='justify-content-center'>
+          <Col lg={6} md={10} sm={8} xs={12}>
+            {this.state.errMessage !== '' ?
+            <Alert variant='danger'>
+              {this.state.errMessage}
+            </Alert>
+            : ''
+            }
+          </Col>
+        </Row>
+        <Row className='justify-content-center'>
           <Col lg={6}>
             <ProjectFields />
           </Col>
         </Row>
         <Row className='justify-content-center'>
-          <Col md={2}>
+          <Col md={2} sm={3} xs={12}>
             <Button variant='dark'>
               Save Project
             </Button>
