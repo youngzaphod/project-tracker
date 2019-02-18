@@ -64,7 +64,7 @@ button.add-milestone:hover::after {
     to {background-color: white;}
 }
 
-.highlight-fade {
+.highlight-fade, div.highlight-fade input {
     animation-name: fade-out;
     animation-duration: 1s;
 }

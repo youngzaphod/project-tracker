@@ -25,7 +25,7 @@ class Milestone extends Component {
 
     render() {
         return (
-            <div className='milestone'
+            <div className='milestone highlight-fade'
             onMouseEnter={() => this.setState({hover: 'visible'})}
             onMouseLeave={() => this.setState({hover: 'hidden'})}
             >
@@ -46,7 +46,7 @@ class Milestone extends Component {
                     <MdAdd />
                 </button>
             </OverlayTrigger>
-            <DragHandle />
+            <span style={{visibility: this.state.hover}}><DragHandle /></span>
             <input
                 id={this.props.id}
                 name='milestone'

@@ -20,49 +20,40 @@ const project = {
     {
       Name: "Planning",
       Units: 22,
-      Order: 0,
       Tasks: [
         {
           Name: "Kick-off meeting",
           Units: 5,
-          Order: 0
         },
         {
           Name: 'Project roadmap',
           Units: 4,
-          Order: 1
         },
         {
           Name: 'User stories',
           Units: 10,
-          Order: 2
         }
       ]
     },
     {
       Name: "Design",
       Units: 30,
-      Order: 1,
       Tasks: [
         {
           Name: "Design meeting",
           Units: 5,
-          Order: 0
         },
         {
           Name: 'Moodboards',
           Units: 4,
-          Order: 1
         },
         {
           Name: 'Wireframes',
           Units: 10,
-          Order: 2
         },
         {
           Name: 'Complete design',
           Units: 10,
-          Order: 3
         }
       ]
     }
@@ -195,55 +186,40 @@ class ProjectFields extends Component {
     let newTask = {
       Name: '',
       Units: '',
-      Order: j,
       id: shortid.generate(),
     };
 
     this.setState(state => {
       let newState = state;
-      // bump up order for everything at add index and above
-      newState.Milestones[i].Tasks.forEach((task, k) => {
-        if (k >= j) {
-          task.Order++;
-        }
-      });
       // Add new task
-      newState.Milestones[i].Tasks.push(newTask);
-      // Sort by order
-      newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
+      newState.Milestones[i].Tasks = 
+        state.Milestones[i].Tasks.slice(0, j)
+        .concat([newTask], state.Milestones[i].Tasks.slice(j));
+
       newState.highlights = {['h-' + i + '-' + j]: true};
       return newState;
     });
   }
 
   addMilestone = (i) => {
+    console.log("add index: ", i);
     //Create new blank task to be added at given index
     let newMilestone = {
       Name: '',
       Units: '',
-      Order: i,
       id: shortid.generate(),
       Tasks: [
         {
           Name: '',
           Units: '',
-          Order: 0,
           id: shortid.generate(),
         }
       ]
     }
     this.setState(state => {
       let newState = state;
-      // bump up order for everything at add index and above
-      newState.Milestones.forEach((ms, k) => {
-        if (k >= i) {
-          ms.Order++;
-        }
-      });
-      // Add new task
-      newState.Milestones.push(newMilestone);
-      // Sort by order
-      newState.Milestones.sort((a, b) => a.Order - b.Order);
+      // Insert new milestone at index
+      newState.Milestones = state.Milestones.slice(0, i).concat([newMilestone], state.Milestones.slice(i));
       newState.highlights = {['h-' + i]: true};
       return newState;
     });
