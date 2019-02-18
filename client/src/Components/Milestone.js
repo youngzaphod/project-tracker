@@ -4,11 +4,17 @@ import Row from 'react-bootstrap/Row';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { MdAdd } from 'react-icons/md';
-import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
+import { SortableHandle } from 'react-sortable-hoc';
+import { FaArrowDown, FaArrowUp, FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
+
+
+const DragHandle = SortableHandle(() => <span> <FaArrowsAltV /></span>);
+
 
 class Milestone extends Component {
     state = {
-        name: this.props.name
+        name: this.props.name,
+        hover: 'hidden',
     };
 
 
@@ -20,8 +26,8 @@ class Milestone extends Component {
     render() {
         return (
             <div className='milestone'
-            onMouseEnter={this.props.hoverOn}
-            onMouseLeave={this.props.hoverOff}
+            onMouseEnter={() => this.setState({hover: 'visible'})}
+            onMouseLeave={() => this.setState({hover: 'hidden'})}
             >
             <Row>
             <Col md={8}>
@@ -34,14 +40,13 @@ class Milestone extends Component {
                 }
             >
                 <button
-                    style={{visibility: this.props.visible}}
+                    style={{visibility: this.state.hover}}
                     onClick={this.props.addAbove}
                 >
                     <MdAdd />
                 </button>
             </OverlayTrigger>
-            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemDown}><FaArrowDown /></button>
-            <button style={{visibility: this.props.visible}} onClick={this.props.moveItemUp}><FaArrowUp /></button>
+            <DragHandle />
             <input
                 id={this.props.id}
                 name='milestone'
@@ -64,7 +69,7 @@ class Milestone extends Component {
             
             </Col>
             <Col md={1}>
-                <button style={{visibility: this.props.visible}} onClick={this.props.deleteItem}><FaTrashAlt /></button>
+                <button style={{visibility: this.state.hover}} onClick={this.props.deleteItem}><FaTrashAlt /></button>
             </Col>
             </Row>
             </div>

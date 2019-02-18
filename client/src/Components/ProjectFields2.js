@@ -3,7 +3,11 @@ import React, { Component } from 'react';
 import Milestone from './Milestone';
 import Task from './Task';
 import { MdAdd } from 'react-icons/md';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import {
+  SortableContainer,
+  SortableElement,
+  arrayMove,
+  SortableHandle, } from 'react-sortable-hoc';
 
 const shortid = require('shortid');
 
@@ -285,11 +289,10 @@ class ProjectFields extends Component {
   render() {
     return (
       <div className='project-form'>
-        <SortableList onSortEnd={this.milestoneSortEnd}>
+        <SortableList onSortEnd={this.milestoneSortEnd} useDragHandle>
           {[].concat(this.state.Milestones).map((ms, i) =>
               <SortableMilestone
                 key={ms.id}
-                hoverChange={this.hoverChange}
                 name={ms.Name}
                 units={ms.Units}
                 visible={true}
@@ -300,6 +303,9 @@ class ProjectFields extends Component {
                 deleteMilestone={this.deleteMilestone}
                 addMilestone={this.addMilestone}
                 updateMilestoneName={this.updateMilestoneName}
+                addTask={this.addTask}
+                deleteTask={this.deleteTask}
+                updateTaskName={this.updateTaskName}
                 tasks={ms.Tasks}
                 sortEndFunc={this.taskSortEnd}
               />
@@ -324,11 +330,8 @@ const SortableMilestone = SortableElement(props => {
   return (
     <li className={props.fading ? 'highlight-fade' : ''}>
       <Milestone
-        hoverOn={() => props.hoverChange('ms' + props.i, true)}
-        hoverOff={() => props.hoverChange('ms' + props.i, false)}
         name={props.name}
         units={props.units}
-        visible={props.visible}
         id={props.i}
         moveItemUp={() => props.moveMilestoneUp(props.i)}
         moveItemDown={() => props.moveMilestoneDown(props.i)}
@@ -336,12 +339,10 @@ const SortableMilestone = SortableElement(props => {
         addAbove={() => props.addMilestone(props.i)}
         onType={(text) => props.updateMilestoneName(props.i, text)}
       />
-      <SortableList onSortEnd={(ind) => props.sortEndFunc(ind, props.i)}>
+      <SortableList onSortEnd={(ind) => props.sortEndFunc(ind, props.i)} useDragHandle>
         {props.tasks.map((task, j) =>
           <SortableTask
             key={task.id}
-            hoverOn={() => props.hoverChange('tk'+props.i+'-'+j, true)}
-            hoverOff={() => props.hoverChange('tk'+props.i+'-'+j, false)}
             name={task.Name}
             units={task.Units}
             index={j}
@@ -354,7 +355,7 @@ const SortableMilestone = SortableElement(props => {
         )}
       </SortableList>
         <div style={{paddingLeft: '100px'}}>
-            <button className='add-task' onClick={() => this.addTask(props.i, props.tasks.length)}>
+            <button className='add-task' onClick={() => props.addTask(props.i, props.tasks.length)}>
                 <MdAdd />
             </button>
         </div>
@@ -367,5 +368,7 @@ const SortableTask = SortableElement(props =>
     <Task {...props} />
   </li>
 );
+
+const DragHandle = SortableHandle(() => <span>::</span>);
 
 export default ProjectFields;

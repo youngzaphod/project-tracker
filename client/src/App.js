@@ -9,7 +9,6 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import { FaCog } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
-import DraggableList from './Components/DraggableList';
 import "react-datepicker/dist/react-datepicker.css";
 
 import './App.css';
@@ -47,9 +46,6 @@ class App extends Component {
   render() {
     return (
       <Container fluid>
-        <Row>
-          <DraggableList />
-        </Row>
         <Row>
           <Col lg={true}>
             <Header />
