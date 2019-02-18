@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import Milestone from './Milestone';
 import Task from './Task';
 import { MdAdd } from 'react-icons/md';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+
 const shortid = require('shortid');
 
 const project = {
@@ -64,9 +66,8 @@ const project = {
 }
 
 class ProjectFields extends Component {
-  state = project;
-
-  componentDidMount() {
+  constructor(props) {
+    super(props);
     let newState = project;
     newState.Milestones.forEach(ms => {
       ms.id = shortid.generate();
@@ -74,8 +75,10 @@ class ProjectFields extends Component {
         task.id = shortid.generate();
       });
     });
-    this.setState(newState);
+    newState.highlights = {};
+    this.state = newState;
   }
+
 
   hoverChange = (index, tf) => {
     this.setState({[index]: tf})
@@ -93,7 +96,10 @@ class ProjectFields extends Component {
       newState.Milestones[i].Order = i - 1;
       newState.Milestones[i - 1].Order = i;
       newState.Milestones.sort((a, b) => a.Order - b.Order);
-      console.log(JSON.parse(JSON.stringify(newState.Milestones)));
+      // newState.highlights = {
+      //   ['h-' + i]: true,
+      //   ['h-' + (i-1).toString()]: true,
+      // };
       return newState;
     })
 
@@ -103,15 +109,16 @@ class ProjectFields extends Component {
     if (i > this.state.Milestones.length - 2) {
       return;
     }
-    console.log("Moving MS: " + JSON.parse(JSON.stringify(this.state.Milestones[i])));
 
     this.setState(state => {
-      console.log(JSON.parse(JSON.stringify(state.Milestones)));
       let newState = state;
       newState.Milestones[i].Order = i + 1;
       newState.Milestones[i + 1].Order = i;
       newState.Milestones.sort((a, b) => a.Order - b.Order);
-      console.log(JSON.parse(JSON.stringify(newState.Milestones)));
+      // newState.highlights = {
+      //   ['h-' + i]: true,
+      //   ['h-' + (i+1).toString()]: true,
+      // };
       return newState;
     });
 
@@ -130,7 +137,6 @@ class ProjectFields extends Component {
     if (j === 0) {
       return;
     }
-    //console.log("Moving MS: " + JSON.parse(JSON.stringify(this.state.Milestones[i])));
 
     this.setState(state => {
       console.log(JSON.parse(JSON.stringify(state.Milestones[i].Tasks)));
@@ -138,7 +144,12 @@ class ProjectFields extends Component {
       newState.Milestones[i].Tasks[j].Order = j - 1;
       newState.Milestones[i].Tasks[j - 1].Order = j;
       newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
-      console.log(JSON.parse(JSON.stringify(newState.Milestones[i].Tasks)));
+      //Add highlights to moved tasks
+      // newState.highlights = {
+      //   ['h-' + i + '-' + j]: true,
+      //   ['h-' + i + '-' + (j-1).toString()]: true,
+      // };
+      // console.log(newState.highlights);
       return newState;
     })
 
@@ -148,16 +159,18 @@ class ProjectFields extends Component {
     if (j > this.state.Milestones[i].Tasks.length - 2) {
       return;
     }
-    console.log("Movedown index ok");
-    //console.log("Moving MS: " + JSON.parse(JSON.stringify(this.state.Milestones[i])));
 
     this.setState(state => {
-      // console.log(JSON.parse(JSON.stringify(state.Milestones)));
       let newState = state;
       newState.Milestones[i].Tasks[j].Order = j + 1;
       newState.Milestones[i].Tasks[j + 1].Order = j;
       newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
-      // console.log(JSON.parse(JSON.stringify(newState.Milestones)));
+      //Add highlights to moved tasks
+      // newState.highlights = {
+      //   ['h-' + i + '-' + j]: true,
+      //   ['h-' + i + '-' + (j+1).toString()]: true,
+      // };
+      // console.log(newState.highlights);
       return newState;
     });
 
@@ -180,7 +193,8 @@ class ProjectFields extends Component {
       Units: '',
       Order: j,
       id: shortid.generate(),
-    }
+    };
+
     this.setState(state => {
       let newState = state;
       // bump up order for everything at add index and above
@@ -193,6 +207,7 @@ class ProjectFields extends Component {
       newState.Milestones[i].Tasks.push(newTask);
       // Sort by order
       newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
+      newState.highlights = {['h-' + i + '-' + j]: true};
       return newState;
     });
   }
@@ -225,6 +240,7 @@ class ProjectFields extends Component {
       newState.Milestones.push(newMilestone);
       // Sort by order
       newState.Milestones.sort((a, b) => a.Order - b.Order);
+      newState.highlights = {['h-' + i]: true};
       return newState;
     });
   }
@@ -254,7 +270,9 @@ class ProjectFields extends Component {
           {[].concat(this.state.Milestones).sort((a, b) => a.Order - b.Order)
           .map((ms, i) =>
             <React.Fragment key={ms.id}>
-              <li>
+              <li draggable={true}
+                className={this.state.highlights['h-'+i] ? 'highlight-fade' : ''}
+              >
                 <Milestone
                   hoverOn={() => this.hoverChange('ms' + i, true)}
                   hoverOff={() => this.hoverChange('ms' + i, false)}
@@ -272,8 +290,9 @@ class ProjectFields extends Component {
                 <ul className='task-list'>
                 {ms.Tasks.sort((a, b) => a.Order - b.Order)
                 .map((task, j) =>
-                    <li key={task.id}>
-                      {console.log(task.id)}
+                    <li key={task.id} draggable={true}
+                      className={this.state.highlights['h-'+i+'-'+j] ? 'highlight-fade' : ''}
+                    >
                       <Task
                         hoverOn={() => this.hoverChange('tk'+i+'-'+j, true)}
                         hoverOff={() => this.hoverChange('tk'+i+'-'+j, false)}
@@ -309,5 +328,52 @@ class ProjectFields extends Component {
     );
   }
 }
+
+const SortableList = SortableContainer(({children}) => {
+  return <ul>{children}</ul>;
+});
+
+const SortableMilestone = SortableElement(props => {
+  return (
+    <li className={props.fading ? 'highlight-fade' : ''}>
+      <Milestone
+        hoverOn={() => props.hoverChange('ms' + props.i, true)}
+        hoverOff={() => props.hoverChange('ms' + props.i, false)}
+        name={props.name}
+        units={props.units}
+        visible={props.visible}
+        id={props.i}
+        moveItemUp={() => props.moveMilestoneUp(props.i)}
+        moveItemDown={() => props.moveMilestoneDown(props.i)}
+        deleteItem={() => props.deleteMilestone(props.i)}
+        addAbove={() => props.addMilestone(props.i)}
+        onType={(text) => props.updateMilestoneName(props.i, text)}
+      />
+      <SortableList onSortEnd={(ind) => props.sortEndFunc(ind, props.i)}>
+        {props.tasks.map((task, j) =>
+          <SortableTask
+            hoverOn={() => props.hoverChange('tk'+props.i+'-'+j, true)}
+            hoverOff={() => props.hoverChange('tk'+props.i+'-'+j, false)}
+            name={task.Name}
+            units={task.Units}
+            id={j}
+            moveItemUp={() => props.moveTaskUp(props.i, j)}
+            moveItemDown={() => props.moveTaskDown(props.i, j)}
+            deleteItem={() => props.deleteTask(props.i, j)}
+            addAbove={() => props.addTask(props.i, j)}
+            onType={(text) => props.updateTaskName(props.i, j, text)}
+          />
+        )}
+      </SortableList>
+
+    </li>
+  )
+});
+
+const SortableTask = SortableElement(props => 
+  <li>
+    <Task {...props} />
+  </li>
+);
 
 export default ProjectFields;

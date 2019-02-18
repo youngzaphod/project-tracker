@@ -58,3 +58,13 @@ button.add-task:hover::after {
 button.add-milestone:hover::after {
     content: "milestone";
 }
+
+@keyframes fade-out {
+    from {background-color: rgb(208, 238, 238);}
+    to {background-color: white;}
+}
+
+.highlight-fade {
+    animation-name: fade-out;
+    animation-duration: 1s;
+}
