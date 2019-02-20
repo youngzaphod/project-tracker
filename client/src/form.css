@@ -2,19 +2,19 @@
 
 
 
-.task-input, .milestone-input, .days-input {
+.task-input, .milestone-input, .units-input {
 border: 0;
 padding: 0px;
 margin-left: 10px;
 transition: width .35s ease-in-out;
 }
 
-.task-input:focus, .milestone-input:focus, .days-input:focus {
+.task-input:focus, .milestone-input:focus, .units-input:focus {
 outline: none;
 border-bottom: 1px solid gray;
 }
 
-.days-input {
+.units-input {
     size: 4;
 }
 
@@ -35,7 +35,7 @@ div.project-form {
     padding-top: 20px;
 }
 
-div.milestone button, div.task button {
+div.project-form button {
     background-color: white;
     border: none;
     color: black;
@@ -45,6 +45,26 @@ div.milestone button, div.task button {
     font-size: 16px;
 }
 
-div.milestone button:hover, div.task button:hover {
+div.project-form button:hover {
     background-color: #EFEFEF;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    border-radius: 3px;
+}
+
+button.add-task:hover::after {
+    content: "task";
+}
+
+button.add-milestone:hover::after {
+    content: "milestone";
+}
+
+@keyframes fade-out {
+    from {background-color: rgb(208, 238, 238);}
+    to {background-color: white;}
+}
+
+.highlight-fade, div.highlight-fade input {
+    animation-name: fade-out;
+    animation-duration: 1s;
 }

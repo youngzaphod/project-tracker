@@ -1,22 +1,48 @@
 import React, { Component } from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-//import Button from 'react-bootstrap/Button';
-import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { FaArrowDown, FaArrowUp, FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
+import { MdAdd } from 'react-icons/md';
+import { SortableHandle } from 'react-sortable-hoc';
+
+const DragHandle = SortableHandle(() => <span> <FaArrowsAltV /></span>);
 
 class Task extends Component {
+    state = {
+        name: this.props.name,
+        hover: 'hidden',
+    };
 
-    moveUp = () => {
-        console.log("Arrow clicked");
+    onNameChange = (e) => {
+        this.props.onType(e.target.value);
     }
 
     render() {
         return (
-            <div className='milestone'>
+            <div className='milestone highlight-fade'
+                onMouseEnter={() => this.setState({hover: 'visible'})}
+                onMouseLeave={() => this.setState({hover: 'hidden'})}
+            >
             <Row>
             <Col md={8}>
-            <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaArrowDown /></button>
-            <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaArrowUp /></button>
+            <OverlayTrigger
+                placement='top'
+                overlay={
+                    <Tooltip id='tooltip-top'>
+                        Add task above
+                    </Tooltip>
+                }
+            >
+                <button
+                    style={{visibility: this.state.hover}}
+                    onClick={this.props.addAbove}
+                >
+                    <MdAdd />
+                </button>
+            </OverlayTrigger>
+            <span style={{visibility: this.state.hover}}><DragHandle /></span>
             <input
                 id={this.props.id}
                 name='milestone'
@@ -24,21 +50,22 @@ class Task extends Component {
                 className='milestone-input'
                 placeholder='New task'
                 defaultValue={this.props.name}
+                onChange={this.onNameChange}
             />
             </Col>
             <Col md={2}>
             <input
                 id={this.props.id}
-                name='days'
+                name='units'
                 type='text'
-                className='days-input'
-                placeholder='Days'
-                defaultValue={this.props.days}
+                className='units-input'
+                placeholder='Units'
+                defaultValue={this.props.units}
             />
             
             </Col>
             <Col md={1}>
-                <button style={{visibility: this.props.visible}} onClick={this.moveUp}><FaTrashAlt /></button>
+                <button style={{visibility: this.state.hover}} onClick={this.props.deleteItem}><FaTrashAlt /></button>
             </Col>
             </Row>
             </div>
