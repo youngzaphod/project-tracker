@@ -216,6 +216,50 @@ class ProjectFields extends Component {
         }
       ]
     }
+
+    const reqBody = {
+      mstoneName: 'Test milestone',
+      startDate: '12/2/2020',
+      length: 123,
+      description: 'This is a test, this is only a test, calm the fuck down.',
+      owner: 'The President',
+      ProjectId: 'ak3928aldkjvma93',
+      tasks: [
+          {
+          taskName: 'Task 1',
+          startDate: '12/3/2090',
+          taskLength: 33,
+          taskDescription: 'Test task description'
+          },
+          {
+          taskName: 'Task 2',
+          startDate: '12/3/2210',
+          taskLength: 12,
+          taskDescription: 'Test task description TOO'
+          }
+      ]
+    }
+
+    fetch('/addmilestone', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reqBody)
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      if(!resJson.success) {
+        throw Error('Error adding milestone');
+      }
+    })
+    .catch(err => {
+      console.log('Issue adding milestone: ', err);
+      this.setState()
+    });
+
+
     this.setState(state => {
       let newState = state;
       // Insert new milestone at index
