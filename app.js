@@ -5,7 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const indexRouter = require('./routes/index');
 
-const dbUrl = 'mongodb://user:password1@ds163014.mlab.com:63014/node-app';
+const dbUrl = 'mongodb+srv://protrack:9bnk0XYkPf1T3JwR@clusterfuck-wglwx.mongodb.net/test?retryWrites=true';
 mongoose.connect(dbUrl, {useNewUrlParser: true}, (err) => {
   console.log('mongo db connection', err);
 });
@@ -26,8 +26,8 @@ if (process.env.NODE_ENV === 'production') {
     //app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-app.use('/addmilestone', require('./routes/addmilestone'));
-app.use('/addtask', require('./routes/addtask'));
+app.use('/milestones', require('./routes/milestones'));
+app.use('/projects', require('./routes/projects'));
 app.use('/', indexRouter);
 
 // error handler
