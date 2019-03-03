@@ -11,8 +11,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 // Connect to cluster at mongoDB Atlas
-const dbURL = 'mongodb+srv://protrack:J7blCoDqP24U.@clusterfuck-wglwx.mongodb.net/test?retryWrites=true';
-mongoose.connect(dbURL, { useNewUrlParser: true });
+const dbURL = 'mongodb+srv://protrack:9bnk0XYkPf1T3JwR@clusterfuck-wglwx.mongodb.net/test?retryWrites=true';
+mongoose.connect(dbURL, { useNewUrlParser: true }, err => {
+  console.log('Attempted mongodb connection...');
+  if (err) {
+    console.log('DB connection error: ', err);
+  } else {
+    console.log('Connection successful');
+  }
+});
 
 // Production mode path
 if (process.env.NODE_ENV === 'production') {
