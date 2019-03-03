@@ -39,6 +39,7 @@ router.post('/:milestoneId', (req, res) => {
 
 });
 
+// Get single task from milestone by id (USEFUL???)
 router.get('/:milestoneId/:taskId', (req, res) => {
   console.log(`milestoneId: ${req.params.milestoneId} taskId: ${req.params.taskId}`);
   Milestone.findById(req.params.milestoneId).exec()
@@ -52,11 +53,12 @@ router.get('/:milestoneId/:taskId', (req, res) => {
     });
 });
 
+// Create new blank milestone
 router.post('/', function(req, res) {
-
+  console.log("Req.body.projectId: ", req.body);
   const blank = {
     _id: new mongoose.Types.ObjectId(),
-    ProjectId: 'aweafsk238239fas',
+    projectId: req.body.projectId,
     mstoneName: 'New Milestone Test',
     tasks: []
   }
@@ -68,25 +70,61 @@ router.post('/', function(req, res) {
   milestone.save()
   .then(doc => {
       console.log(doc);
-      res.status(201).json({
-        success: true,
-        message: 'Created milestone via POST request',
-        milestone: doc
+      Project.findById(req.body.projectId).exec()
+      .then(project => {
+        project.mstoneIds.push(milestone._id);
+        project.save()
+        .then(final => {
+          res.status(201).json({
+            success: true,
+            message: 'Created milestone via POST request',
+            milestone: doc
+          });
+        })
+        .catch(saveErr => {
+          res.status(500).json({
+            success: false,
+            message: `Failed to save miletone ID to project: ${err}`,
+            milestone: blank
+          });
+        });
+        
+      })
+      .catch(projectErr => {
+        res.status(500).json({
+          success: false,
+          message: `Created milestone; failed to add to project: ${err}`,
+          milestone: blank
+        });
       });
   })
   .catch(err => {
       console.error(err);
       res.status(500).json({
         success: false,
-        message: `Failed: ${err}`,
+        message: `Failed to create milestone: ${err}`,
         milestone: blank
       });
   });
 
 });
 
+// Get milestone by ID
 router.get('/:milestoneId', (req, res) => {
   Milestone.findById(req.params.milestoneId).exec()
+    .then(doc => {
+      console.log('Response from db: ', doc);
+      res.status(200).json(doc);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({error: err});
+    });
+});
+
+// Get all milestones
+router.get('/', (req, res) => {
+  Milestone.find({}).exec()
     .then(doc => {
       console.log('Response from db: ', doc);
       res.status(200).json(doc);

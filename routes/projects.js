@@ -43,4 +43,15 @@ router.get('/:projectId', (req, res) => {
     })
 });
 
+router.get('/', (req, res) => {
+    Project.find({}).exec()
+    .then(doc => {
+        console.log(doc);
+        res.status(200).json(doc);
+    })
+    .catch(err => {
+        res.status(500).json({error: err});
+    });
+});
+
 module.exports = router;
