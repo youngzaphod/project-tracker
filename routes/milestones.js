@@ -25,7 +25,7 @@ router.post('/', function (req, res) {
 		"owner": req.body.owner, //Name of milestone owner
 		"description": req.body.description,
 		"startDate": req.body.startDate //ISODate format
-		// Tasks are be created in separate call.
+		// Tasks are created in separate call.
 	})
 	.then((milestone) => {
 		res.json(milestone);
@@ -122,7 +122,8 @@ router.put('/tasks/:mstone_id/:task_id', function (req,res){
 			"tasks.$.taskName": req.body.taskName,
 			"tasks.$.taskDescription": req.body.taskDescription,
 			"tasks.$.taskLength":	req.body.taskLength, //length of milestone in milliseconds (ISODate)
-			"tasks.$.startDate": req.body.startDate	
+			"tasks.$.startDate": req.body.startDate,
+			"tasks.$.order": req.body.order
 		}
 	}).then((milestone) => {
 		res.json(milestone);

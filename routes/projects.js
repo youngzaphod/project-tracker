@@ -12,7 +12,7 @@ const router = express.Router();
 //Show all docs in collection
 router.get('/', (req,res) => {
 	console.log('get projects')
-	Project.find({})        //**MODIFIED, WAS THROWING ERROR */
+	Project.find({})        
 		.then((project) => {
 			res.json(project);
 			console.log(project)
@@ -79,7 +79,7 @@ router.put('/:project_id', function (req, res) {
 		"startDate" : req.body.startDate,
 		"quantity" : req.body.quantity,
 		"timeUnits" : req.body.timeUnits,
-		// mstoneIds in the array need to be modified in separate call.
+		// mstone_ids in the array need to be modified in separate call.
 	}
 	}).then((project) => {
 		res.json(project);
@@ -91,15 +91,13 @@ router.put('/:project_id', function (req, res) {
 })
 
 //Write a new Project mstoneId to a specific document based on _id
-//??? Shouldn't this be a PUT, since we're not creating a project, we're
-// modifying it????
-router.post('/:project_id/:mstone_id', function (req,res){
+router.put('/:project_id/:mstone_id', function (req,res){
 	Project.update(
 		{"_id": req.params.project_id},
 		{ 
-			"$push":   //**MODIFIED PER NEW SCHEMA**
-			{"mstoneIds" : req.params.mstone_id }
-			// {"mstoneId": req.params.mstone_id}}
+			$push:   //**MODIFIED PER NEW SCHEMA**
+			//{"mstone_ids" : req.params.mstone_id }
+			{"mstone_ids": req.params.mstone_id}
 		}).then((project) => {
 			res.json(project);
 			console.log(project)
@@ -109,13 +107,13 @@ router.post('/:project_id/:mstone_id', function (req,res){
 	});
 });
 	
-//Delete an existing Project mstoneId 
+//Delete an existing Project mstone_id 
 router.delete('/:project_id/:mstone_id', function (req,res){
 	Project.update({'_id': req.params.project_id}, 
 	{
 		'$pull':    // **MODIFIED PER SCHEMA CHANGE
 		{
-			'mstoneIds': req.params.mstone_id
+			'mstone_ids': req.params.mstone_id
 			// {'mstoneId': req.params.mstone_id}
 		}
 	}).then((project) => {
@@ -132,7 +130,7 @@ router.put('/:project_id/:mstoneId', function (req,res){
 	Project.update({'_id': req.params.project_id, "mstoneIds.mstoneId":req.params.mstoneId}, 
 	{
 		'$set': 
-		{'mstoneIds.$.mstoneId': req.body.newmstoneId}
+		{'mstone_ids.$.mstone_id': req.body.newmstone_id}
 	}).then((project) => {
 		res.json(project);
 		console.log(project)
@@ -143,10 +141,10 @@ router.put('/:project_id/:mstoneId', function (req,res){
 })
 
 //Get milestone array from Project document by requested _id
-router.get('/mstoneId/:project_id', (req, res) => {
+router.get('/mstone_id/:project_id', (req, res) => {
 	Project.findById(req.params.project_id)
 	.then((project) => {
-		res.json(project.mstoneIds);
+		res.json(project.mstone_ids);
 		console.log(project)
 	}).catch((err) => {
 		res.send(err);

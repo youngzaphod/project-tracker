@@ -10,7 +10,8 @@ let Schema = mongoose.Schema;
 
 //TODO Add Schema.Types.ObjectId to replace string value.
 const mstoneSchema = new Schema ({
-	mstoneId: String
+	mstone_id: String,
+	order: Number
 })
 
 const projectSchema = new Schema({
@@ -21,7 +22,7 @@ const projectSchema = new Schema({
 	timeUnits: String,
 	// ***MODIFIED SCHEMA TO BE AN OBJECT ID REFERENCING MILESTONE****
 	// Needed in order to make some requests work
-	mstoneIds: [{type: mongoose.Schema.Types.ObjectId, ref: 'Milestone'}]
+	mstone_ids: [{type: mongoose.Schema.Types.ObjectId, ref: 'Milestone'}]
 }, 
 {
 	timestamps: true	
