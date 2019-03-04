@@ -1,22 +1,30 @@
 const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-const taskSchema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
-    taskName: String,
-    startDate: Date,
-    taskLength: Number,
-    taskDescription: String
-});
+// const proPlanSchema = new Schema({
+// 	activity_name: String,
+// 	quantity: Number}, 
+// 	{
+// 		timestamps: true	
+// 	});
 
-const Milestone = mongoose.model('Milestone', {
-    _id: mongoose.Schema.Types.ObjectId,
-    mstoneName: String,
-    startDate: Date,
-    length: Number,
-    description: String,
-    owner: String,
-    projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
-    tasks: [taskSchema]
-});
 
-module.exports = Milestone;
+const taskSchema = new Schema({
+	taskName: String,
+	taskDescription: String,																							
+	taskLength:	Number, //length of miestone in milliseconds (ISODate)										
+	startDate: Number	
+})
+
+const milestoneSchema = new Schema({
+	mstoneName:	String,
+	length: Number, //ISODate format
+	owner:	String, //Name of milestone owner
+	description: String,
+	startDate: Number,
+	tasks: [taskSchema]
+})
+
+const milestone = mongoose.model('milestone', milestoneSchema);
+
+module.exports = milestone;
