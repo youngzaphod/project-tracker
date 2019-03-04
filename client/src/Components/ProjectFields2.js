@@ -7,7 +7,7 @@ import {
   SortableContainer,
   SortableElement,
   arrayMove,
-  SortableHandle, } from 'react-sortable-hoc';
+} from 'react-sortable-hoc';
 
 const shortid = require('shortid');
 
@@ -20,7 +20,7 @@ const project = {
     {
       Name: "Planning",
       Units: 22,
-      Tasks: [
+      tasks: [
         {
           Name: "Kick-off meeting",
           Units: 5,
@@ -38,7 +38,7 @@ const project = {
     {
       Name: "Design",
       Units: 30,
-      Tasks: [
+      tasks: [
         {
           Name: "Design meeting",
           Units: 5,
@@ -63,15 +63,25 @@ const project = {
 class ProjectFields extends Component {
   constructor(props) {
     super(props);
-    let newState = project;
-    newState.Milestones.forEach(ms => {
-      ms.id = shortid.generate();
-      ms.Tasks.forEach(task => {
-        task.id = shortid.generate();
-      });
-    });
-    newState.highlights = {};
+    console.log('ProjectFields milestones: ', this.props.milestones);
+    console.log('ProjectFields id: ', this.props.projectId);
+
+    console.log('props: ', props);
+
+    // let newState = project;
+    // newState.Milestones.forEach(ms => {
+    //   ms.id = shortid.generate();
+    //   ms.Tasks.forEach(task => {
+    //     task.id = shortid.generate();
+    //   });
+    // });
+    let newState = {};
+    newState.Milestones = this.props.milestones;
     this.state = newState;
+  }
+
+  componentDidMount() {
+    console.log('ComponentDidMount: ', this.props);
   }
 
 
@@ -91,10 +101,6 @@ class ProjectFields extends Component {
       newState.Milestones[i].Order = i - 1;
       newState.Milestones[i - 1].Order = i;
       newState.Milestones.sort((a, b) => a.Order - b.Order);
-      // newState.highlights = {
-      //   ['h-' + i]: true,
-      //   ['h-' + (i-1).toString()]: true,
-      // };
       return newState;
     })
 
@@ -110,10 +116,6 @@ class ProjectFields extends Component {
       newState.Milestones[i].Order = i + 1;
       newState.Milestones[i + 1].Order = i;
       newState.Milestones.sort((a, b) => a.Order - b.Order);
-      // newState.highlights = {
-      //   ['h-' + i]: true,
-      //   ['h-' + (i+1).toString()]: true,
-      // };
       return newState;
     });
 
@@ -134,38 +136,26 @@ class ProjectFields extends Component {
     }
 
     this.setState(state => {
-      console.log(JSON.parse(JSON.stringify(state.Milestones[i].Tasks)));
+      console.log(JSON.parse(JSON.stringify(state.Milestones[i].tasks)));
       let newState = state;
-      newState.Milestones[i].Tasks[j].Order = j - 1;
-      newState.Milestones[i].Tasks[j - 1].Order = j;
-      newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
-      //Add highlights to moved tasks
-      // newState.highlights = {
-      //   ['h-' + i + '-' + j]: true,
-      //   ['h-' + i + '-' + (j-1).toString()]: true,
-      // };
-      // console.log(newState.highlights);
+      newState.Milestones[i].tasks[j].Order = j - 1;
+      newState.Milestones[i].tasks[j - 1].Order = j;
+      newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
       return newState;
     })
 
   }
 
   moveTaskDown = (i, j) => {
-    if (j > this.state.Milestones[i].Tasks.length - 2) {
+    if (j > this.state.Milestones[i].tasks.length - 2) {
       return;
     }
 
     this.setState(state => {
       let newState = state;
-      newState.Milestones[i].Tasks[j].Order = j + 1;
-      newState.Milestones[i].Tasks[j + 1].Order = j;
-      newState.Milestones[i].Tasks.sort((a, b) => a.Order - b.Order);
-      //Add highlights to moved tasks
-      // newState.highlights = {
-      //   ['h-' + i + '-' + j]: true,
-      //   ['h-' + i + '-' + (j+1).toString()]: true,
-      // };
-      // console.log(newState.highlights);
+      newState.Milestones[i].tasks[j].Order = j + 1;
+      newState.Milestones[i].tasks[j + 1].Order = j;
+      newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
       return newState;
     });
 
@@ -174,9 +164,9 @@ class ProjectFields extends Component {
   deleteTask = (i, j) => {
     this.setState(state => {
       let newState = state;
-      newState.Milestones[i].Tasks =
-        newState.Milestones[i].Tasks.slice(0, j)
-        .concat(newState.Milestones[i].Tasks.slice(j + 1));
+      newState.Milestones[i].tasks =
+        newState.Milestones[i].tasks.slice(0, j)
+        .concat(newState.Milestones[i].tasks.slice(j + 1));
       return newState;
     });
   }
@@ -192,9 +182,9 @@ class ProjectFields extends Component {
     this.setState(state => {
       let newState = state;
       // Add new task
-      newState.Milestones[i].Tasks = 
-        state.Milestones[i].Tasks.slice(0, j)
-        .concat([newTask], state.Milestones[i].Tasks.slice(j));
+      newState.Milestones[i].tasks = 
+        state.Milestones[i].tasks.slice(0, j)
+        .concat([newTask], state.Milestones[i].tasks.slice(j));
 
       newState.highlights = {['h-' + i + '-' + j]: true};
       return newState;
@@ -205,66 +195,46 @@ class ProjectFields extends Component {
     console.log("add index: ", i);
     //Create new blank task to be added at given index
     let newMilestone = {
-      Name: '',
-      Units: '',
-      id: shortid.generate(),
-      Tasks: [
-        {
-          Name: '',
-          Units: '',
-          id: shortid.generate(),
-        }
-      ]
+      mstoneName: 'Added via DB',
+      tasks: []
     }
-
-    const reqBody = {
-      mstoneName: 'Test milestone',
-      startDate: '12/2/2020',
-      length: 123,
-      description: 'This is a test, this is only a test, calm the fuck down.',
-      owner: 'The President',
-      ProjectId: 'ak3928aldkjvma93',
-      tasks: [
-          {
-          taskName: 'Task 1',
-          startDate: '12/3/2090',
-          taskLength: 33,
-          taskDescription: 'Test task description'
+    let newState = this.state;
+    fetch('/api/milestones/5c73478fb7d151384c46798b', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newMilestone),
+      })
+      .then(response => response.json())
+      .then(resJson => {
+        newState.Milestones.push(resJson);
+        fetch(`/api/projects/${this.props.projectId}/${resJson._id}`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/x-www-form-urlencoded',
+            'Content-Type': 'x-www-form-urlencoded',
           },
-          {
-          taskName: 'Task 2',
-          startDate: '12/3/2210',
-          taskLength: 12,
-          taskDescription: 'Test task description TOO'
-          }
-      ]
-    }
-
-    fetch('/addmilestone', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(reqBody)
-    })
-    .then(response => response.json())
-    .then(resJson => {
-      if(!resJson.success) {
-        throw Error('Error adding milestone');
-      }
-    })
-    .catch(err => {
-      console.log('Issue adding milestone: ', err);
-      this.setState()
-    });
+        })
+        .then(another => another.json())
+        .then(stuff => {
+          console.log('Adding mstoneId to project: ', stuff);
+        })
+        this.setState({ milestones: newState.Milestones });
+      })
+      .catch(err => {
+        this.setState({
+          errMessage: `Issue loading project: ${err}`,
+        });
+        console.log('Issue loading project: ', err);
+      });
 
 
     this.setState(state => {
       let newState = state;
       // Insert new milestone at index
       newState.Milestones = state.Milestones.slice(0, i).concat([newMilestone], state.Milestones.slice(i));
-      newState.highlights = {['h-' + i]: true};
       return newState;
     });
   }
@@ -280,7 +250,7 @@ class ProjectFields extends Component {
   updateTaskName = (i, j, text) => {
     this.setState(state => {
       let newState = state;
-      newState.Milestones[i].Tasks[j].Name = text;
+      newState.Milestones[i].tasks[j].Name = text;
       return newState;
     })
   }
@@ -300,7 +270,7 @@ class ProjectFields extends Component {
         console.log(`Old: ${oldIndex} New: ${newIndex} MS: ${i}`);
         this.setState(state => {
             let newState = state;
-            newState.Milestones[i].Tasks = arrayMove(state.Milestones[i].Tasks, oldIndex, newIndex);
+            newState.Milestones[i].tasks = arrayMove(state.Milestones[i].tasks, oldIndex, newIndex);
             return newState;
         });
     }
@@ -312,8 +282,8 @@ class ProjectFields extends Component {
         <SortableList onSortEnd={this.milestoneSortEnd} useDragHandle>
           {[].concat(this.state.Milestones).map((ms, i) =>
               <SortableMilestone
-                key={ms.id}
-                name={ms.Name}
+                key={ms._id}
+                name={ms.mstoneName}
                 units={ms.Units}
                 visible={true}
                 index={i}
@@ -326,7 +296,7 @@ class ProjectFields extends Component {
                 addTask={this.addTask}
                 deleteTask={this.deleteTask}
                 updateTaskName={this.updateTaskName}
-                tasks={ms.Tasks}
+                tasks={ms.tasks}
                 sortEndFunc={this.taskSortEnd}
               />
           )}
@@ -336,7 +306,6 @@ class ProjectFields extends Component {
             </button>
           </li>
         </SortableList>
-
       </div>
     );
   }
@@ -362,8 +331,8 @@ const SortableMilestone = SortableElement(props => {
       <SortableList onSortEnd={(ind) => props.sortEndFunc(ind, props.i)} useDragHandle>
         {props.tasks.map((task, j) =>
           <SortableTask
-            key={task.id}
-            name={task.Name}
+            key={task._id}
+            name={task.taskName}
             units={task.Units}
             index={j}
             moveItemUp={() => props.moveTaskUp(props.i, j)}
@@ -388,7 +357,5 @@ const SortableTask = SortableElement(props =>
     <Task {...props} />
   </li>
 );
-
-const DragHandle = SortableHandle(() => <span>::</span>);
 
 export default ProjectFields;

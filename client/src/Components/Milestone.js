@@ -5,7 +5,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { MdAdd } from 'react-icons/md';
 import { SortableHandle } from 'react-sortable-hoc';
-import { FaArrowDown, FaArrowUp, FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
+import { FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
 
 
 const DragHandle = SortableHandle(() => <span> <FaArrowsAltV /></span>);
