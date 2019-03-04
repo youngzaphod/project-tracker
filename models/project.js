@@ -19,7 +19,9 @@ const projectSchema = new Schema({
 	startDate: Number,
 	quantity: Number,
 	timeUnits: String,
-	mstoneIds: [mstoneSchema]
+	// ***MODIFIED SCHEMA TO BE AN OBJECT ID REFERENCING MILESTONE****
+	// Needed in order to make some requests work
+	mstoneIds: [{type: mongoose.Schema.Types.ObjectId, ref: 'Milestone'}]
 }, 
 {
 	timestamps: true	

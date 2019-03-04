@@ -32,9 +32,10 @@ if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-app.use('/', indexRouter);
+
 app.use('/api/milestones', milestoneRouter);
 app.use('/api/projects', projectRouter);
+app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

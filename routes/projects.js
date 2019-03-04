@@ -12,8 +12,7 @@ const router = express.Router();
 //Show all docs in collection
 router.get('/', (req,res) => {
 	console.log('get projects')
-	Project.find({}).then(eachOne => {
-		res.json(eachOne)
+	Project.find({})        //**MODIFIED, WAS THROWING ERROR */
 		.then((project) => {
 			res.json(project);
 			console.log(project)
@@ -21,7 +20,6 @@ router.get('/', (req,res) => {
 			res.send(err);
 			console.log('Error! ', err);
 		})
-	})
 })
 
 //Creates a new Project document from data. Doesn't populate the mstoneID
@@ -92,16 +90,17 @@ router.put('/:project_id', function (req, res) {
 	})
 })
 
-
 //Write a new Project mstoneId to a specific document based on _id
+//??? Shouldn't this be a PUT, since we're not creating a project, we're
+// modifying it????
 router.post('/:project_id/:mstone_id', function (req,res){
 	Project.update(
 		{"_id": req.params.project_id},
 		{ 
-			"$push": 
-			{"mstoneIds" : 
-			{"mstoneId": req.params.mstone_id}
-		}}).then((project) => {
+			"$push":   //**MODIFIED PER NEW SCHEMA**
+			{"mstoneIds" : req.params.mstone_id }
+			// {"mstoneId": req.params.mstone_id}}
+		}).then((project) => {
 			res.json(project);
 			console.log(project)
 		}).catch((err) => {
@@ -114,10 +113,10 @@ router.post('/:project_id/:mstone_id', function (req,res){
 router.delete('/:project_id/:mstone_id', function (req,res){
 	Project.update({'_id': req.params.project_id}, 
 	{
-		'$pull': 
+		'$pull':    // **MODIFIED PER SCHEMA CHANGE
 		{
-			'mstoneIds': 
-			{'mstoneId': req.params.mstone_id}
+			'mstoneIds': req.params.mstone_id
+			// {'mstoneId': req.params.mstone_id}
 		}
 	}).then((project) => {
 		res.json(project);
@@ -144,7 +143,7 @@ router.put('/:project_id/:mstoneId', function (req,res){
 })
 
 //Get milestone array from Project document by requested _id
-router.get('/:project_id', (req, res) => {
+router.get('/mstoneId/:project_id', (req, res) => {
 	Project.findById(req.params.project_id)
 	.then((project) => {
 		res.json(project.mstoneIds);

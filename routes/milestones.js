@@ -166,7 +166,7 @@ router.get('/tasks/:mstone_id', (req, res) => {
 
 //Return a single milestone task by task_id
 //Get task array from Milestone document by requested _id
-router.get('/task/:task_id', (req, res) => {
+router.get('/tasks/:task_id', (req, res) => {
 	Milestone.find(
 		{'tasks._id': req.params.task_id},
 		{_id:0, 'tasks.$' : 1}
