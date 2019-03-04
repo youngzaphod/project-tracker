@@ -156,7 +156,7 @@ router.get('/tasks/:mstone_id', (req, res) => {
 	Milestone.findById(req.params.mstone_id)
 	.then((milestone) => {
 		res.json(milestone.tasks);
-		console.log(project)
+		// console.log(project)    // WAS THROWING ERROR
 	}).catch((err) => {
 		res.send(err);
 		console.log('Error! ', err);
@@ -166,16 +166,16 @@ router.get('/tasks/:mstone_id', (req, res) => {
 
 //Return a single milestone task by task_id
 //Get task array from Milestone document by requested _id
-router.get('/tasks/:task_id', (req, res) => {
+router.get('/task/:task_id', (req, res) => {
 	Milestone.find(
 		{'tasks._id': req.params.task_id},
 		{_id:0, 'tasks.$' : 1}
 		)
 		.then((task) => {
 			res.json(task);
-			console.log(project)
+			// console.log(project);      //WAS THROWING ERROR */
 		}).catch((err) => {
-			res.send(err);
+			res.status(500).json({ error: err });
 			console.log('Error! ', err);
 	})
 })
