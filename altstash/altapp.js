@@ -3,23 +3,16 @@ const bodyParser = require('body-parser');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
-const indexRouter = require('./routes/index');
-const milestoneRouter = require('./routes/milestones');
-const projectRouter = require('./routes/projects');
+
+const dbUrl = 'mongodb+srv://protrack:9bnk0XYkPf1T3JwR@clusterfuck-wglwx.mongodb.net/test?retryWrites=true';
+mongoose.connect(dbUrl, {useNewUrlParser: true}, (err) => {
+  console.log('mongo db connection', err);
+});
+
+app.set('view engine', 'jade');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-
-// Connect to cluster at mongoDB Atlas
-const dbURL = 'mongodb+srv://protrack:9bnk0XYkPf1T3JwR@clusterfuck-wglwx.mongodb.net/test?retryWrites=true';
-mongoose.connect(dbURL, { useNewUrlParser: true }, err => {
-  console.log('Attempted mongodb connection...');
-  if (err) {
-    console.log('DB connection error: ', err);
-  } else {
-    console.log('Connection successful');
-  }
-});
 
 // Production mode path
 if (process.env.NODE_ENV === 'production') {
@@ -32,20 +25,8 @@ if (process.env.NODE_ENV === 'production') {
     //app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-<<<<<<< HEAD
 app.use('/milestones', require('./routes/milestones'));
 app.use('/projects', require('./routes/projects'));
-=======
-
-app.use('/api/milestones', milestoneRouter);
-app.use('/api/projects', projectRouter);
-app.use('/', indexRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
->>>>>>> backend
 
 // error handler
 app.use(function(err, req, res, next) {
