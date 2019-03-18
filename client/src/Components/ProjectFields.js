@@ -63,25 +63,9 @@ const project = {
 class ProjectFields extends Component {
   constructor(props) {
     super(props);
-    console.log('ProjectFields milestones: ', this.props.milestones);
-    console.log('ProjectFields id: ', this.props.projectId);
-
-    console.log('props: ', props);
-
-    // let newState = project;
-    // newState.Milestones.forEach(ms => {
-    //   ms.id = shortid.generate();
-    //   ms.Tasks.forEach(task => {
-    //     task.id = shortid.generate();
-    //   });
-    // });
     let newState = {};
     newState.Milestones = this.props.milestones;
     this.state = newState;
-  }
-
-  componentDidMount() {
-    console.log('ComponentDidMount: ', this.props);
   }
 
 
@@ -89,48 +73,67 @@ class ProjectFields extends Component {
     this.setState({[index]: tf})
   }
 
-  moveMilestoneUp = (i) => {
-    if (i === 0) {
-      return;
-    }
-    console.log("Moving MS: " + JSON.parse(JSON.stringify(this.state.Milestones[i])));
+  // moveMilestoneUp = (i) => {
+  //   if (i === 0) {
+  //     return;
+  //   }
+  //   console.log("Moving MS: " + JSON.parse(JSON.stringify(this.state.Milestones[i])));
 
-    this.setState(state => {
-      console.log(JSON.parse(JSON.stringify(state.Milestones)));
-      let newState = state;
-      newState.Milestones[i].Order = i - 1;
-      newState.Milestones[i - 1].Order = i;
-      newState.Milestones.sort((a, b) => a.Order - b.Order);
-      return newState;
+  //   this.setState(state => {
+  //     console.log(JSON.parse(JSON.stringify(state.Milestones)));
+  //     let newState = state;
+  //     newState.Milestones[i].Order = i - 1;
+  //     newState.Milestones[i - 1].Order = i;
+  //     newState.Milestones.sort((a, b) => a.Order - b.Order);
+  //     return newState;
+  //   })
+
+  // }
+
+  // moveMilestoneDown = (i) => {
+  //   if (i > this.state.Milestones.length - 2) {
+  //     return;
+  //   }
+
+  //   this.setState(state => {
+  //     let newState = state;
+  //     newState.Milestones[i].Order = i + 1;
+  //     newState.Milestones[i + 1].Order = i;
+  //     newState.Milestones.sort((a, b) => a.Order - b.Order);
+  //     return newState;
+  //   });
+
+  // }
+
+  deleteMilestone = (i, id) => {
+    console.log(`id: ${id}, i: ${i}`);
+    fetch(`/api/milestones/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
     })
-
-  }
-
-  moveMilestoneDown = (i) => {
-    if (i > this.state.Milestones.length - 2) {
-      return;
-    }
-
-    this.setState(state => {
-      let newState = state;
-      newState.Milestones[i].Order = i + 1;
-      newState.Milestones[i + 1].Order = i;
-      newState.Milestones.sort((a, b) => a.Order - b.Order);
-      return newState;
-    });
-
-  }
-
-  deleteMilestone = (i) => {
-    this.setState(state => {
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
       let newState = state;
       newState.Milestones =
         newState.Milestones.slice(0, i).concat(newState.Milestones.slice(i+1));
       return newState;
     });
+    })
+    .catch(err => {
+      this.setState({
+        errMessage: `Issue loading project: ${err}`,
+      });
+      console.log('Issue loading project: ', err);
+    });
+
+    
   }
 
-    moveTaskUp = (i, j) => {
+  moveTaskUp = (i, j) => {
     if (j === 0) {
       return;
     }
@@ -194,32 +197,41 @@ class ProjectFields extends Component {
   addMilestone = (i) => {
     console.log("add index: ", i);
     //Create new blank task to be added at given index
-    let newMilestone = {
-      mstoneName: 'Added via DB',
-      tasks: []
-    }
+    let newMilestone = {mstoneName: `New Milestone ${i}`};
     let newState = this.state;
-    fetch('/api/milestones/5c73478fb7d151384c46798b', {
+    fetch('/api/milestones/', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newMilestone),
+        body: JSON.stringify(newMilestone)
       })
       .then(response => response.json())
       .then(resJson => {
-        newState.Milestones.push(resJson);
+        console.log('First fetch then; ', resJson);
+        newMilestone = {
+          _id: resJson._id,
+          mstoneName: resJson.mstoneName,
+          tasks: resJson.tasks,
+        }
+
         fetch(`/api/projects/${this.props.projectId}/${resJson._id}`, {
           method: 'POST',
           headers: {
             Accept: 'application/x-www-form-urlencoded',
-            'Content-Type': 'x-www-form-urlencoded',
+            'Content-Type': 'x-www-form-urlencoded'
           },
         })
         .then(another => another.json())
         .then(stuff => {
           console.log('Adding mstoneId to project: ', stuff);
+          this.setState(state => {
+            let newState = state;
+            // Insert new milestone at index
+            newState.Milestones = state.Milestones.slice(0, i).concat([newMilestone], state.Milestones.slice(i));
+            return newState;
+          });
         })
         this.setState({ milestones: newState.Milestones });
       })
@@ -230,13 +242,6 @@ class ProjectFields extends Component {
         console.log('Issue loading project: ', err);
       });
 
-
-    this.setState(state => {
-      let newState = state;
-      // Insert new milestone at index
-      newState.Milestones = state.Milestones.slice(0, i).concat([newMilestone], state.Milestones.slice(i));
-      return newState;
-    });
   }
 
   updateMilestoneName = (i, text) => {
@@ -280,14 +285,17 @@ class ProjectFields extends Component {
     return (
       <div className='project-form'>
         <SortableList onSortEnd={this.milestoneSortEnd} useDragHandle>
-          {[].concat(this.state.Milestones).map((ms, i) =>
+          {[].concat(this.state.Milestones).map((ms, i) => {
+            console.log('index: ', i);
+            return (
               <SortableMilestone
                 key={ms._id}
                 name={ms.mstoneName}
                 units={ms.Units}
                 visible={true}
-                index={i}
                 i={i}
+                _id={ms._id}
+                index={i}
                 moveMilestoneUp={this.moveMilestoneUp}
                 moveMilestoneDown={this.moveMilestoneDown}
                 deleteMilestone={this.deleteMilestone}
@@ -299,7 +307,8 @@ class ProjectFields extends Component {
                 tasks={ms.tasks}
                 sortEndFunc={this.taskSortEnd}
               />
-          )}
+            );
+          })}
           <li style={{paddingLeft: '80px', fontSize: '.5em'}}>
             <button className='add-milestone' onClick={() => this.addMilestone(this.state.Milestones.length)}>
               <MdAdd />
@@ -316,15 +325,16 @@ const SortableList = SortableContainer(({children}) => {
 });
 
 const SortableMilestone = SortableElement(props => {
+  console.log('inside milestone index: ', props.i);
   return (
-    <li className={props.fading ? 'highlight-fade' : ''}>
+    <li>
       <Milestone
         name={props.name}
         units={props.units}
-        id={props.i}
+        id={props._id}
         moveItemUp={() => props.moveMilestoneUp(props.i)}
         moveItemDown={() => props.moveMilestoneDown(props.i)}
-        deleteItem={() => props.deleteMilestone(props.i)}
+        deleteItem={() => props.deleteMilestone(props.i, props._id)}
         addAbove={() => props.addMilestone(props.i)}
         onType={(text) => props.updateMilestoneName(props.i, text)}
       />
@@ -344,7 +354,7 @@ const SortableMilestone = SortableElement(props => {
         )}
       </SortableList>
         <div style={{paddingLeft: '100px'}}>
-            <button className='add-task' onClick={() => props.addTask(props.i, props.tasks.length)}>
+            <button className='add-task' onClick={() => props.addTask(props.index, props.tasks.length)}>
                 <MdAdd />
             </button>
         </div>

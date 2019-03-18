@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Header from './Components/Header';
-import ProjectFields from './Components/ProjectFields2';
+import ProjectFields from './Components/ProjectFields';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -44,12 +44,11 @@ class App extends Component {
       })
       .then(response => response.json())
       .then(resJson => {
-        console.log('resJson id: ', resJson._id);
         this.setState({
           name: resJson.projectName,
           milestones: resJson.mstoneIds,
           projectId: resJson._id,
-        }, () => console.log('state _id: ', this.state.projectId));
+        }, () => console.log('project _id: ', this.state.projectId));
       })
       .catch(err => {
         this.setState({

@@ -18,7 +18,7 @@ router.get('/', (req,res) => {
 
 //Create new milestone document from data
 router.post('/', function (req, res) {
-	// res.json(req.body)
+	console.log("Adding body: ", req.body);
 	Milestone.create({
 		"mstoneName":	req.body.mstoneName,
 		"length": req.body.length, //ISODate format
