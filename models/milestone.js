@@ -12,8 +12,9 @@ let Schema = mongoose.Schema;
 const taskSchema = new Schema({
 	taskName: String,
 	taskDescription: String,																							
-	taskLength:	Number, //length of miestone in milliseconds (ISODate)										
-	startDate: Number	
+	taskLength:	Number, //length of milestone in milliseconds (ISODate)										
+	startDate: Number,
+	order: Number	
 })
 
 const milestoneSchema = new Schema({
@@ -22,6 +23,7 @@ const milestoneSchema = new Schema({
 	owner:	String, //Name of milestone owner
 	description: String,
 	startDate: Number,
+	order: Number,
 	tasks: [taskSchema]
 })
 

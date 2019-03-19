@@ -89,23 +89,32 @@ router.delete('/:mstone_id', function (req, res) {
 
 //Write a new task to a specific Milestone document based on milestone _id
 router.post('/task/:mstone_id', function (req,res){
+	console.log(req.body);
+	// Manually create new task before inserting so we can generate
+	// and return _id
+	let newTask = {
+		taskName: req.body.taskName,
+		taskDescription: req.body.taskDescription,
+		taskLength:	req.body.taskLength, //length of miestone in milliseconds (ISODate)
+		startDate: req.body.startDate,
+		order: req.body.order,
+		_id: new mongoose.Types.ObjectId
+	}
 	Milestone.update(
 		{"_id": req.params.mstone_id},
 		{ 
 			"$push": 
 			{
-				"tasks" :
-				{
-					"taskName": req.body.taskName,
-					"taskDescription": req.body.taskDescription,
-					"taskLength":	req.body.taskLength, //length of miestone in milliseconds (ISODate)
-					"startDate": req.body.startDate	
-				}
+				"tasks": newTask
 			}
 		})
 		.then((milestone) => {
-			res.json(milestone);
+			res.status(200).json({
+				response: milestone,
+				_id: newTask._id
+			});
 			console.log(milestone)
+			console.log('New id: ', newTask._id);
 		}).catch((err) => {
 			res.send(err);
 			console.log('Error! ', err);

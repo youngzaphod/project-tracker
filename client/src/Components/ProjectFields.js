@@ -9,56 +9,56 @@ import {
   arrayMove,
 } from 'react-sortable-hoc';
 
-const shortid = require('shortid');
+// const shortid = require('shortid');
 
-const project = {
-  Name: "Website Redesign",
-  Start: "1/5/2019",
-  End: "5/4/2019",
-  Units: "Days",
-  Milestones: [
-    {
-      Name: "Planning",
-      Units: 22,
-      tasks: [
-        {
-          Name: "Kick-off meeting",
-          Units: 5,
-        },
-        {
-          Name: 'Project roadmap',
-          Units: 4,
-        },
-        {
-          Name: 'User stories',
-          Units: 10,
-        }
-      ]
-    },
-    {
-      Name: "Design",
-      Units: 30,
-      tasks: [
-        {
-          Name: "Design meeting",
-          Units: 5,
-        },
-        {
-          Name: 'Moodboards',
-          Units: 4,
-        },
-        {
-          Name: 'Wireframes',
-          Units: 10,
-        },
-        {
-          Name: 'Complete design',
-          Units: 10,
-        }
-      ]
-    }
-  ]
-}
+// const project = {
+//   Name: "Website Redesign",
+//   Start: "1/5/2019",
+//   End: "5/4/2019",
+//   Units: "Days",
+//   Milestones: [
+//     {
+//       Name: "Planning",
+//       Units: 22,
+//       tasks: [
+//         {
+//           Name: "Kick-off meeting",
+//           Units: 5,
+//         },
+//         {
+//           Name: 'Project roadmap',
+//           Units: 4,
+//         },
+//         {
+//           Name: 'User stories',
+//           Units: 10,
+//         }
+//       ]
+//     },
+//     {
+//       Name: "Design",
+//       Units: 30,
+//       tasks: [
+//         {
+//           Name: "Design meeting",
+//           Units: 5,
+//         },
+//         {
+//           Name: 'Moodboards',
+//           Units: 4,
+//         },
+//         {
+//           Name: 'Wireframes',
+//           Units: 10,
+//         },
+//         {
+//           Name: 'Complete design',
+//           Units: 10,
+//         }
+//       ]
+//     }
+//   ]
+// }
 
 class ProjectFields extends Component {
   constructor(props) {
@@ -133,65 +133,100 @@ class ProjectFields extends Component {
     
   }
 
-  moveTaskUp = (i, j) => {
-    if (j === 0) {
-      return;
-    }
+  // moveTaskUp = (i, j) => {
+  //   if (j === 0) {
+  //     return;
+  //   }
 
-    this.setState(state => {
-      console.log(JSON.parse(JSON.stringify(state.Milestones[i].tasks)));
-      let newState = state;
-      newState.Milestones[i].tasks[j].Order = j - 1;
-      newState.Milestones[i].tasks[j - 1].Order = j;
-      newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
-      return newState;
-    })
+  //   this.setState(state => {
+  //     console.log(JSON.parse(JSON.stringify(state.Milestones[i].tasks)));
+  //     let newState = state;
+  //     newState.Milestones[i].tasks[j].Order = j - 1;
+  //     newState.Milestones[i].tasks[j - 1].Order = j;
+  //     newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
+  //     return newState;
+  //   })
 
-  }
+  // }
 
-  moveTaskDown = (i, j) => {
-    if (j > this.state.Milestones[i].tasks.length - 2) {
-      return;
-    }
+  // moveTaskDown = (i, j) => {
+  //   if (j > this.state.Milestones[i].tasks.length - 2) {
+  //     return;
+  //   }
 
-    this.setState(state => {
-      let newState = state;
-      newState.Milestones[i].tasks[j].Order = j + 1;
-      newState.Milestones[i].tasks[j + 1].Order = j;
-      newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
-      return newState;
-    });
+  //   this.setState(state => {
+  //     let newState = state;
+  //     newState.Milestones[i].tasks[j].Order = j + 1;
+  //     newState.Milestones[i].tasks[j + 1].Order = j;
+  //     newState.Milestones[i].tasks.sort((a, b) => a.Order - b.Order);
+  //     return newState;
+  //   });
 
-  }
+  // }
 
   deleteTask = (i, j) => {
-    this.setState(state => {
-      let newState = state;
-      newState.Milestones[i].tasks =
-        newState.Milestones[i].tasks.slice(0, j)
-        .concat(newState.Milestones[i].tasks.slice(j + 1));
-      return newState;
+
+    fetch(`/api/milestones/tasks/${this.state.Milestones[i]._id}/${this.state.Milestones[i].tasks[j]._id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
+        let newState = state;
+        newState.Milestones[i].tasks =
+          newState.Milestones[i].tasks.slice(0, j)
+          .concat(newState.Milestones[i].tasks.slice(j + 1));
+        return newState;
+      });
+    })
+    .catch(err => {
+        this.setState({
+          errMessage: `Error deleting task: ${err}`,
+        });
+        console.log('Error deleting task: ', err);
     });
+    
   }
 
   addTask = (i, j) => {
     //Create new blank task to be added at given index
     let newTask = {
-      Name: '',
-      Units: '',
-      id: shortid.generate(),
+      taskName: '',
+      order: j
     };
-
-    this.setState(state => {
-      let newState = state;
-      // Add new task
-      newState.Milestones[i].tasks = 
-        state.Milestones[i].tasks.slice(0, j)
-        .concat([newTask], state.Milestones[i].tasks.slice(j));
-
-      newState.highlights = {['h-' + i + '-' + j]: true};
-      return newState;
+    console.log("i: ", i, "j: ", j);
+    fetch(`/api/milestones/task/${this.state.Milestones[i]._id}`, {
+      method: 'POST',
+      headers: {
+          Accept: 'application/json',
+            'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newTask)
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      console.log(resJson);
+      newTask._id = resJson._id;
+      this.setState(state => {
+        let newState = state;
+        // Add new task
+        newState.Milestones[i].tasks = 
+          state.Milestones[i].tasks.slice(0, j)
+          .concat([newTask], state.Milestones[i].tasks.slice(j));
+        return newState;
+      });
+    })
+    .catch(err => {
+        this.setState({
+          errMessage: `Error adding task: ${err}`,
+        });
+        console.log('Error adding task: ', err);
     });
+    
   }
 
   addMilestone = (i) => {
@@ -245,19 +280,58 @@ class ProjectFields extends Component {
   }
 
   updateMilestoneName = (i, text) => {
-    this.setState(state => {
-      let newState = state;
-      newState.Milestones[i].Name = text;
-      return newState;
+    console.log(`Updateing Milestone: id = ${this.state.Milestones[i]._id}`);
+    let bodyUpdate = {
+      mstoneName: text
+    };
+    fetch(`/api/milestones/${this.state.Milestones[i]._id}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyUpdate)
     })
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
+        let newState = state;
+        newState.Milestones[i].Name = text;
+        return newState;
+      });
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+    });
+
   }
 
   updateTaskName = (i, j, text) => {
-    this.setState(state => {
-      let newState = state;
-      newState.Milestones[i].tasks[j].Name = text;
-      return newState;
+    let newTask = {
+      taskName: text
+    };
+
+    fetch(`/api/milestones/tasks/${this.state.Milestones[i]._id}/${this.state.Milestones[i].tasks[j]._id}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newTask)
     })
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
+        let newState = state;
+        newState.Milestones[i].tasks[j].Name = text;
+        return newState;
+      });
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+    });
+
+    
   }
 
     milestoneSortEnd = ({oldIndex, newIndex}) => {
@@ -286,7 +360,7 @@ class ProjectFields extends Component {
       <div className='project-form'>
         <SortableList onSortEnd={this.milestoneSortEnd} useDragHandle>
           {[].concat(this.state.Milestones).map((ms, i) => {
-            console.log('index: ', i);
+            //console.log('index: ', i);
             return (
               <SortableMilestone
                 key={ms._id}
@@ -325,7 +399,7 @@ const SortableList = SortableContainer(({children}) => {
 });
 
 const SortableMilestone = SortableElement(props => {
-  console.log('inside milestone index: ', props.i);
+  //console.log('inside milestone index: ', props.i);
   return (
     <li>
       <Milestone
@@ -354,7 +428,7 @@ const SortableMilestone = SortableElement(props => {
         )}
       </SortableList>
         <div style={{paddingLeft: '100px'}}>
-            <button className='add-task' onClick={() => props.addTask(props.index, props.tasks.length)}>
+            <button className='add-task' onClick={() => props.addTask(props.i, props.tasks.length)}>
                 <MdAdd />
             </button>
         </div>
