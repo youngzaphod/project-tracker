@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
-import Alert from "react-bootstrap/Alert";
+//import Alert from "react-bootstrap/Alert";
 //import { FaCog } from "react-icons/fa";
 //import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -20,15 +20,16 @@ class App extends Component {
     start: "",
     finish: "",
     startErrorMsg: "",
-    finishErrorMsg: "",
-    errMessage: ""
+    finishErrorMsg: ""
   };
-
-  // TODO: Pass start and finish from here to ProjectHead component
 
   setDates = (which, date) => {
     this.setState({ [which]: date });
-    console.log(which === "start" ? this.state.start : this.state.finish);
+  };
+
+  setName = name => {
+    this.setState({ name: name });
+    console.log(name);
   };
 
   render() {
@@ -39,22 +40,13 @@ class App extends Component {
             <Header />
           </Col>
         </Row>
-
         <ProjectHead
           startDate={this.state.start}
           endDate={this.state.finish}
           onDateChange={this.setDates}
+          onNameChange={this.setName}
         />
 
-        <Row className="justify-content-center">
-          <Col lg={6} md={10} sm={8} xs={12}>
-            {this.state.errMessage !== "" ? (
-              <Alert variant="danger">{this.state.errMessage}</Alert>
-            ) : (
-              ""
-            )}
-          </Col>
-        </Row>
         <Row className="justify-content-center">
           <Col lg={6}>
             <ProjectFields />
