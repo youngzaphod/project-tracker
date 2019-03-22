@@ -32,20 +32,8 @@ if (process.env.NODE_ENV === 'production') {
     //app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-<<<<<<< HEAD
 app.use('/milestones', require('./routes/milestones'));
 app.use('/projects', require('./routes/projects'));
-=======
-
-app.use('/api/milestones', milestoneRouter);
-app.use('/api/projects', projectRouter);
-app.use('/', indexRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
->>>>>>> backend
 
 // error handler
 app.use(function(err, req, res, next) {
