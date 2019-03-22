@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Header from "./Components/Header";
-import ProjectFields from "./Components/ProjectFields2";
+import ProjectFields from "./Components/ProjectFields";
 import ProjectHead from "./Components/ProjectHead";
 import Container from "react-bootstrap/Container";
 //import Form from "react-bootstrap/Form";
@@ -24,7 +24,12 @@ class App extends Component {
     errMessage: ""
   };
 
-  // TODO: Pass start and finish from here to component
+  // TODO: Pass start and finish from here to ProjectHead component
+
+  setDates = (which, date) => {
+    this.setState({ [which]: date });
+    console.log(which === "start" ? this.state.start : this.state.finish);
+  };
 
   render() {
     return (
@@ -35,7 +40,11 @@ class App extends Component {
           </Col>
         </Row>
 
-        <ProjectHead />
+        <ProjectHead
+          startDate={this.state.start}
+          endDate={this.state.finish}
+          onDateChange={this.setDates}
+        />
 
         <Row className="justify-content-center">
           <Col lg={6} md={10} sm={8} xs={12}>

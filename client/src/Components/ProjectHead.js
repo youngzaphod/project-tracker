@@ -8,6 +8,9 @@ import { FaCog } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 
 class ProjectHead extends React.Component {
+  constructor(props) {
+    super(props);
+  }
   state = {
     name: "",
     start: "",
@@ -62,12 +65,15 @@ class ProjectHead extends React.Component {
             showYearDropdown
             customInput={
               <Form.Control
-                onClick={this.props.onClick}
+                // onClick={this.props.onClick}
                 size="lg"
-                value={this.props.value}
+                // value={this.props.value}
               />
             }
-            onChange={date => this.handleDayChange(date, "start")}
+            onChange={date => {
+              this.handleDayChange(date, "start");
+              this.props.onDateChange("start", date);
+            }}
             selected={this.state.start !== "" ? this.state.start : null}
           />
         </Col>
@@ -78,12 +84,15 @@ class ProjectHead extends React.Component {
             placeholderText="Finish"
             customInput={
               <Form.Control
-                onClick={this.props.onClick}
+                // onClick={this.props.onClick}
                 size="lg"
-                value={this.props.value}
+                // value={this.props.value}
               />
             }
-            onChange={date => this.handleDayChange(date, "finish")}
+            onChange={date => {
+              this.handleDayChange(date, "finish");
+              this.props.onDateChange("finish", date);
+            }}
             selected={this.state.finish !== "" ? this.state.finish : null}
           />
         </Col>
