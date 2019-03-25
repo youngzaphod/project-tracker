@@ -53,7 +53,7 @@ class Task extends Component {
                 onChange={this.onNameChange}
             />
             </Col>
-            <Col md={2}>
+            <Col md={3}>
             <input
                 id={this.props.id}
                 name='units'
@@ -61,6 +61,16 @@ class Task extends Component {
                 className='units-input'
                 placeholder='Units'
                 defaultValue={this.props.units}
+                size={4}
+            />
+            <input
+                id={this.props.id}
+                name='start'
+                type='text'
+                className='units-input'
+                placeholder='Start'
+                defaultValue={this.props.units}
+                size={4}
             />
             
             </Col>

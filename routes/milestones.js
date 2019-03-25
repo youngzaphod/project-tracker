@@ -131,7 +131,8 @@ router.put('/tasks/:mstone_id/:task_id', function (req,res){
 			"tasks.$.taskName": req.body.taskName,
 			"tasks.$.taskDescription": req.body.taskDescription,
 			"tasks.$.taskLength":	req.body.taskLength, //length of milestone in milliseconds (ISODate)
-			"tasks.$.startDate": req.body.startDate	
+			"tasks.$.startDate": req.body.startDate,
+			"tasks.$.order": req.body.order	
 		}
 	}).then((milestone) => {
 		res.json(milestone);
@@ -141,6 +142,24 @@ router.put('/tasks/:mstone_id/:task_id', function (req,res){
 		console.log('Error! ', err);
 	})
 })
+
+// Update order on all items after where insert is happening
+router.put('/tasks/:mstone_id', function (req,res){
+	Milestone.update({'_id': req.params.mstone_id, "tasks.order": { $gte: req.body.lowIndex, $lte: req.body.highIndex }}, 
+	{
+		'$inc': 
+		{
+			"tasks.$.order": req.body.inc,
+		}
+	}).then((milestone) => {
+		res.json(milestone);
+		console.log(milestone)
+	}).catch((err) => {
+		res.send(err);
+		console.log('Error! ', err);
+	})
+})
+
 
 //Delete an existing Milestone task by task _id
 router.delete('/tasks/:mstone_id/:task_id', function (req,res){

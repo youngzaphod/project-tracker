@@ -23,6 +23,14 @@ class Milestone extends Component {
         this.props.onType(e.target.value);
     }
 
+    onUnitsChange = (e) => {
+        this.props.onUnitsType(e.target.value);
+    }
+
+    onStartChange = (e) => {
+        this.props.onStartType(e.target.value);
+    }
+
     render() {
         return (
             <div className='milestone highlight-fade'
@@ -57,7 +65,7 @@ class Milestone extends Component {
                 onChange={this.onNameChange}
             />
             </Col>
-            <Col md={2}>
+            <Col md={3}>
             <input
                 id={this.props.id}
                 name='units'
@@ -65,6 +73,18 @@ class Milestone extends Component {
                 className='units-input'
                 placeholder='Units'
                 defaultValue={this.props.units}
+                onChange={this.onUnitsChange}
+                size={4}
+            />
+            <input
+                id={this.props.id}
+                name='start'
+                type='text'
+                className='units-input'
+                placeholder='Start'
+                defaultValue={this.props.units}
+                onChange={this.onStartChange}
+                size={4}
             />
             
             </Col>

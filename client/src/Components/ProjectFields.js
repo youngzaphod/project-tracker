@@ -280,7 +280,7 @@ class ProjectFields extends Component {
   }
 
   updateMilestoneName = (i, text) => {
-    console.log(`Updateing Milestone: id = ${this.state.Milestones[i]._id}`);
+    console.log(`Updating Milestone: id = ${this.state.Milestones[i]._id}`);
     let bodyUpdate = {
       mstoneName: text
     };
@@ -297,6 +297,60 @@ class ProjectFields extends Component {
       this.setState(state => {
         let newState = state;
         newState.Milestones[i].Name = text;
+        return newState;
+      });
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+    });
+
+  }
+
+  updateMilestoneUnits = (i, text) => {
+    console.log(`Updating Milestone: id = ${this.state.Milestones[i]._id}`);
+    let bodyUpdate = {
+      length: text
+    };
+    fetch(`/api/milestones/${this.state.Milestones[i]._id}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyUpdate)
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
+        let newState = state;
+        newState.Milestones[i].length = text;
+        return newState;
+      });
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+    });
+
+  }
+
+  updateMilestoneStart = (i, text) => {
+    console.log(`Updating Milestone: id = ${this.state.Milestones[i]._id}`);
+    let bodyUpdate = {
+      startDate: text
+    };
+    fetch(`/api/milestones/${this.state.Milestones[i]._id}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyUpdate)
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      this.setState(state => {
+        let newState = state;
+        newState.Milestones[i].startDate = text;
         return newState;
       });
     })
@@ -334,25 +388,80 @@ class ProjectFields extends Component {
     
   }
 
-    milestoneSortEnd = ({oldIndex, newIndex}) => {
-        console.log(`Old: ${oldIndex} New: ${newIndex}`);
-        console.log(this.state.Milestones);
-        this.setState(state => {
-            let newState = state;
-            newState.Milestones = arrayMove(state.Milestones, oldIndex, newIndex);
-            console.log(newState.Milestones);
-            return newState;
-        });
-    }
+  milestoneSortEnd = ({oldIndex, newIndex}) => {
+    console.log(`Old: ${oldIndex} New: ${newIndex}`);
+    console.log(this.state.Milestones);
+    this.setState(state => {
+      let newState = state;
+      newState.Milestones = arrayMove(state.Milestones, oldIndex, newIndex);
+      console.log(newState.Milestones);
+      return newState;
+    });
+  }
 
-    taskSortEnd = ({oldIndex, newIndex}, i) => {
-        console.log(`Old: ${oldIndex} New: ${newIndex} MS: ${i}`);
-        this.setState(state => {
-            let newState = state;
-            newState.Milestones[i].tasks = arrayMove(state.Milestones[i].tasks, oldIndex, newIndex);
-            return newState;
-        });
+  taskSortEnd = ({oldIndex, newIndex}, i) => {
+    let updateBody = {};
+    if (oldIndex === newIndex) {
+      return;
     }
+    if (oldIndex > newIndex) {
+      updateBody = {
+        lowIndex: newIndex,
+        highIndex: oldIndex,
+        inc: 1
+      }
+    } else if (oldIndex < newIndex) {
+      updateBody = {
+        lowIndex: oldIndex,
+        highIndex: newIndex,
+        inc: -1
+      }
+    }
+    console.log(`Old: ${oldIndex} New: ${newIndex} MS: ${i}`);
+    // Need to include all fields or else they'll get blanked out on update
+    let udpatedTask = {
+      taskName: this.state.Milestones[i].tasks[oldIndex].taskName,
+      taskLength: this.state.Milestones[i].tasks[oldIndex].taskLength,
+      startDate: this.state.Milestones[i].tasks[oldIndex].startDate,
+      order: newIndex
+    }
+    // First update the task that was moved, then update the order of the rest
+    fetch(`/api/milestones/tasks/${this.state.Milestones[i]._id}/${this.state.Milestones[i].tasks[oldIndex]._id}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(udpatedTask)
+    })
+    .then(response => {
+      console.log(response);
+      return response.json();
+    })
+    .then(resJson => {
+      fetch(`/api/milestones/tasks/${this.state.Milestones[i]._id}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateBody)
+      })
+      .then(response2 => response2.json())
+      .then(resJson2 => {
+        this.setState(state => {
+          let newState = this.state;
+          newState.Milestones[i].tasks = arrayMove(this.state.Milestones[i].tasks, oldIndex, newIndex);
+          return newState;
+        });
+      })
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+    });
+
+    
+  }
 
   
   render() {
@@ -375,6 +484,8 @@ class ProjectFields extends Component {
                 deleteMilestone={this.deleteMilestone}
                 addMilestone={this.addMilestone}
                 updateMilestoneName={this.updateMilestoneName}
+                updateMilestoneUnits={this.updateMilestoneUnits}
+                updateMilestoneStart={this.updateMilestoneStart}
                 addTask={this.addTask}
                 deleteTask={this.deleteTask}
                 updateTaskName={this.updateTaskName}
@@ -411,6 +522,8 @@ const SortableMilestone = SortableElement(props => {
         deleteItem={() => props.deleteMilestone(props.i, props._id)}
         addAbove={() => props.addMilestone(props.i)}
         onType={(text) => props.updateMilestoneName(props.i, text)}
+        onUnitsType={(text) => props.updateMilestoneUnits(props.i, text)}
+        onStartType={(text) => props.updateMilestoneStart(props.i, text)}
       />
       <SortableList onSortEnd={(ind) => props.sortEndFunc(ind, props.i)} useDragHandle>
         {props.tasks.map((task, j) =>
