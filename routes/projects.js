@@ -44,6 +44,7 @@ router.post('/', function (req, res) {
 //Get complete Project document by requested _id
 router.get('/:project_id', (req, res) => {
 	Project.findById(req.params.project_id)
+	.populate('mstoneIds')			// EDIT: Makes life 1x10^6 times easier for John
 	.then((project) => {
 		res.json(project);
 		console.log(project)
