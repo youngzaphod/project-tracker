@@ -132,11 +132,7 @@ router.put('/tasks/:mstone_id/:task_id', function (req,res){
 			"tasks.$.taskDescription": req.body.taskDescription,
 			"tasks.$.taskLength":	req.body.taskLength, //length of milestone in milliseconds (ISODate)
 			"tasks.$.startDate": req.body.startDate,
-<<<<<<< HEAD
-			"tasks.$.order": req.body.order
-=======
 			"tasks.$.order": req.body.order	
->>>>>>> frontend
 		}
 	}).then((milestone) => {
 		res.json(milestone);
