@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { Component } from "react";
 import Header from "./Components/Header";
 import ProjectFields from "./Components/ProjectFields";
@@ -10,11 +11,25 @@ import Button from "react-bootstrap/Button";
 //import Alert from "react-bootstrap/Alert";
 //import { FaCog } from "react-icons/fa";
 //import DatePicker from "react-datepicker";
+=======
+import React, { Component } from 'react';
+import Header from './Components/Header';
+import ProjectFields from './Components/ProjectFields';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import { FaCog } from 'react-icons/fa';
+import DatePicker from 'react-datepicker';
+>>>>>>> frontend
 import "react-datepicker/dist/react-datepicker.css";
 
 import "./App.css";
 
 class App extends Component {
+<<<<<<< HEAD
   state = {
     name: "",
     start: "",
@@ -22,6 +37,52 @@ class App extends Component {
     startErrorMsg: "",
     finishErrorMsg: ""
   };
+=======
+  constructor(props) {
+    super(props);
+    // let startState = {
+    //   startErrorMsg: '',
+    //   finishErrorMsg: '',
+    //   errMessage: ''
+    // };
+    // this.state = startState;
+
+    this.state = {
+      name: '',
+      start: '',
+      finish: '',
+      startErrorMsg: '',
+      finishErrorMsg: '',
+      errMessage: '',
+    }
+
+  }
+
+  componentDidMount() {
+    fetch('/api/projects/5c73478fb7d151384c46798b', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/x-www-form-urlencoded',
+          'Content-Type': 'x-www-form-urlencoded',
+        }
+      })
+      .then(response => response.json())
+      .then(resJson => {
+        this.setState({
+          name: resJson.projectName,
+          milestones: resJson.mstoneIds,
+          projectId: resJson._id,
+        }, () => console.log('project _id: ', this.state.projectId));
+      })
+      .catch(err => {
+        this.setState({
+          errMessage: `Issue loading project: ${err}`,
+        });
+        console.log('Issue loading project: ', err);
+      });
+      
+  }
+>>>>>>> frontend
 
   setDates = (which, date) => {
     this.setState({ [which]: date });
@@ -49,7 +110,12 @@ class App extends Component {
 
         <Row className="justify-content-center">
           <Col lg={6}>
-            <ProjectFields />
+          {this.state.projectId && 
+            <ProjectFields
+              milestones={this.state.milestones}
+              projectId={this.state.projectId}
+            />
+          }
           </Col>
         </Row>
         <Row className="justify-content-center">

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { Component } from "react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
@@ -11,6 +12,16 @@ import {
 } from "react-icons/fa";
 import { MdAdd } from "react-icons/md";
 import { SortableHandle } from "react-sortable-hoc";
+=======
+import React, { Component } from 'react';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
+import { MdAdd } from 'react-icons/md';
+import { SortableHandle } from 'react-sortable-hoc';
+>>>>>>> frontend
 
 const DragHandle = SortableHandle(() => (
   <span>
@@ -61,15 +72,25 @@ class Task extends Component {
               defaultValue={this.props.name}
               onChange={this.onNameChange}
             />
-          </Col>
-          <Col md={2}>
+            </Col>
+            <Col md={3}>
             <input
-              id={this.props.id}
-              name="units"
-              type="text"
-              className="units-input"
-              placeholder="Units"
-              defaultValue={this.props.units}
+                id={this.props.id}
+                name='units'
+                type='text'
+                className='units-input'
+                placeholder='Units'
+                defaultValue={this.props.units}
+                size={4}
+            />
+            <input
+                id={this.props.id}
+                name='start'
+                type='text'
+                className='units-input'
+                placeholder='Start'
+                defaultValue={this.props.units}
+                size={4}
             />
           </Col>
           <Col md={1}>
