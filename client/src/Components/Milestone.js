@@ -5,7 +5,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { MdAdd } from 'react-icons/md';
 import { SortableHandle } from 'react-sortable-hoc';
-import { FaArrowDown, FaArrowUp, FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
+import { FaTrashAlt, FaArrowsAltV } from 'react-icons/fa';
 
 
 const DragHandle = SortableHandle(() => <span> <FaArrowsAltV /></span>);
@@ -21,6 +21,14 @@ class Milestone extends Component {
 
     onNameChange = (e) => {
         this.props.onType(e.target.value);
+    }
+
+    onUnitsChange = (e) => {
+        this.props.onUnitsType(e.target.value);
+    }
+
+    onStartChange = (e) => {
+        this.props.onStartType(e.target.value);
     }
 
     render() {
@@ -57,7 +65,7 @@ class Milestone extends Component {
                 onChange={this.onNameChange}
             />
             </Col>
-            <Col md={2}>
+            <Col md={3}>
             <input
                 id={this.props.id}
                 name='units'
@@ -65,6 +73,18 @@ class Milestone extends Component {
                 className='units-input'
                 placeholder='Units'
                 defaultValue={this.props.units}
+                onChange={this.onUnitsChange}
+                size={4}
+            />
+            <input
+                id={this.props.id}
+                name='start'
+                type='text'
+                className='units-input'
+                placeholder='Start'
+                defaultValue={this.props.units}
+                onChange={this.onStartChange}
+                size={4}
             />
             
             </Col>
