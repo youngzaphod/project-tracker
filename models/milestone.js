@@ -1,13 +1,6 @@
 const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-// const proPlanSchema = new Schema({
-// 	activity_name: String,
-// 	quantity: Number}, 
-// 	{
-// 		timestamps: true	
-// 	});
-
 
 const taskSchema = new Schema({
 	taskName: String,

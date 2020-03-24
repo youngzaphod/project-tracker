@@ -17,10 +17,11 @@ function App(props) {
   const [send, setSend] = useState('');
   const [nextEmail, setNextEmail] = useState('');
   const [errors, setErrors] = useState([]);
+  const [success, setSuccess] = useState(false);
 
   const checkStory = (newValue) => {
-    if (newValue.length > 1000) {
-      errors.push("You went over the 1000 character limit, so we trunkated your text to 1000 characters. True creativity thrives with constraints");
+    if (newValue.length > 2000) {
+      newValue = newValue.substr(0, 2000);
       setErrors(errors);
     }
     setStory(newValue);
@@ -29,6 +30,7 @@ function App(props) {
   const handleSubmit = () => {
     var errorArray = [];
 
+    //Check for errors on each field and add to error array
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {
       errorArray.push("You must enter a valid email address for yourself.");
     }
@@ -44,12 +46,51 @@ function App(props) {
     if (story.length < 3) {
       errorArray.push("Give the story a little more thought. You can do at least 3 characters, can't you?");
     }
-    console.log(errorArray);
-    errorArray.map((msg, i) => {
-      console.log(msg, i);
-    })
+    
+    console.log("Creating story");
+    //Create new blank Milestone to be added at given index
+    let isPublic = send === 'public' ? true : false;
+    let newStory = {
+      name: story.substr(0, 15),
+      public: isPublic,
+      complete: false,
+      nextEmail: nextEmail,
+      segCount: 1,
+      segments: {
+        author: writerEmail,
+        content: story,
+        order: 1
+      }
+    }
+    fetch('/api/stories/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newStory)
+      })
+      .then(response => response.json())
+      .then(resJson => {
+        console.log('First fetch then, resJson: ', resJson);
+      })
+      .catch(err => {
+        errorArray.push(`Issue adding story: ${err}`);
+        console.log('Issue adding story: ', err);
+        setErrors(errorArray);
+      }
+    );
+    if (errorArray.length === 0) {
+      console.log("Success!");
+      setSuccess(true);
+    } else {
+      console.log("Form error");
+      setSuccess(false);
+    }
     setErrors(errorArray);
+    console.log("End of handle submit function");
   }
+  
   
     return (
       <Container fluid>
@@ -58,34 +99,24 @@ function App(props) {
             <Header />
           </Col>
         </Row>
-        {errors.length !== 0
-          ? <Row>
-              <Col lg={true}>
-                {
-                errors.map((msg) => (
-                  <Alert variant='danger'>
-                    {msg}
-                  </Alert>
-                ))}
-              </Col>
-            </Row>
-          : null
-        }
+        
       
         <Row className='justify-content-center'>
-        <Col lg={4}>
+        <Col lg={6}>
           <Form>
             <Form.Group controlId="formStory">
               <Form.Label>Spin us a tale:</Form.Label>
-              <Form.Control as="textarea" placeholder="What are you waiting for?" rows="10" value={story} onChange={e => checkStory(e.target.value)} />
+              <Form.Text className="text-muted">
+                Max characters: 1000 <span style={story.length < 1900 ? {color:"green"} : {color:"red"}}>Current count: {story.length}</span>
+              </Form.Text>
+              <Form.Control as="textarea" placeholder="What are you waiting for?" rows="20" value={story} onChange={e => checkStory(e.target.value)} />
             </Form.Group>
 
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control required type="email" placeholder="Enter email" value={writerEmail} onChange={e => setWriterEmail(e.target.value)} />
               <Form.Text className="text-muted">
-                There's no signup, we just need an email to send you notifications when your story is complete! We will also send you an email
-                with a unique link where you can see all the stories you have started and contributed to. Er, to which you have contributed. Sorry.
+                There's no signup, we just need an email to send you notifications when your story is complete, and a link where you can see all the stories you have contributed to.
               </Form.Text>
             </Form.Group>
 
@@ -125,12 +156,41 @@ function App(props) {
                 </Form.Text>
               </Form.Group>
             : null }
+            {errors.length !== 0
+          ? <Row>
+              <Col lg={true}>
+                {
+                errors.map((msg, i) => (
+                  <Alert key={i} variant='danger'>
+                    {msg}
+                  </Alert>
+                ))}
+              </Col>
+            </Row>
+          : null
+        }
+            {success ?
+
+                  <Alert variant='success'>
+                    <p>Excellent work, your story has been added!</p>
+                    {send === 'public'
+                      ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.
+                            You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>
+                      : <p>We sent an email to the {nextEmail} so they can continue the tale.
+                          You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>             
+                    }
+                  </Alert>
+
+            :
             <Button variant="primary" onClick={handleSubmit}>
               Submit
             </Button>
+            }
           </Form>
         </Col>
         </Row>
+        
+        
       </Container>
     );
 }
