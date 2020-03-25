@@ -22,7 +22,7 @@ router.get("/", (req, res) => {
 router.post("/", function(req, res) {
   console.log("Adding body: ", req.body);
   Story.create({
-    name: req.body.mstoneName,
+    name: req.body.name,
     public: req.body.public,
     nextEmail: req.body.nextEmail,
     complete: req.body.complete,
@@ -35,36 +35,47 @@ router.post("/", function(req, res) {
     })
     .catch(err => {
       res.send(err);
-      console.log("Error! ", err);
+      console.log("Server error creating story! ", err);
     });
 });
 
-//Get complete milestone document by requested _id
-router.get("/:mstone_id", (req, res) => {
-  Milestone.findById(req.params.mstone_id)
-    .then(milestone => {
-      res.json(milestone);
-      console.log(milestone);
+//Get complete Story document by requested _id
+router.get("/:story_id", (req, res) => {
+  Story.findById(req.params.story_id)
+    .then(story => {
+      res.json(story);
+      console.log(story);
     })
     .catch(err => {
       res.send(err);
-      console.log("Error! ", err);
+      console.log("Server error loading story! ", err);
     });
 });
 
 //modify Milestone document by _id
-router.put("/:mstone_id", (req, res) => {
+router.put("/:story_id", (req, res) => {
   // res.json(req.body)
-  Milestone.update(
-    { _id: req.params.mstone_id },
+  /*
+  storyUpdate = {
+        name: storyObj.name,
+        complete: finished,
+        nextEmail: nextEmail,
+        segCount: storyObj.segCount,
+        public: send === 'public' ? true : false,
+        segments: storyObj.segments.push({author: writerEmail, content: story, order: storyObj.segCount})
+      };
+    */
+  Story.update(
+    { _id: req.params.story_id },
     {
       $set: {
-        mstoneName: req.body.mstoneName,
-        length: req.body.length, //ISODate format
-        owner: req.body.owner, //Name of milestone owner
-        description: req.body.description,
-        startDate: req.body.startDate //ISODate format
-        // Tasks are be modified in separate call.
+        name: req.body.name,
+        complete: req.body.complete,
+        nextEmail: req.body.nextEmail,
+        segCount: req.body.segCount,
+        public: req.body.public,
+        segments: req.body.segments,
+        lastUpdate: Date.now()
       }
     }
   )

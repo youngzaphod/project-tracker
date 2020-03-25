@@ -14,7 +14,8 @@ const storySchema = new Schema({
 	nextEmail: String,
 	complete: Boolean,
 	segments: [segmentSchema],
-	segCount: Number
+	segCount: Number,
+	lastUpdate: Date
 })
 
 const story = mongoose.model('story', storySchema);
