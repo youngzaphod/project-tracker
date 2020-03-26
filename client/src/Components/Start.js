@@ -5,14 +5,34 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import { FaCog } from 'react-icons/fa';
+import Modal from 'react-bootstrap/Modal';
+//import { FaCog } from 'react-icons/fa';
+import createActivityDetector from 'activity-detector';
 
 import '../App.css';
 
 const charLimit = 1000;
 const maxCount = 5;
+const timeOut = 15 * 1000 * 60;
+const secondTimeOut = 1000 * 60;
+
+function useIdle(options) {
+  const [isIdle, setIsIdle] = useState(false);
+  console.log("Inside useIdle");
+  useEffect(() => {
+    const activityDetector = createActivityDetector(options);
+    activityDetector.on('idle', () => setIsIdle(true));
+    activityDetector.on('active', () => setIsIdle(false));
+    return () => activityDetector.stop();
+  }, [])
+  return isIdle;
+}
+
+
 
 function Start(props) {
+  const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
+  const [loggedOut, setLoggedOut] = useState(false);
   const [writerEmail, setWriterEmail] = useState('');
   const [story, setStory] = useState('');
   const [send, setSend] = useState('');
@@ -20,9 +40,9 @@ function Start(props) {
   const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
+  const [logoutTimer, setLogoutTimer] = useState(null);
 
-  //console.log(`storyID: ${props.storyID}`);
-  console.log("What's happening here???");
+
   // Get previous segments from story, if they exist:
   useEffect(() => {
     // Get story by id, if ID exists
@@ -36,8 +56,11 @@ function Start(props) {
         })
         .then(response => response.json())
         .then(theStory => {
-          setStoryObj({segCount: theStory.segCount, segments: theStory.segments});
-          console.log('First fetch then, resJson: ', theStory);
+          setStoryObj({title: theStory.title, segCount: theStory.segCount, segments: theStory.segments, locked: theStory.locked});
+          if (theStory.locked) {
+            setLoggedOut(true);
+          }
+          console.log('Got theStory from db: ', theStory);
         })
         .catch(err => {
           let errorArray = [`Sorry, there was an issue loading the story: ${err}`];
@@ -47,7 +70,20 @@ function Start(props) {
       );
       
     }
+    // Add event listener to run code before window closes
+    window.addEventListener("unload", unlockStory);
+    return () => window.removeEventListener("unload", unlockStory);
+
   }, []); // Run only one time at start
+
+  const unlockStory = (e) => {
+
+    // Check that there is a locked story associate with this session
+    if (props.storyID && !success && !loggedOut) {
+      navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
+    }
+    
+  }
 
   const checkStory = (newValue) => {
     if (newValue.length > charLimit) {
@@ -90,11 +126,13 @@ function Start(props) {
     if (!props.storyID) {
       //If story doesn't already exist, create new Story to be added
       let isPublic = send === 'public' ? true : false;
+      console.log(story.substr(0, 15));
       let newStory = {
-        name: story.substr(0, 15),
+        title: story.substr(0, 15),
         public: isPublic,
         complete: false,
         nextEmail: nextEmail,
+        locked: false,
         segCount: 1,
         segments: {
           author: writerEmail,
@@ -114,7 +152,7 @@ function Start(props) {
         })
         .then(response => response.json())
         .then(resJson => {
-          console.log('First fetch then, resJson: ', resJson);
+          console.log('Response after adding new story: ', resJson);
           setSuccess(true);
         })
         .catch(err => {
@@ -125,19 +163,18 @@ function Start(props) {
       );
     } else {
       // Add segment to existing story
-      
       console.log(`Updating story: _id = ${props.storyID}`);
-      storyObj.segments.push({author: writerEmail, content: story, order: storyObj.segCount});
-      console.log(storyObj.segments);
+      let newSegments = [...storyObj.segments];
+      newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
       // Build story object for updating
       let finished = ++storyObj.segCount === maxCount ? true : false;
       let storyUpdate = {
-        name: storyObj.name,
         complete: finished,
         nextEmail: nextEmail,
         segCount: storyObj.segCount,
         public: send === 'public' ? true : false,
-        segments: storyObj.segments
+        segments: newSegments,
+        locked: false
       };
       fetch(`/api/stories/${props.storyID}`, {
         method: 'PUT',
@@ -150,29 +187,101 @@ function Start(props) {
       .then(response => response.json())
       .then(resJson => {
         //Story has been updated successfully
+        console.log("Story update successful", resJson);
         setSuccess(true);
       })
       .catch(err => {
-        console.log("Error: ", err);
+        console.log("Error updating story: ", err);
         errorArray.push(err);
         setErrors(errorArray);
       });
     }
-
-    console.log("End of handle db write function");
   }
-  
+
+  //Function for logging out user after second timer is done
+  const logoutUser = () => {
+    console.log("logout user here");
+    let storyUpdate = {
+      locked: false,
+    };
+    fetch(`/api/stories/${props.storyID}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(storyUpdate)
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      //Story has been updated successfully
+      console.log("Story has been unlocked", resJson);
+      setLoggedOut(true);
+    })
+    .catch(err => {
+      console.log("Error unlocking story: ", err);
+    });
+  }
+
+  useEffect(() => {
+    // If user became idle, trigger timeout, else if user became active, clear timeout
+    if (isIdle && !loggedOut && !success) {
+
+      setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
+      console.log("Second timer started, id:", logoutTimer);
+    } else {
+      clearTimeout(logoutTimer);
+      console.log("Clearing timeout; idle, loggedout, timer id:", isIdle, loggedOut, logoutTimer);
+    }
+    return () => {clearTimeout(logoutTimer)}
+  }, [isIdle]);
   
     return (
       <Container fluid>
-        
+        <Row>
+          <Modal
+            backdrop='static'
+            show={isIdle && !loggedOut && !success}
+            onHide={() =>{}}
+            aria-labelledby='contained-modeal-title-vcenter'
+            centered>
+            <Modal.Header closeButton>
+              <Modal.Title>You're about to lose your work...</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <p>You've been idle over 30 minutes!</p>
+              <p>Close this popup within a minute to continue working, otherwise the page will automatically close and you'll lose your work!</p>
+            </Modal.Body>
+          </Modal>
+        </Row>
+        <Row>
+          <Modal backdrop='static' show={loggedOut && !success} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
+            <Modal.Header>
+              <Modal.Title>You don't have access to this story at the moment</Modal.Title>
+            </Modal.Header>
+            { storyObj.locked
+             ?<Modal.Body>
+                <p>Someone else is working on it - refresh later to see when it's available.</p>
+              </Modal.Body>
+             :<Modal.Body>
+                <p>You were either idle for over 30 minutes, or you just tried to leave the page. Either way, if you refresh the page and
+                you'll have access if no one else is editing.</p>
+                <div>{story}</div>
+              </Modal.Body>
+            }
+            <Modal.Footer>
+              <Button onClick={() => {window.location.reload()}}>Refresh page</Button>
+            </Modal.Footer>
+          </Modal>
+        </Row>
         <Row className='justify-content-center'>
           <Col lg={6}>
           {props.storyID != null
             ?
               <>
-              <h3>Previously on <em>Story Title</em>...</h3>
-              { 
+              <h3>Previously on <em>{storyObj.title}</em>...</h3>
+              {
                 storyObj.segments.map((seg, i) => {
                   return <p key={seg._id}>{seg.content}</p>
                 })
@@ -258,8 +367,12 @@ function Start(props) {
                   <Alert variant='success'>
                     <p>Excellent work, your story has been added!</p>
                     {send === 'public'
-                      ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.
-                            You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>
+                      ? <div>
+                      <p>It will now be in the public directory where anyone can find it and contibute until its finished.
+                      Also, you can share it out on social to get more friends to contribute:</p>
+                      <p><a href={window.location.href} target="_blank" rel="noopener noreferrer">{window.location.href}</a></p>
+                            <p>You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>
+                        </div>
                       : <p>We sent an email to the {nextEmail} so they can continue the tale.
                           You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>             
                     }

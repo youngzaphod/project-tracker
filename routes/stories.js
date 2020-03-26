@@ -2,14 +2,26 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const socketIo = require("socket.io");
+const http = require('http');
+const server = http.createServer(app);
+const io = socketIo(server);
 
 //Bring in models from external file
 const Story = require("../models/story");
 //Keeping these so code doesn't break until I can get rid of them
-const Milestone = require("../models/milestone");
-const Project = require("../models/project");
+//const Milestone = require("../models/milestone");
+//const Project = require("../models/project");
 
 const router = express.Router();
+
+// Set up socket connection
+io.on("connection", socket => {
+  console.log("New client connected");
+
+  socket.on("diconnect")
+
+})
 
 //Show all story docs in collection
 router.get("/", (req, res) => {
@@ -22,12 +34,14 @@ router.get("/", (req, res) => {
 router.post("/", function(req, res) {
   console.log("Adding body: ", req.body);
   Story.create({
-    name: req.body.name,
+    title: req.body.title,
     public: req.body.public,
     nextEmail: req.body.nextEmail,
     complete: req.body.complete,
     segCount: req.body.segCount,
-    segments: req.body.segments
+    segments: req.body.segments,
+    lastUpdate: Date.now(),
+    locked: false
   })
     .then(story => {
       res.json(story);
@@ -41,10 +55,10 @@ router.post("/", function(req, res) {
 
 //Get complete Story document by requested _id
 router.get("/:story_id", (req, res) => {
-  Story.findById(req.params.story_id)
+  Story.findOneAndUpdate({_id: req.params.story_id}, {locked: true})
     .then(story => {
       res.json(story);
-      console.log(story);
+      console.log("Getting story", story);
     })
     .catch(err => {
       res.send(err);
@@ -52,32 +66,13 @@ router.get("/:story_id", (req, res) => {
     });
 });
 
-//modify Milestone document by _id
+//modify Story document by _id
 router.put("/:story_id", (req, res) => {
-  // res.json(req.body)
-  /*
-  storyUpdate = {
-        name: storyObj.name,
-        complete: finished,
-        nextEmail: nextEmail,
-        segCount: storyObj.segCount,
-        public: send === 'public' ? true : false,
-        segments: storyObj.segments.push({author: writerEmail, content: story, order: storyObj.segCount})
-      };
-    */
-  Story.update(
+  console.log("req.body:", req.body);
+
+  Story.findOneAndUpdate(
     { _id: req.params.story_id },
-    {
-      $set: {
-        name: req.body.name,
-        complete: req.body.complete,
-        nextEmail: req.body.nextEmail,
-        segCount: req.body.segCount,
-        public: req.body.public,
-        segments: req.body.segments,
-        lastUpdate: Date.now()
-      }
-    }
+    { $set: req.body },
   )
     .then(milestone => {
       res.json(milestone);
@@ -89,6 +84,26 @@ router.put("/:story_id", (req, res) => {
     });
 });
 
+//Used for when user closes browser before saving to unlock story
+router.post("/:story_id", (req, res) => {
+  console.log("req from Beacon:", req);
+
+  Story.findOneAndUpdate(
+    { _id: req.params.story_id },
+    { $set: {locked: false} },
+  )
+    .then(milestone => {
+      res.json(milestone);
+      console.log(milestone);
+    })
+    .catch(err => {
+      res.send(err);
+      console.log("Error! ", err);
+    });
+});
+
+
+/*
 //Delete Milestone document by _id
 router.delete("/:mstone_id", function(req, res) {
   // res.json(req.body)
@@ -226,12 +241,12 @@ router.get("/task/:task_id", (req, res) => {
   Milestone.find({ "tasks._id": req.params.task_id }, { _id: 0, "tasks.$": 1 })
     .then(task => {
       res.json(task);
-      // console.log(project);      //WAS THROWING ERROR */
+      // console.log(project);      //WAS THROWING ERROR 
     })
     .catch(err => {
       res.status(500).json({ error: err });
       console.log("Error! ", err);
     });
 });
-
+*/
 module.exports = router;

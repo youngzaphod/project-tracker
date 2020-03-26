@@ -3,10 +3,15 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
-//const indexRouter = require('./routes/index');
+const socketIo = require("socket.io");
+const http = require('http');
+const indexRouter = require('./routes/index');
 const milestoneRouter = require("./routes/milestones");
 const projectRouter = require("./routes/projects");
 const storyRouter = require("./routes/stories");
+
+const server = http.createServer(app);
+const io = socketIo(server);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -36,7 +41,12 @@ if (process.env.NODE_ENV === "production") {
 app.use("/api/milestones", milestoneRouter);
 app.use("/api/projects", projectRouter);
 app.use("/api/stories", storyRouter);
-//app.use('/', indexRouter);
+app.use('/', indexRouter);
+
+io.on("connection", socket => {
+  console.log("New client connected");
+  socket.on("disconnect", () => console.log("Client disconnected"));
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

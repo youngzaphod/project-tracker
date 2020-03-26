@@ -9,13 +9,14 @@ const segmentSchema = new Schema({
 })
 
 const storySchema = new Schema({
-	name:	String,
+	title:	String,
 	public: Boolean,
 	nextEmail: String,
 	complete: Boolean,
 	segments: [segmentSchema],
 	segCount: Number,
-	lastUpdate: Date
+	lastUpdate: Date,
+	locked: Boolean
 })
 
 const story = mongoose.model('story', storySchema);
