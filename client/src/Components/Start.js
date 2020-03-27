@@ -24,7 +24,7 @@ function useIdle(options) {
     activityDetector.on('idle', () => setIsIdle(true));
     activityDetector.on('active', () => setIsIdle(false));
     return () => activityDetector.stop();
-  }, [])
+  }, [options])
   return isIdle;
 }
 
@@ -43,6 +43,11 @@ function Start(props) {
   const [logoutTimer, setLogoutTimer] = useState(null);
   const [newStoryID, setNewStoryID] = useState('');
 
+  const unlockStory = () => {
+    if (props.storyID && !success && !loggedOut) {
+      navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
+    }
+  }
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
@@ -89,24 +94,6 @@ function Start(props) {
     }
 
   }, []); // Run only one time at start
-
-  /*
-  const confirmLeave = (e) => {
-
-    // Check that there is a locked story associate with this session
-    if (!success && !loggedOut) {
-      console.log("loggedOut:", loggedOut, "storyObj:", storyObj);
-      e.preventDefault();
-      e.returnValue = "You may have unsaved changes, are you sure you want to leave?";
-    }
-  }
-  */
-
-  const unlockStory = () => {
-    if (props.storyID && !success && !loggedOut) {
-      navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
-    }
-  }
 
   const checkStory = (newValue) => {
     if (newValue.length > charLimit) {
