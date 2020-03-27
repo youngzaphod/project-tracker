@@ -6,15 +6,15 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
+import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import createActivityDetector from 'activity-detector';
 
 import '../App.css';
 
 const charLimit = 1000;
-const maxCount = 5;
 const timeOut = 15 * 1000 * 60;
-const secondTimeOut = 1000 * 60;
+const secondTimeOut = 1 * 1000 * 60;
 
 function useIdle(options) {
   const [isIdle, setIsIdle] = useState(false);
@@ -33,14 +33,15 @@ function useIdle(options) {
 function Start(props) {
   const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
   const [loggedOut, setLoggedOut] = useState(false);
+  const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
   const [story, setStory] = useState('');
-  const [send, setSend] = useState('');
-  const [nextEmail, setNextEmail] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
   const [logoutTimer, setLogoutTimer] = useState(null);
+  const [newStoryID, setNewStoryID] = useState('');
 
 
   // Get previous segments from story, if they exist:
@@ -56,8 +57,16 @@ function Start(props) {
         })
         .then(response => response.json())
         .then(theStory => {
-          setStoryObj({title: theStory.title, segCount: theStory.segCount, segments: theStory.segments, locked: theStory.locked});
-          if (theStory.locked) {
+          setStoryObj({
+            title: theStory.title,
+            segCount: theStory.segCount,
+            segments: theStory.segments,
+            locked: theStory.locked,
+            complete: theStory.complete,
+            rounds: theStory.rounds
+          });
+          if (theStory.locked && !theStory.complete) {
+            console.log("Setting loggedout on entry");
             setLoggedOut(true);
           }
           console.log('Got theStory from db: ', theStory);
@@ -71,18 +80,32 @@ function Start(props) {
       
     }
     // Add event listener to run code before window closes
+    //window.addEventListener("beforeunload", confirmLeave);
     window.addEventListener("unload", unlockStory);
-    return () => window.removeEventListener("unload", unlockStory);
+    return () => {
+      //window.removeEventListener("beforeunload", confirmLeave);
+      window.removeEventListener("unload", unlockStory);
+
+    }
 
   }, []); // Run only one time at start
 
-  const unlockStory = (e) => {
+  /*
+  const confirmLeave = (e) => {
 
     // Check that there is a locked story associate with this session
+    if (!success && !loggedOut) {
+      console.log("loggedOut:", loggedOut, "storyObj:", storyObj);
+      e.preventDefault();
+      e.returnValue = "You may have unsaved changes, are you sure you want to leave?";
+    }
+  }
+  */
+
+  const unlockStory = () => {
     if (props.storyID && !success && !loggedOut) {
       navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
     }
-    
   }
 
   const checkStory = (newValue) => {
@@ -101,12 +124,6 @@ function Start(props) {
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {
       errorArray.push("You must enter a valid email address for yourself.");
     }
-    if (send ==='') {
-      errorArray.push("Choose a way to send the story to the next person!");
-    }
-    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(nextEmail) && send==='friend') {
-      errorArray.push("You must enter a valid email address for your friend.");
-    }
     if (story ==='') {
       errorArray.push("You forgot the most important part - the story!");
     }
@@ -114,9 +131,12 @@ function Start(props) {
       errorArray.push("Give the story a little more thought. You can do at least 3 characters, can't you?");
     }
     
+    setErrors(errorArray);
     // If no errors, move on to updating story
-    updateStory();
-    
+    if (errorArray.length === 0) {
+      updateStory();
+      
+    }
   }
 
   // Update or Create Story in database 
@@ -125,13 +145,12 @@ function Start(props) {
 
     if (!props.storyID) {
       //If story doesn't already exist, create new Story to be added
-      let isPublic = send === 'public' ? true : false;
       console.log(story.substr(0, 15));
       let newStory = {
         title: story.substr(0, 15),
-        public: isPublic,
+        isPublic: isPublic,
+        rounds: rounds,
         complete: false,
-        nextEmail: nextEmail,
         locked: false,
         segCount: 1,
         segments: {
@@ -154,6 +173,7 @@ function Start(props) {
         .then(resJson => {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
+          setNewStoryID(resJson._id);
         })
         .catch(err => {
           errorArray.push(`Issue adding story: ${err}`);
@@ -167,12 +187,10 @@ function Start(props) {
       let newSegments = [...storyObj.segments];
       newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
       // Build story object for updating
-      let finished = ++storyObj.segCount === maxCount ? true : false;
+      let finished = ++storyObj.segCount === rounds ? true : false; // Increment segCont and check if story is complete
       let storyUpdate = {
         complete: finished,
-        nextEmail: nextEmail,
         segCount: storyObj.segCount,
-        public: send === 'public' ? true : false,
         segments: newSegments,
         locked: false
       };
@@ -223,8 +241,8 @@ function Start(props) {
     });
   }
 
+  // If user became idle, trigger timeout, else if user became active, clear timeout
   useEffect(() => {
-    // If user became idle, trigger timeout, else if user became active, clear timeout
     if (isIdle && !loggedOut && !success) {
 
       setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
@@ -241,7 +259,7 @@ function Start(props) {
         <Row>
           <Modal
             backdrop='static'
-            show={isIdle && !loggedOut && !success}
+            show={isIdle && !loggedOut && !success && !storyObj.complete}
             onHide={() =>{}}
             aria-labelledby='contained-modeal-title-vcenter'
             centered>
@@ -256,7 +274,7 @@ function Start(props) {
           </Modal>
         </Row>
         <Row>
-          <Modal backdrop='static' show={loggedOut && !success} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
+          <Modal backdrop='static' show={loggedOut && !success && storyObj.complete} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
             <Modal.Header>
               <Modal.Title>You don't have access to this story at the moment</Modal.Title>
             </Modal.Header>
@@ -278,7 +296,8 @@ function Start(props) {
         <Row className='justify-content-center'>
           <Col lg={6}>
           {props.storyID != null
-            ?
+            ? !storyObj.complete
+              ?
               <>
               <h3>Previously on <em>{storyObj.title}</em>...</h3>
               {
@@ -288,105 +307,109 @@ function Start(props) {
               }
               <h3>Now it's your turn to add:</h3>
               </>
+              : 
+                <>
+                <h3><em>{storyObj.title}</em></h3>
+                <br/>
+                {
+                  storyObj.segments.map((seg, i) => {
+                    return <p key={seg._id}>{seg.content}</p>
+                  })
+                }
+                </>
             :
               <h3>Start a story, then send it to a friend or the world to complete it</h3>
           }
           </Col>
         </Row>
-        
-        <Row className='justify-content-center'>
-        <Col lg={6}>
-          <Form>
-            <Form.Group controlId="formStory">
-              <Form.Label>Start writing, and don't be too picky, the point is to do your part and pass it along.</Form.Label>
-              <Form.Text className="text-muted">
-                Max characters: {charLimit} <span style={story.length < charLimit - 100 ? {color:"green"} : {color:"red"}}>Current count: {story.length}</span>
-              </Form.Text>
-              <Form.Control as="textarea" placeholder="What are you waiting for?" rows="20" value={story} onChange={e => checkStory(e.target.value)} />
-            </Form.Group>
+        {!storyObj.complete && 
+          <Row className='justify-content-center'>
+            <Col lg={6}>
+              <Form>
+                <Form.Group controlId="formStory">
+                  <Form.Label>Start writing, and don't be too picky, the point is to do your part and pass it along.</Form.Label>
+                  <Form.Text className="text-muted">
+                    Max characters: {charLimit} <span style={story.length < charLimit - 100 ? {color:"green"} : {color:"red"}}>Current count: {story.length}</span>
+                  </Form.Text>
+                  <Form.Control as="textarea" placeholder="What are you waiting for?" rows="20" value={story} onChange={e => checkStory(e.target.value)} />
+                </Form.Group>
 
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control required type="email" placeholder="Enter email" value={writerEmail} onChange={e => setWriterEmail(e.target.value)} />
-              <Form.Text className="text-muted">
-                There's no signup, we just need an email to send you notifications when your story is complete, and a link where you can see all the stories you have contributed to.
-              </Form.Text>
-            </Form.Group>
+                <Form.Group controlId="formBasicEmail">
+                  <Form.Label>Email address</Form.Label>
+                  <Form.Control required type="email" placeholder="Enter email" value={writerEmail} onChange={e => setWriterEmail(e.target.value)} />
+                  <Form.Text className="text-muted">
+                    There's no signup, we just need an email to send you notifications when your story is complete, and a link where you can see all the stories you have contributed to.
+                  </Form.Text>
+                </Form.Group>
+                {!props.storyID &&
+                  <>
+                  <Form.Group controlId='formRadio'>
+                    <Form.Label>How many rounds do you want the story to go? You're the first round, and we'll automatically close the story after the number of rounds you select. </Form.Label>
+                    
+                    <div key='rounds' className='mb-3'>
+                    <Form.Check
+                      name='rounds'
+                      type='radio'
+                      label='5 rounds'
+                      id='five'
+                      defaultChecked = {true}
+                      onClick = {() => setRounds(5)}
+                    />
+                    <Form.Check
+                      name='rounds'
+                      type='radio'
+                      label='10 rounds'
+                      id='ten'
+                      onClick = {() => setRounds(10)}
+                    />
+                    </div>
+                  </Form.Group>
+                  <Form.Group controlId='makePublic'>
+                    <Form.Check
+                      name='public'
+                      type='checkbox'
+                      label='Post story on the Open stories page for others to find and contribute'
+                      id='public'
+                      defaultChecked = {true}
+                      onClick = {(e) => setIsPublic(e.target.checked)}
+                    />
+                  </Form.Group>
+                  </>
+                }
+                {errors.length !== 0
+                  ? <Row>
+                      <Col lg={true}>
+                        {
+                        errors.map((msg, i) => (
+                          <Alert key={i} variant='danger'>
+                            {msg}
+                          </Alert>
+                        ))}
+                      </Col>
+                    </Row>
+                  : null
+                }
+                {success ?
 
-            <Form.Group controlId='formRadio'>
-              <Form.Label>Who do you want to continue the story?</Form.Label>
-              
-              <div key='sendTo' className='mb-3'>
-              <Form.Check
-                name='nextWriter'
-                type='radio'
-                label='Someone I know (enter email below)'
-                id='friend'
-                onClick = {() => setSend('friend')}
-              />
-              <Form.Check
-                name='nextWriter'
-                type='radio'
-                label='Anyone!'
-                id='public'
-                onClick = {() => setSend('public')}
-              />
-              </div>
-            </Form.Group>
-            {send === 'friend' ?
-              <Form.Group controlId="formNextEmail">
-                <Form.Label>Email of the person to continue the story:</Form.Label>
-                <Form.Control
-                  placeholder="Enter friend's email"
-                  type="email"
-                  value={nextEmail}
-                  onChange={e => setNextEmail(e.target.value)}
-                />
-                <Form.Text className="text-muted">
-                  Enter the email address of the person you want to continue the story.
-                After they write, they'll do the same, and so on until the story is finished, at which point you'll get an email notification
-                to read the full story!
-                </Form.Text>
-              </Form.Group>
-            : null }
-            {errors.length !== 0
-          ? <Row>
-              <Col lg={true}>
-                {
-                errors.map((msg, i) => (
-                  <Alert key={i} variant='danger'>
-                    {msg}
-                  </Alert>
-                ))}
-              </Col>
-            </Row>
-          : null
+                      <Alert variant='success'>
+                        <p>Excellent work, your story has been added! Anyone with the link can add to it. You can share it out on social to get more friends to contribute:</p>
+                        <p><Link to={"/story/" + newStoryID} target="_blank" rel="noopener noreferrer">{window.location.href+""+newStoryID}</Link> </p>
+                        <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
+                        {isPublic
+                          ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.</p>
+                          : <p>You did not select "public", so your story will not appear on the Open Stories page.</p>
+                        }
+                      </Alert>
+
+                :
+                <Button variant="primary" onClick={handleSubmit}>
+                  Publish
+                </Button>
+                }
+              </Form>
+            </Col>
+          </Row>
         }
-            {success ?
-
-                  <Alert variant='success'>
-                    <p>Excellent work, your story has been added!</p>
-                    {send === 'public'
-                      ? <div>
-                      <p>It will now be in the public directory where anyone can find it and contibute until its finished.
-                      Also, you can share it out on social to get more friends to contribute:</p>
-                      <p><a href={window.location.href} target="_blank" rel="noopener noreferrer">{window.location.href}</a></p>
-                            <p>You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>
-                        </div>
-                      : <p>We sent an email to the {nextEmail} so they can continue the tale.
-                          You'll get an email with a link to the story, and will be notified via email once more when it's complete.</p>             
-                    }
-                  </Alert>
-
-            :
-            <Button variant="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
-            }
-          </Form>
-        </Col>
-        </Row>
-        
         
       </Container>
     );

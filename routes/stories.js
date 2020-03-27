@@ -2,10 +2,8 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const socketIo = require("socket.io");
 const http = require('http');
 const server = http.createServer(app);
-const io = socketIo(server);
 
 //Bring in models from external file
 const Story = require("../models/story");
@@ -15,17 +13,27 @@ const Story = require("../models/story");
 
 const router = express.Router();
 
-// Set up socket connection
-io.on("connection", socket => {
-  console.log("New client connected");
-
-  socket.on("diconnect")
-
-})
-
 //Show all story docs in collection
 router.get("/", (req, res) => {
   Story.find({}).then(eachOne => {
+    res.json(eachOne);
+  });
+});
+
+//Show all incomplete stories in collection
+router.get("/incomplete", (req, res) => {
+  Story.find({ complete: false, public: true })
+  .then(eachOne => {
+    console.log(eachOne);
+    res.json(eachOne);
+  });
+});
+
+//Show all complete stories in collection
+router.get("/complete", (req, res) => {
+  Story.find({ complete: true, public: true })
+  .then(eachOne => {
+    console.log(eachOne);
     res.json(eachOne);
   });
 });
@@ -40,6 +48,7 @@ router.post("/", function(req, res) {
     complete: req.body.complete,
     segCount: req.body.segCount,
     segments: req.body.segments,
+    rounds: req.body.rounds,
     lastUpdate: Date.now(),
     locked: false
   })
@@ -86,15 +95,15 @@ router.put("/:story_id", (req, res) => {
 
 //Used for when user closes browser before saving to unlock story
 router.post("/:story_id", (req, res) => {
-  console.log("req from Beacon:", req);
+  //console.log("req from Beacon:", req);
 
   Story.findOneAndUpdate(
     { _id: req.params.story_id },
     { $set: {locked: false} },
   )
-    .then(milestone => {
-      res.json(milestone);
-      console.log(milestone);
+    .then(story => {
+      res.json(story);
+      console.log("Unock via Beacon response:", story);
     })
     .catch(err => {
       res.send(err);
