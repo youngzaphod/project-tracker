@@ -90,18 +90,6 @@ function Start(props) {
 
   }, []); // Run only one time at start
 
-  /*
-  const confirmLeave = (e) => {
-
-    // Check that there is a locked story associate with this session
-    if (!success && !loggedOut) {
-      console.log("loggedOut:", loggedOut, "storyObj:", storyObj);
-      e.preventDefault();
-      e.returnValue = "You may have unsaved changes, are you sure you want to leave?";
-    }
-  }
-  */
-
   const unlockStory = () => {
     if (props.storyID && !success && !loggedOut) {
       navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
@@ -394,7 +382,7 @@ function Start(props) {
 
                       <Alert variant='success'>
                         <p>Excellent work, your story has been added! Anyone with the link can add to it. You can share it out on social to get more friends to contribute:</p>
-                        <p><Link to={"/story/" + newStoryID} target="_blank" rel="noopener noreferrer">{window.location.href+""+newStoryID}</Link> </p>
+                        <p><Link to={"/story/" + newStoryID} rel="noopener noreferrer">{window.location.href+""+newStoryID}</Link> </p>
                         <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
                         {isPublic
                           ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.</p>
