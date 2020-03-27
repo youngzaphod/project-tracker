@@ -208,6 +208,7 @@ function Start(props) {
         //Story has been updated successfully
         console.log("Story update successful", resJson);
         setSuccess(true);
+        setNewStoryID(resJson._id);
       })
       .catch(err => {
         console.log("Error updating story: ", err);
@@ -394,7 +395,10 @@ function Start(props) {
 
                       <Alert variant='success'>
                         <p>Excellent work, your story has been added! Anyone with the link can add to it. You can share it out on social to get more friends to contribute:</p>
-                        <p><Link to={"/story/" + newStoryID} target="_blank" rel="noopener noreferrer">{window.location.href+""+newStoryID}</Link> </p>
+                        <p><Link to={"/story/" + newStoryID} target="_blank" rel="noopener noreferrer">
+                          {window.location.href+""+ (props.storyID ? "" : newStoryID)}
+                          </Link>
+                        </p>
                         <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
                         {isPublic
                           ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.</p>
