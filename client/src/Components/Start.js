@@ -36,7 +36,7 @@ function Start(props) {
   const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
   const [story, setStory] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
@@ -146,6 +146,7 @@ function Start(props) {
     if (!props.storyID) {
       //If story doesn't already exist, create new Story to be added
       console.log(story.substr(0, 15));
+      console.log("isPublic");
       let newStory = {
         title: story.substr(0, 15),
         isPublic: isPublic,

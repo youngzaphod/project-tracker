@@ -22,18 +22,20 @@ router.get("/", (req, res) => {
 
 //Show all incomplete stories in collection
 router.get("/incomplete", (req, res) => {
-  Story.find({ complete: false, public: true })
+  Story.find({ complete: false, isPublic: true })
   .then(eachOne => {
     console.log(eachOne);
+    console.log("What the fuck incomplete");
     res.json(eachOne);
   });
 });
 
 //Show all complete stories in collection
 router.get("/complete", (req, res) => {
-  Story.find({ complete: true, public: true })
+  Story.find({ complete: true, isPublic: true })
   .then(eachOne => {
-    console.log(eachOne);
+    //console.log(eachOne);
+    console.log("What the fuck complete");
     res.json(eachOne);
   });
 });
@@ -43,7 +45,7 @@ router.post("/", function(req, res) {
   console.log("Adding body: ", req.body);
   Story.create({
     title: req.body.title,
-    public: req.body.public,
+    isPublic: req.body.isPublic,
     nextEmail: req.body.nextEmail,
     complete: req.body.complete,
     segCount: req.body.segCount,
