@@ -87,7 +87,7 @@ function Home(props) {
                     the public board here.
                 </p>
             <div align="center">
-                <Link to="/start/">
+                <Link to="/story/">
                     <Button variant="primary">
                         Start a story
                     </Button>
