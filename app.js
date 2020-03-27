@@ -46,6 +46,13 @@ app.use("/api/projects", projectRouter);
 app.use("/api/stories", storyRouter);
 //app.use('/', indexRouter);
 
+// Handles any requests that don't match the ones above for production build
+if (process.env.NODE_ENV === "production") {
+  app.get('*', (req,res) =>{
+      res.sendFile(path.join(__dirname+'/client/build/index.html'));
+  });
+}
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
