@@ -25,7 +25,6 @@ router.get("/incomplete", (req, res) => {
   Story.find({ complete: false, isPublic: true })
   .then(eachOne => {
     console.log(eachOne);
-    console.log("What the fuck incomplete");
     res.json(eachOne);
   });
 });
@@ -35,7 +34,6 @@ router.get("/complete", (req, res) => {
   Story.find({ complete: true, isPublic: true })
   .then(eachOne => {
     //console.log(eachOne);
-    console.log("What the fuck complete");
     res.json(eachOne);
   });
 });
@@ -85,9 +83,9 @@ router.put("/:story_id", (req, res) => {
     { _id: req.params.story_id },
     { $set: req.body },
   )
-    .then(milestone => {
-      res.json(milestone);
-      console.log(milestone);
+    .then(story => {
+      res.json(story);
+      console.log(story);
     })
     .catch(err => {
       res.send(err);

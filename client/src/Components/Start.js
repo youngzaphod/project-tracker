@@ -9,6 +9,8 @@ import Modal from 'react-bootstrap/Modal';
 import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import createActivityDetector from 'activity-detector';
+import { FacebookShareButton, EmailShareButton, TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
+
 
 import '../App.css';
 
@@ -175,7 +177,8 @@ function Start(props) {
       let newSegments = [...storyObj.segments];
       newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
       // Build story object for updating
-      let finished = ++storyObj.segCount === rounds ? true : false; // Increment segCont and check if story is complete
+      let finished = ++storyObj.segCount === storyObj.rounds ? true : false; // Increment segCont and check if story is complete
+      console.log("segCount", storyObj.segCount, "rounds", storyObj.rounds)
       let storyUpdate = {
         complete: finished,
         segCount: storyObj.segCount,
@@ -381,11 +384,24 @@ function Start(props) {
                 {success ?
 
                       <Alert variant='success'>
-                        <p>Excellent work, your story has been added! Anyone with the link can add to it. You can share it out on social to get more friends to contribute:</p>
-                        <p><Link to={"/story/" + newStoryID} target="_blank" rel="noopener noreferrer">
+                        <p>Excellent work! Now it's time to pass the torch. Anyone with the link below can add to your story; it's up to you to send to a single friend or post on social and see who adds:</p>
+                        <p><Link to={"/story/" + newStoryID}>
                           {window.location.href+""+ (props.storyID ? "" : newStoryID)}
                           </Link>
                         </p>
+                        <p></p>
+                        <a target="_blank" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
+                          <EmailIcon round={true} size={40} />
+                        </a>
+                        <div className="fb-share-button" data-href="https://foldandpass.com/story/5e7f9eb928e50b000467e107" data-layout="button" data-size="large">
+                          <a target="_blank" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
+                            className="fb-xfbml-parse-ignore">
+                            <FacebookIcon round={true} size={40}/>
+                          </a>
+                        </div>
+                        <TwitterShareButton url={window.location.href+""+ (props.storyID ? "" : newStoryID)}>
+                          <TwitterIcon round={true} size={40}/>
+                        </TwitterShareButton>
                         <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
                         {isPublic
                           ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.</p>
