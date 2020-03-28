@@ -12,9 +12,9 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3001');
+var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
+console.log(`Server port set to ${port}`);
 /**
  * Create HTTP server.
  */
@@ -73,6 +73,7 @@ function onError(error) {
       process.exit(1);
       break;
     default:
+      console.log("Catch-all error message");
       throw error;
   }
 }
