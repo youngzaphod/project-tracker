@@ -18,7 +18,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Connect to cluster at mongoDB Atlas
 const dbURL =
-  "mongodb+srv://" + process.env.DB_NAME + ":" + process.env.DB_PASS + "@clusterfuck-wglwx.mongodb.net/test?retryWrites=true";
+  "mongodb+srv://" + process.env.DB_NAME + ":" + process.env.DB_PASS + "@clusterfuck-wglwx.mongodb.net/" +
+    process.env.COLLECTION + "?retryWrites=true";
   console.log("DB name", process.env.DB_NAME);
   console.log("DB pass", process.env.DB_PASS);
 
