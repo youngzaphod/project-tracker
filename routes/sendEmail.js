@@ -8,8 +8,8 @@ router.post('/', function(req, res, next) {
   let transporter = nodeMailer.createTransport({
     service: 'Mailgun',
     auth: {
-      user: 'postmaster@sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org',
-      pass: '36fac4f5d301d655a7f33fc9ba3571fb-b9c15f4c-e04e13bf',
+      user: process.env.MAILGUN_USER,
+      pass: process.env.MAILGUN_PASS,
     }
   });
   let msgText = req.body.body + "<br/>" + req.body.email;

@@ -254,7 +254,7 @@ function Start(props) {
       setErrors(errorArray);
     })
     // Send to list of contributors if story is complete
-    if (true || finished) {
+    if (finished) {
       // Get list of contributors
       console.log("Authors:", authors)
       // Send email to the contributer
@@ -371,6 +371,10 @@ function Start(props) {
                 })
               }
               <h3>Now it's your turn to add:</h3>
+              {storyObj.rounds - storyObj.segCount === 1
+                ? <h4>This is the last round, make sure to wrap things up nicely! Or don't. Whatever, it's up to you.</h4>
+                : <h4>You're adding round {storyObj.segCount + 1} out of {storyObj.rounds}</h4>
+              }
               </>
               : 
                 <>
