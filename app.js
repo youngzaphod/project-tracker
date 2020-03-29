@@ -8,6 +8,7 @@ const http = require('http');
 const milestoneRouter = require("./routes/milestones");
 const projectRouter = require("./routes/projects");
 const storyRouter = require("./routes/stories");
+const emailRouter = require("./routes/sendEmail");
 var createError = require('http-errors');
 require('dotenv').config();
 
@@ -45,6 +46,7 @@ if (process.env.NODE_ENV === "production") {
 app.use("/api/milestones", milestoneRouter);
 app.use("/api/projects", projectRouter);
 app.use("/api/stories", storyRouter);
+app.use("/api/email", emailRouter);
 //app.use('/', indexRouter);
 
 // Handles any requests that don't match the ones above for production build

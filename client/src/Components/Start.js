@@ -70,8 +70,10 @@ function Start(props) {
             segments: theStory.segments,
             locked: theStory.locked,
             complete: theStory.complete,
-            rounds: theStory.rounds
+            rounds: theStory.rounds,
+            authors: theStory.authors
           });
+
           if (theStory.locked && !theStory.complete) {
             console.log("Setting loggedout on entry");
             setLoggedOut(true);
@@ -143,11 +145,12 @@ function Start(props) {
         complete: false,
         locked: false,
         segCount: 1,
-        segments: {
+        segments: [{
           author: writerEmail,
           content: story,
           order: 1
-        }
+        }],
+        authors: [writerEmail]
       }
 
       // Add new Story to db
@@ -164,6 +167,7 @@ function Start(props) {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
           setNewStoryID(resJson._id);
+          sendEmails(false, resJson._id, [writerEmail]);
         })
         .catch(err => {
           errorArray.push(`Issue adding story: ${err}`);
@@ -176,13 +180,29 @@ function Start(props) {
       console.log(`Updating story: _id = ${props.storyID}`);
       let newSegments = [...storyObj.segments];
       newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
+      // Create new authors array - check that current author isn't already in the array to avoid duplicates
+      let newAuthors = [];
+      let count = 0;
+      let keys = Object.keys(storyObj.authors);
+      for(let key in keys) {
+        newAuthors.push(storyObj.authors[key]);
+        console.log(`Author ${key}`, storyObj.authors[key]);
+        if (storyObj.authors[key] === writerEmail) {
+          count++;
+        }
+      }
+      if (count ===0) {
+        newAuthors.push(writerEmail);
+      }
+
       // Build story object for updating
-      let finished = ++storyObj.segCount === storyObj.rounds ? true : false; // Increment segCont and check if story is complete
-      console.log("segCount", storyObj.segCount, "rounds", storyObj.rounds)
+      let finished = ++storyObj.segCount === storyObj.rounds ? true : false; // Increment segCount and check if story is complete
+      console.log("segCount", storyObj.segCount, "rounds", storyObj.rounds);
       let storyUpdate = {
         complete: finished,
         segCount: storyObj.segCount,
         segments: newSegments,
+        authors: newAuthors,
         locked: false
       };
       fetch(`/api/stories/${props.storyID}`, {
@@ -199,6 +219,7 @@ function Start(props) {
         console.log("Story update successful", resJson);
         setSuccess(true);
         setNewStoryID(resJson._id);
+        sendEmails(finished, resJson._id, newAuthors);
       })
       .catch(err => {
         console.log("Error updating story: ", err);
@@ -206,6 +227,58 @@ function Start(props) {
         setErrors(errorArray);
       });
     }
+  }
+
+  const sendEmails = (finished, newStoryID, authors) => {
+    let errorArray = [];
+    // Send email to the contributer
+    let toSend = {
+      subject: "A link to your brilliance",
+      email: writerEmail,
+      body: (finished ? "Congrats, you actually finished a story! Who knew it could be done?"
+        : "You've just contributed to a story, well done.") + " You can always access it here: <br/>" +
+        window.location.href + (props.storyID ? "" : newStoryID) + "<br/><br/>" +
+        "You can view all stories that you contributed to here: <br/>" +
+        "https://foldandpass.com/authors/" + writerEmail
+    }
+    fetch('/api/email', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(toSend)
+    }).catch(err => {
+      console.log("Error sending email: ", err);
+      errorArray.push(err);
+      setErrors(errorArray);
+    })
+    // Send to list of contributors if story is complete
+    if (true || finished) {
+      // Get list of contributors
+      console.log("Authors:", authors)
+      // Send email to the contributer
+      toSend = {
+        subject: "Story complete!",
+        authors: authors,
+        body: "A story you contributed to has just been completed! See your collaborative genius here: <br/>" +
+          window.location.href + (props.storyID ? "" : newStoryID)
+      }
+      console.log("Sending complete notification emails: ", toSend);
+      fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toSend)
+      }).catch(err => {
+        console.log("Error sending email: ", err);
+        errorArray.push(err);
+        setErrors(errorArray);
+      })
+    }
+    
   }
 
   //Function for logging out user after second timer is done

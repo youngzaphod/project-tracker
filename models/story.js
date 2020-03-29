@@ -16,7 +16,8 @@ const storySchema = new Schema({
 	segCount: Number,
 	lastUpdate: Date,
 	locked: Boolean,
-	rounds: Number
+	rounds: Number,
+	authors: [String]
 })
 
 const story = mongoose.model('story', storySchema);

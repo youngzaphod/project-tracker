@@ -24,7 +24,7 @@ router.get("/", (req, res) => {
 router.get("/incomplete", (req, res) => {
   Story.find({ complete: false, isPublic: true })
   .then(eachOne => {
-    console.log(eachOne);
+    //console.log(eachOne);
     res.json(eachOne);
   });
 });
@@ -40,7 +40,7 @@ router.get("/complete", (req, res) => {
 
 //Create new Story document from data
 router.post("/", function(req, res) {
-  console.log("Adding body: ", req.body);
+  //console.log("Adding body: ", req.body);
   Story.create({
     title: req.body.title,
     isPublic: req.body.isPublic,
@@ -50,6 +50,7 @@ router.post("/", function(req, res) {
     segments: req.body.segments,
     rounds: req.body.rounds,
     lastUpdate: Date.now(),
+    authors: req.body.authors,
     locked: false
   })
     .then(story => {
@@ -67,7 +68,7 @@ router.get("/:story_id", (req, res) => {
   Story.findOneAndUpdate({_id: req.params.story_id}, {locked: true})
     .then(story => {
       res.json(story);
-      console.log("Getting story", story);
+      //console.log("Getting story", story);
     })
     .catch(err => {
       res.send(err);
@@ -85,7 +86,7 @@ router.put("/:story_id", (req, res) => {
   )
     .then(story => {
       res.json(story);
-      console.log(story);
+      //console.log(story);
     })
     .catch(err => {
       res.send(err);
@@ -103,7 +104,7 @@ router.post("/:story_id", (req, res) => {
   )
     .then(story => {
       res.json(story);
-      console.log("Unock via Beacon response:", story);
+      //console.log("Unock via Beacon response:", story);
     })
     .catch(err => {
       res.send(err);
