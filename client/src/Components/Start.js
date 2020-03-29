@@ -7,9 +7,10 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import createActivityDetector from 'activity-detector';
-import { FacebookShareButton, EmailShareButton, TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
+import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
 
 
 import '../App.css';
@@ -57,13 +58,16 @@ function Start(props) {
     if (props.storyID) {
       fetch(`/api/stories/${props.storyID}`, {
           method: 'GET',
-          headers: {
-            Accept: 'application/json',
-              'Content-Type': 'application/json'
-          },
+          headers: { Accept: 'application/json' },
         })
         .then(response => response.json())
         .then(theStory => {
+          console.log("Response status", theStory.status, "Error", theStory.error);
+          if (theStory.error) {
+            console.log("Should redirect now...");
+            props.history.push("/NotFound");
+            return <Redirect to="/NotFound" />
+          }
           setStoryObj({
             title: theStory.title,
             segCount: theStory.segCount,
@@ -370,10 +374,14 @@ function Start(props) {
                   return <p key={seg._id}>{seg.content}</p>
                 })
               }
-              <h3>Now it's your turn to add:</h3>
+              
               {storyObj.rounds - storyObj.segCount === 1
                 ? <h4>This is the last round, make sure to wrap things up nicely! Or don't. Whatever, it's up to you.</h4>
-                : <h4>You're adding round {storyObj.segCount + 1} out of {storyObj.rounds}</h4>
+                :
+                  <>
+                  <h4>Now it's your turn to add:</h4>
+                  <em>round {storyObj.segCount + 1} out of {storyObj.rounds}</em>
+                  </>
               }
               </>
               : 
@@ -396,11 +404,10 @@ function Start(props) {
             <Col lg={6}>
               <Form>
                 <Form.Group controlId="formStory">
-                  <Form.Label>Start writing, and don't be too picky, the point is to do your part and pass it along.</Form.Label>
                   <Form.Text className="text-muted">
                     Max characters: {charLimit} <span style={story.length < charLimit - 100 ? {color:"green"} : {color:"red"}}>Current count: {story.length}</span>
                   </Form.Text>
-                  <Form.Control as="textarea" placeholder="What are you waiting for?" rows="20" value={story} onChange={e => checkStory(e.target.value)} />
+                  <Form.Control as="textarea" placeholder="Don't be picky, just get started..." rows="20" value={story} onChange={e => checkStory(e.target.value)} />
                 </Form.Group>
 
                 <Form.Group controlId="formBasicEmail">
@@ -467,11 +474,11 @@ function Start(props) {
                           </Link>
                         </p>
                         <p></p>
-                        <a target="_blank" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
+                        <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
                           <EmailIcon round={true} size={40} />
                         </a>
                         <div className="fb-share-button" data-href="https://foldandpass.com/story/5e7f9eb928e50b000467e107" data-layout="button" data-size="large">
-                          <a target="_blank" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
+                          <a target="_blank" rel="noopener noreferrer" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
                             className="fb-xfbml-parse-ignore">
                             <FacebookIcon round={true} size={40}/>
                           </a>

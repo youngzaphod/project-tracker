@@ -71,7 +71,7 @@ router.get("/:story_id", (req, res) => {
       //console.log("Getting story", story);
     })
     .catch(err => {
-      res.send(err);
+      res.status(500).json({error: err});
       console.log("Server error loading story! ", err);
     });
 });
