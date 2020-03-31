@@ -12,23 +12,20 @@ router.post('/', function(req, res, next) {
       pass: process.env.MAILGUN_PASS,
     }
   });
-  let msgText = req.body.body + "<br/>" + req.body.email;
-  console.log("Should be sending email..");
-  /*
-  for(const key in req.body) {
-    // Make sure key is not a prototype property, actually belongs to object
-    if(!req.body.hasOwnProperty(key)) continue;
-
-    msgText += `<br/>${key}: ${req.body[key]}`
-
+  let msgText = req.body.body + "<br/>";
+  if (req.body.email) {
+      msgText += req.body.email + "<br/>";
   }
-  */
+  msgText += "<br/>";
+
+  console.log("Should be sending email..");
+
   msgText += '<br/>=================================';
 
     if (req.body.email) {
         let mailOptions = {
-            from: 'postmaster@sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org',
-            to: 'johndurso@gmail.com',
+            from: `"Fold and Pass" noreply@foldandpass.com`,
+            to: process.env.MAILGUN_USER === "postmaster@mg.foldandpass.com" ? req.body.email : "johndurso@gmail.com",
             subject: req.body.subject,
             html: msgText,
         };
@@ -52,7 +49,7 @@ router.post('/', function(req, res, next) {
         });
     } else {
         let mailOptions = {
-            from: 'postmaster@sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org',
+            from: `"Fold and Pass" noreply@foldandpass.com`,
             subject: req.body.subject,
             html: msgText,
         };

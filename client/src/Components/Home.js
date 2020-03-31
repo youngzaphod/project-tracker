@@ -74,18 +74,23 @@ function Home(props) {
         }
         <Row className='justify-content-center'>
             <Col lg={6}>
-                <h3 align="center">Miss activities with friends?</h3>
-                <h4 align="center">Enjoy writing but don't have a ton of time?</h4>
+                <h3 align="center">The 'rona got you down?</h3>
+                <p><br/></p>
                 <p>
-                    Having nowhere to go (thanks 'rona!) and a week of vacation, I decided to create this
-                    app based on a game my friends and I used to play in Jr. High and High School. Basically,
-                    someone starts a story, leaves a hanging sentence or paragraph, and passes it to the next person. I created
-                    this simple app so you can play with people all over the world, friends or no.
+                    Shakespeare wrote Macbeth and King Lear while quarantined from the Bubonic plague, and he didn't even have any cool apps
+                    like this. Imagine what you can do! Here's how it works:
+                </p>
+                <p>
+                    Someone (possibly you!) starts a story, leaves a hanging sentence or paragraph, chooses a number of rounds,
+                     and passes it via the interwebs to the next person to continue, and so on until the number of rounds is complete.
+                     So simple you can do it even if you're not Shakespeare.
                 </p>
                 <p>
                     You can do this with friends, post links to your story to social media, send via email, and post on
                     the public board here.
                 </p>
+                <p></p>
+                <br/>
             <div align="center">
                 <Link to="/story/">
                     <Button variant="primary">

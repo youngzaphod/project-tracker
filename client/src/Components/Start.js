@@ -21,7 +21,6 @@ const secondTimeOut = 1 * 1000 * 60;
 
 function useIdle(options) {
   const [isIdle, setIsIdle] = useState(false);
-  console.log("Inside useIdle");
   useEffect(() => {
     const activityDetector = createActivityDetector(options);
     activityDetector.on('idle', () => setIsIdle(true));
@@ -62,7 +61,6 @@ function Start(props) {
         })
         .then(response => response.json())
         .then(theStory => {
-          console.log("Response status", theStory.status, "Error", theStory.error);
           if (theStory.error) {
             console.log("Should redirect now...");
             props.history.push("/NotFound");
@@ -82,7 +80,6 @@ function Start(props) {
             console.log("Setting loggedout on entry");
             setLoggedOut(true);
           }
-          console.log('Got theStory from db: ', theStory);
         })
         .catch(err => {
           let errorArray = [`Sorry, there was an issue loading the story: ${err}`];
@@ -243,7 +240,7 @@ function Start(props) {
         : "You've just contributed to a story, well done.") + " You can always access it here: <br/>" +
         window.location.href + (props.storyID ? "" : newStoryID) + "<br/><br/>" +
         "You can view all stories that you contributed to here: <br/>" +
-        "https://foldandpass.com/authors/" + writerEmail
+        "https://foldandpass.com/author/" + writerEmail
     }
     fetch('/api/email', {
       method: 'POST',
@@ -315,10 +312,8 @@ function Start(props) {
     if (isIdle && !loggedOut && !success) {
 
       setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
-      console.log("Second timer started, id:", logoutTimer);
     } else {
       clearTimeout(logoutTimer);
-      console.log("Clearing timeout; idle, loggedout, timer id:", isIdle, loggedOut, logoutTimer);
     }
     return () => {clearTimeout(logoutTimer)}
   }, [isIdle]);
@@ -371,7 +366,7 @@ function Start(props) {
               <h3>Previously on <em>{storyObj.title}</em>...</h3>
               {
                 storyObj.segments.map((seg, i) => {
-                  return <p key={seg._id}>{seg.content}</p>
+                  return <p style={{ whiteSpace: "pre-wrap"}} key={seg._id}>{seg.content}</p>
                 })
               }
               
@@ -390,7 +385,7 @@ function Start(props) {
                 <br/>
                 {
                   storyObj.segments.map((seg, i) => {
-                    return <p key={seg._id}>{seg.content}</p>
+                    return <p style={{ whiteSpace: "pre-wrap"}} key={seg._id}>{seg.content}</p>
                   })
                 }
                 </>
@@ -469,15 +464,15 @@ function Start(props) {
 
                       <Alert variant='success'>
                         <p>Excellent work! Now it's time to pass the torch. Anyone with the link below can add to your story; it's up to you to send to a single friend or post on social and see who adds:</p>
-                        <p><Link to={"/story/" + newStoryID}>
+                        <p><a href={window.location.href+""+ (props.storyID ? "" : newStoryID)}  rel="noopener noreferrer">
                           {window.location.href+""+ (props.storyID ? "" : newStoryID)}
-                          </Link>
+                          </a>
                         </p>
                         <p></p>
                         <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
                           <EmailIcon round={true} size={40} />
                         </a>
-                        <div className="fb-share-button" data-href="https://foldandpass.com/story/5e7f9eb928e50b000467e107" data-layout="button" data-size="large">
+                        <div className="fb-share-button" data-href={"https://foldandpass.com/story/" + newStoryID} data-layout="button" data-size="large">
                           <a target="_blank" rel="noopener noreferrer" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
                             className="fb-xfbml-parse-ignore">
                             <FacebookIcon round={true} size={40}/>

@@ -11,14 +11,14 @@ import '../App.css';
 
 
 
-function Open(props) {
+function Author(props) {
   const [errors, setErrors] = useState([]);
   const [stories, setStories] = useState([]);
 
 
   // Get all incomplete stories
     useEffect(() => {
-        fetch(`/api/stories/incomplete`, {
+        fetch(`/api/authors/${props.authorEmail}`, {
             method: 'GET',
             headers: {
             Accept: 'application/json',
@@ -36,12 +36,13 @@ function Open(props) {
                     rounds: theStories[i].rounds
                 });
             }
-            /*
-            theStories.foreach((story, i) => {
-                temp.push({id: story._id, title: story.title, segCount: story.segCount, rounds: story.rounds});
-            });
-            */
+
+            console.log("temp:", temp);
             setStories(temp);
+            if (temp.length === 0) {
+                setErrors(["Sorry, there are no stories to display!"]);
+            }
+            
         })
         .catch(err => {
             let errorArray = [`Sorry, there was an issue loading stories: ${err}`];
@@ -70,7 +71,7 @@ function Open(props) {
         }
         <Row className='justify-content-center'>
             <Col lg={6}>
-                <h3 align="center">Pick a story and run with it</h3>
+                <h3 align="center">Showing all stories where {props.authorEmail} has contributed</h3>
             </Col>
         </Row>
         <Row className='justify-content-center'>
@@ -101,4 +102,4 @@ function Open(props) {
     );
 }
 
-export default Open;
+export default Author;

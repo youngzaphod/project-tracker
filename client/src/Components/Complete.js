@@ -27,10 +27,8 @@ function Complete(props) {
         })
         .then(response => response.json())
         .then(theStories => {
-            console.log('Got stories from db: ', theStories);
             let temp = [];
             for(let i in theStories) {
-                console.log("Story", theStories[i]);
                 temp.push({
                     id: theStories[i]._id,
                     title: theStories[i].title,
@@ -43,7 +41,6 @@ function Complete(props) {
                 temp.push({id: story._id, title: story.title, segCount: story.segCount, rounds: story.rounds});
             });
             */
-            console.log("temp:", temp);
             setStories(temp);
         })
         .catch(err => {
