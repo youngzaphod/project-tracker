@@ -74,7 +74,7 @@ function Home(props) {
         }
         <Row className='justify-content-center'>
             <Col lg={6}>
-                <h3 align="center">The 'rona got you down?</h3>
+                <h3 align="center">'Rona got you down?</h3>
                 <p><br/></p>
                 <p>
                     Shakespeare wrote Macbeth and King Lear while quarantined from the Bubonic plague, and he didn't even have any cool apps

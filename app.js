@@ -4,13 +4,11 @@ const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 const http = require('http');
-//const indexRouter = require('./routes/index');
-const milestoneRouter = require("./routes/milestones");
-const projectRouter = require("./routes/projects");
 const storyRouter = require("./routes/stories");
 const emailRouter = require("./routes/sendEmail");
 const authorRouter = require("./routes/authors");
 var createError = require('http-errors');
+const sanitize = require("mongo-sanitize");
 require('dotenv').config();
 
 const server = http.createServer(app);
@@ -44,12 +42,19 @@ if (process.env.NODE_ENV === "production") {
   //app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-app.use("/api/milestones", milestoneRouter);
-app.use("/api/projects", projectRouter);
+// Sanitize user input to prevent injection attacks
+function cleanBody(req, res, next) {
+  console.log("Original body", req.body);
+  req.body = sanitize(req.body);
+  console.log("Sanitizing...", req.body);
+  next('route');
+}
+
+// Call sanitization first
+app.use(cleanBody);
 app.use("/api/stories", storyRouter);
 app.use("/api/email", emailRouter);
 app.use("/api/authors", authorRouter);
-//app.use('/', indexRouter);
 
 // Handles any requests that don't match the ones above for production build
 if (process.env.NODE_ENV === "production") {
