@@ -41,9 +41,11 @@ function Start(props) {
   const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
+  const [confirm, setConfirm] = useState(false);
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
   const [logoutTimer, setLogoutTimer] = useState(null);
   const [newStoryID, setNewStoryID] = useState('');
+  const [hopo, setHopo] = useState(false); // Tracking if honeybuckets are filled in
 
   const unlockStory = () => {
     if (props.storyID && !success && !loggedOut) {
@@ -112,6 +114,9 @@ function Start(props) {
   const handleSubmit = () => {
     var errorArray = [];
 
+    if(hopo) {
+      errorArray.push("You're showing up as spam for some reason - please copy your work, refresh the page, and try again. But only if you're a human.");
+    }
     
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {
       errorArray.push("You must enter a valid email address for yourself.");
@@ -126,8 +131,7 @@ function Start(props) {
     setErrors(errorArray);
     // If no errors, move on to updating story
     if (errorArray.length === 0) {
-      updateStory();
-      
+      confirm ? updateStory() : setConfirm(true);
     }
   }
 
@@ -412,6 +416,12 @@ function Start(props) {
                     There's no signup, we just need an email to send you notifications when your story is complete, and a link where you can see all the stories you have contributed to.
                   </Form.Text>
                 </Form.Group>
+
+                <label className="hopo" for="name"></label>
+                <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
+                <label className="hopo" for="email"></label>
+                <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
+
                 {!props.storyID &&
                   <>
                   <Form.Group controlId='formRadio'>
@@ -460,6 +470,7 @@ function Start(props) {
                     </Row>
                   : null
                 }
+
                 {success ?
 
                       <Alert variant='success'>
@@ -488,10 +499,19 @@ function Start(props) {
                         }
                       </Alert>
 
-                :
-                <Button variant="primary" onClick={handleSubmit}>
-                  Publish
-                </Button>
+                : confirm ?
+                  <Alert variant="warning">
+                    <h4>One more step...</h4>
+                    <p>You can't edit later, so if you haven't yet give it a second read before confirming you want to publish.</p>
+                    <Button variant="primary" onClick={handleSubmit}>
+                      Confirm Publish
+                    </Button>
+                  </Alert>
+                  :
+                  <Button variant="primary" onClick={handleSubmit}>
+                    Publish
+                  </Button>
+
                 }
               </Form>
             </Col>

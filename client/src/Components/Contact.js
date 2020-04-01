@@ -17,11 +17,16 @@ function Contact(props) {
   const [email, setEmail] = useState('');
   const [success, setSuccess] = useState(false);
   const [sending, setSending] = useState(false);
+  const [hopo, setHopo] = useState(false);
 
   //Check for errors on each field and add to error array
   const handleSubmit = () => {
     console.log("Handling submit");
     var errorArray = [];
+
+    if (hopo) {
+      errorArray.push("You're showing up as spam for some reason 🤷 Please copy your work, refresh the page, and try again - IF you're a human.")
+    }
 
     
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)) {
@@ -98,6 +103,11 @@ function Contact(props) {
                         <Form.Label>Subject</Form.Label>
                         <Form.Control as="input" placeholder="Be concise here" rows="20" value={subject} onChange={e => setSubject(e.target.value)} />
                       </Form.Group>
+
+                      <label className="hopo" for="name"></label>
+                      <input className="hopo" tabIndex={-1} autoComplete="off" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
+                      <label className="hopo" for="email"></label>
+                      <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
 
                       <Form.Group controlId="formMessage">
                         <Form.Label>
