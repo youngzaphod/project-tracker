@@ -1,6 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const mailgun = require('mailgun-js');
+const mg = mailgun({apiKey: "892aa861ce07edef62c1b8b7c0b0716c-b9c15f4c-1267a952",
+    domain: "sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org"
+});
 const nodeMailer = require('nodemailer');
+
+//Testing API send
+const data = {
+	from: "Mailgun Sandbox <postmaster@sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org>",
+	to: "johndurso@gmail.com",
+	subject: "Hello",
+	template: "tester",
+	'h:X-Mailgun-Variables': {"test": "testeroooni"}
+};
+mg.messages().send(data, function (error, body) {
+	console.log(body);
+});
 
 /* Use POST data to create and send email */
 router.post('/', function(req, res, next) {
@@ -29,6 +45,15 @@ router.post('/', function(req, res, next) {
             subject: req.body.subject,
             html: msgText,
         };
+
+        // For testing
+        mailOptions = {
+            from: `"Fold and Pass" noreply@foldandpass.com`,
+            to: process.env.MAILGUN_USER === "postmaster@mg.foldandpass.com" ? req.body.email : "johndurso@gmail.com",
+            subject: req.body.subject,
+            template: "tester",
+            "h:X-Mailgun-Variables": { test: "Hey it's working!" }
+        }
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {

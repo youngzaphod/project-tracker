@@ -44,9 +44,7 @@ if (process.env.NODE_ENV === "production") {
 
 // Sanitize user input to prevent injection attacks
 function cleanBody(req, res, next) {
-  console.log("Original body", req.body);
   req.body = sanitize(req.body);
-  console.log("Sanitizing...", req.body);
   next('route');
 }
 

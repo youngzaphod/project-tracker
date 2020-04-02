@@ -16,11 +16,13 @@ import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-
 import '../App.css';
 
 const charLimit = 1000;
-const timeOut = 15 * 1000 * 60;
-const secondTimeOut = 1 * 1000 * 60;
+const timeOut = 2 * 1000;
+const secondTimeOut = 2 * 1000;
+const activeEvents = ['click', 'mousemove', 'keydown', 'DOMMouseScroll', 'mousewheel', 'mousedown', 'touchstart', 'touchmove', 'focus'];
 
 function useIdle(options) {
   const [isIdle, setIsIdle] = useState(false);
+  console.log("Inside useIdle. isIdle:", isIdle);
   useEffect(() => {
     const activityDetector = createActivityDetector(options);
     activityDetector.on('idle', () => setIsIdle(true));
@@ -33,7 +35,8 @@ function useIdle(options) {
 
 
 function Start(props) {
-  const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
+  const isIdle = useIdle({ timeToIdle: timeOut, inactivityEvents: [], activityEvents: activeEvents });
+  // const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
@@ -45,6 +48,7 @@ function Start(props) {
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
   const [logoutTimer, setLogoutTimer] = useState(null);
   const [newStoryID, setNewStoryID] = useState('');
+  const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeybuckets are filled in
 
   const unlockStory = () => {
@@ -57,6 +61,7 @@ function Start(props) {
   useEffect(() => {
     // Get story by id, if ID exists
     if (props.storyID) {
+      setFirst(false);
       fetch(`/api/stories/${props.storyID}`, {
           method: 'GET',
           headers: { Accept: 'application/json' },
@@ -289,16 +294,14 @@ function Start(props) {
   //Function for logging out user after second timer is done
   const logoutUser = () => {
     console.log("logout user here");
-    let storyUpdate = {
-      locked: false,
-    };
+
     fetch(`/api/stories/${props.storyID}`, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(storyUpdate)
+      body: JSON.stringify({ locked: false })
     })
     .then(response => response.json())
     .then(resJson => {
@@ -313,8 +316,9 @@ function Start(props) {
 
   // If user became idle, trigger timeout, else if user became active, clear timeout
   useEffect(() => {
-    if (isIdle && !loggedOut && !success) {
-
+    
+    if (isIdle && !loggedOut && !success && !first && !storyObj.complete) {
+      console.log("starting second timer");
       setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
     } else {
       clearTimeout(logoutTimer);
@@ -326,23 +330,22 @@ function Start(props) {
       <Container fluid>
         <Row>
           <Modal
-            backdrop='static'
-            show={isIdle && !loggedOut && !success && !storyObj.complete}
+            show={isIdle && !loggedOut && !success && !storyObj.complete && !first}
             onHide={() =>{}}
             aria-labelledby='contained-modeal-title-vcenter'
             centered>
-            <Modal.Header closeButton>
+            <Modal.Header>
               <Modal.Title>You're about to lose your work...</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
               <p>You've been idle over 30 minutes!</p>
-              <p>Close this popup within a minute to continue working, otherwise the page will automatically close and you'll lose your work!</p>
+              <p>Click or type within a minute to continue working, otherwise the page will automatically close and you'll lose your work!</p>
             </Modal.Body>
           </Modal>
         </Row>
         <Row>
-          <Modal backdrop='static' show={loggedOut && !success && storyObj.complete} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
+          <Modal backdrop='static' show={loggedOut && !success && !storyObj.complete} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
             <Modal.Header>
               <Modal.Title>You don't have access to this story at the moment</Modal.Title>
             </Modal.Header>
@@ -363,7 +366,7 @@ function Start(props) {
         </Row>
         <Row className='justify-content-center'>
           <Col lg={6}>
-          {props.storyID != null
+          {!first
             ? !storyObj.complete
               ?
               <>
@@ -417,9 +420,9 @@ function Start(props) {
                   </Form.Text>
                 </Form.Group>
 
-                <label className="hopo" for="name"></label>
+                <label className="hopo"></label>
                 <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
-                <label className="hopo" for="email"></label>
+                <label className="hopo"></label>
                 <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
 
                 {!props.storyID &&
