@@ -9,33 +9,50 @@ import Modal from 'react-bootstrap/Modal';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
-import createActivityDetector from 'activity-detector';
 import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
 
 
 import '../App.css';
 
 const charLimit = 1000;
-const timeOut = 2 * 1000;
-const secondTimeOut = 2 * 1000;
-const activeEvents = ['click', 'mousemove', 'keydown', 'DOMMouseScroll', 'mousewheel', 'mousedown', 'touchstart', 'touchmove', 'focus'];
+const timeOut = 30 * 1000 * 60;
+const secondTimeOut = 1 * 1000 * 60;
 
-function useIdle(options) {
+function useIdle() {
   const [isIdle, setIsIdle] = useState(false);
-  console.log("Inside useIdle. isIdle:", isIdle);
+  
   useEffect(() => {
-    const activityDetector = createActivityDetector(options);
-    activityDetector.on('idle', () => setIsIdle(true));
-    activityDetector.on('active', () => setIsIdle(false));
-    return () => activityDetector.stop();
-  }, [options])
+    let idleTimer = setTimeout(() => setIsIdle(true), timeOut);
+    function goActive() {
+      setIsIdle(false);
+      // When action is taken, reset the timer
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setIsIdle(true), timeOut);
+    }
+
+    // Set all actions not considered idle 
+    window.addEventListener('click', goActive);
+    window.addEventListener('keypress', goActive);
+    window.addEventListener('mousedown', goActive);
+    window.addEventListener('touchstart', goActive);
+    window.addEventListener('touchmove', goActive);
+    // Clear listeners on return
+    return () => {
+      window.removeEventListener('click', goActive);
+      window.removeEventListener('keypress', goActive);
+      window.removeEventListener('mousedown', goActive);
+      window.removeEventListener('touchstart', goActive);
+      window.removeEventListener('touchmove', goActive);
+    }
+  }, [])
+
   return isIdle;
 }
 
 
 
 function Start(props) {
-  const isIdle = useIdle({ timeToIdle: timeOut, inactivityEvents: [], activityEvents: activeEvents });
+  const isIdle = useIdle();
   // const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
@@ -245,11 +262,11 @@ function Start(props) {
     let toSend = {
       subject: "A link to your brilliance",
       email: writerEmail,
-      body: (finished ? "Congrats, you actually finished a story! Who knew it could be done?"
-        : "You've just contributed to a story, well done.") + " You can always access it here: <br/>" +
-        window.location.href + (props.storyID ? "" : newStoryID) + "<br/><br/>" +
-        "You can view all stories that you contributed to here: <br/>" +
-        "https://foldandpass.com/author/" + writerEmail
+      finished: finished,
+      urlOne: window.location.href + (props.storyID ? "" : newStoryID),
+      urlAll: "https://foldandpass.com/author/" + writerEmail,
+      title: storyObj.title,
+      authors: authors,
     }
     fetch('/api/email', {
       method: 'POST',

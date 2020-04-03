@@ -6,7 +6,7 @@ const data = {
 	to: "johndurso@gmail.com",
 	subject: "Hello",
 	template: "tester",
-	'h:X-Mailgun-Variables': {"test": "testeroooni"}
+	'h:X-Mailgun-Variables': '{"test": "testeroooni"}'
 };
 mg.messages().send(data, function (error, body) {
 	console.log(body);
