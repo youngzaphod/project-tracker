@@ -1,12 +1,17 @@
 const mailgun = require("mailgun-js");
-const DOMAIN = "sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org";
-const mg = mailgun({apiKey: "892aa861ce07edef62c1b8b7c0b0716c-b9c15f4c-1267a952", domain: DOMAIN});
+require('dotenv').config();
+
+const mg = mailgun({apiKey: process.env.MAILGUN_APIKEY, domain: "mg.foldandpass.com"});
+
+let testTitle = "The One that got Away";
+
 const data = {
-	from: "Mailgun Sandbox <postmaster@sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org>",
+	from: `Fold and Pass noreply@foldandpass.com`,
 	to: "johndurso@gmail.com",
 	subject: "Hello",
-	template: "tester",
-	'h:X-Mailgun-Variables': '{"test": "testeroooni"}'
+	template: "notification",
+	'h:X-Mailgun-Variables': `{"title": "${testTitle}", "linkOne": "https://foldandpass.com/story/5e7f9eb928e50b000467e107", "linkAll": "https://foldandpass.com/story/5e7f9eb928e50b000467e107", "message" : "testing testing"}`,
+	//'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlAll}"}`
 };
 mg.messages().send(data, function (error, body) {
 	console.log(body);

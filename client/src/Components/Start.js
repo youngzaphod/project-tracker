@@ -260,11 +260,11 @@ function Start(props) {
     let errorArray = [];
     // Send email to the contributer
     let toSend = {
-      subject: "A link to your brilliance",
+      subject: "A link to your brilliance: " + storyObj.title,
       email: writerEmail,
-      finished: finished,
-      urlOne: window.location.href + (props.storyID ? "" : newStoryID),
-      urlAll: "https://foldandpass.com/author/" + writerEmail,
+      finished: false,
+      urlOne: window.location.origin + "/story/" + newStoryID,
+      urlOrigin: window.location.origin,
       title: storyObj.title,
       authors: authors,
     }
@@ -286,10 +286,12 @@ function Start(props) {
       console.log("Authors:", authors)
       // Send email to the contributer
       toSend = {
-        subject: "Story complete!",
+        finished: true,
+        subject: "Story complete: " + storyObj.title,
+        title: storyObj.title,
         authors: authors,
-        body: "A story you contributed to has just been completed! See your collaborative genius here: <br/>" +
-          window.location.href + (props.storyID ? "" : newStoryID)
+        urlOne: window.location.origin + "/story/" + newStoryID,
+        urlOrigin: window.location.origin
       }
       console.log("Sending complete notification emails: ", toSend);
       fetch('/api/email', {

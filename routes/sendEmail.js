@@ -1,93 +1,99 @@
 const express = require('express');
 const router = express.Router();
 const mailgun = require('mailgun-js');
-const mg = mailgun({apiKey: "892aa861ce07edef62c1b8b7c0b0716c-b9c15f4c-1267a952",
-    domain: "sandbox5b8a5a156f2e4160b69ffca0fad3dd67.mailgun.org"
+require('dotenv').config();
+//const mg = mailgun({apiKey: process.env.MAILGUN_APIKEY, domain: process.env.MAILGUN_DOMAIN});
+const mg = mailgun({
+    apiKey: process.env.MAILGUN_APIKEY,
+    domain: process.env.MAILGUN_DOMAIN
 });
-const nodeMailer = require('nodemailer');
+
 
 /* Use POST data to create and send email */
 router.post('/', function(req, res, next) {
-
-  let transporter = nodeMailer.createTransport({
-    service: 'Mailgun',
-    auth: {
-      user: process.env.MAILGUN_USER,
-      pass: process.env.MAILGUN_PASS,
-    }
-  });
-
-  console.log("Should be sending email..");
-
-    if (req.body.email) {
-        let mailOptions = {
-            from: `"Fold and Pass" noreply@foldandpass.com`,
-            to: process.env.MAILGUN_USER === "postmaster@mg.foldandpass.com" ? req.body.email : "johndurso@gmail.com",
-            subject: req.body.subject,
-            template: "tester",
-	        'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlAll}"}`
-        };
-
-        // For testing
-        mailOptions = {
-            from: `"Fold and Pass" noreply@foldandpass.com`,
-            to: process.env.MAILGUN_USER === "postmaster@mg.foldandpass.com" ? req.body.email : "johndurso@gmail.com",
-            subject: req.body.subject,
-            template: "tester",
-            "h:X-Mailgun-Variables": { test: "Hey it's working!" }
-        }
-
-        transporter.sendMail(mailOptions, (error, info) => {
+    console.log("Email req.body:", req.body);
+    let message = "You are now a contributing author to the soon-to-be-released..."
+    const data = {
+        from: `Fold and Pass noreply@foldandpass.com`,
+        to: req.body.email,
+        subject: req.body.subject,
+        template: "notification",
+        'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + req.body.email}", "message": "${message}"}`
+    };
+    
+    // Send contribution email - gets sent any time a contribution is made
+    if (!req.body.finished) {
+        console.log("Sending addition email");
+        mg.messages().send(data, function (error, info) {
             if (error) {
-            console.log(error);
+                console.log("Error sending addition email: ", error);
+                res.status(400).send({
+                    success: false,
+                    body: `Error sending addition email`,
+                    error: error
+                });
+            } else {
+                console.log("Successfully sent addition email!", info);
+                res.status(200).send({
+                    success: true,
+                    body: `Email sent`,
+                    info: info
+                });
+            }
+        });
+    }
+    
+
+    // Send completion emails
+    if (req.body.finished) {
+        console.log("Completion emails being sent");
+        message = "Get your expectations nice and low, then check it out!";
+        const data = {
+            from: `Fold and Pass noreply@foldandpass.com`,
+            subject: "Story complete!",
+            template: "notification",
+        };
+        // Set up to track errors
+        let errorArray = [];
+        let infoArray = [];
+        // Loop through each author and send completion notification first
+        req.body.authors.forEach((auth) => {
+            console.log("Auth: ", auth);
+            data.to = auth;
+            data['h:X-Mailgun-Variables'] = 
+                `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + auth}", "message": "${message}"}`;
+            
+            mg.messages().send(data, function (error, info) {
+                if (error) {
+                    console.log("Error sending completion email, adding to array: ", error);
+                    errorArray.push(error);
+                } else {
+                    console.log("Successfully sent completion email, adding to array: ", info);
+                    infoArray.push(info);
+                }
+            });   
+        });
+
+        // After looping through all, display and send errors or info
+        if (errorArray.length > 0) {
+            console.log("Error sending email: ", errorArray);
             res.status(400).send({
                 success: false,
-                body: `Error sending email`,
-                error: error
+                body: `Error sending completion email`,
+                error: errorArray
             });
-            } else {
-            console.log(info);
+        } else {
+            console.log("Successfully sent completion email!", infoArray);
             res.status(200).send({
                 success: true,
                 body: `Email sent`,
-                info: info
-            });
-            }
-        });
-    } else {
-        let mailOptions = {
-            from: `"Fold and Pass" noreply@foldandpass.com`,
-            subject: req.body.subject,
-            html: msgText,
-        };
-        
-        //Send email to each author
-        let keys = Object.keys(req.body.authors);
-        for(let key in keys) {
-            console.log("Sending completion emails");
-            mailOptions["to"] = req.body.authors[key];
-
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.log(error);
-                    res.status(400).send({
-                        success: false,
-                        body: `Error sending email`,
-                        error: error
-                    });
-                } else {
-                    console.log(info);
-                    res.status(200).send({
-                        success: true,
-                        body: `Email sent`,
-                        info: info
-                    });
-                }
+                info: infoArray
             });
         }
         
+
     }
-  
+
 });
 
 module.exports = router;
