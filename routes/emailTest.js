@@ -1,7 +1,7 @@
 const mailgun = require("mailgun-js");
 require('dotenv').config();
 
-const mg = mailgun({apiKey: process.env.MAILGUN_APIKEY, domain: "mg.foldandpass.com"});
+const mg = mailgun({apiKey: process.env.MAILGUN_APIKEY, domain: process.env.MAILGUN_DOMAIN});
 
 let testTitle = "The One that got Away";
 

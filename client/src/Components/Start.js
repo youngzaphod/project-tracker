@@ -70,6 +70,7 @@ function Start(props) {
 
   const unlockStory = () => {
     if (props.storyID && !success && !loggedOut) {
+      console.log("Unlocking story");
       navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
     }
   }
@@ -502,18 +503,29 @@ function Start(props) {
                           </a>
                         </p>
                         <p></p>
-                        <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
-                          <EmailIcon round={true} size={40} />
-                        </a>
-                        <div className="fb-share-button" data-href={"https://foldandpass.com/story/" + newStoryID} data-layout="button" data-size="large">
-                          <a target="_blank" rel="noopener noreferrer" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
-                            className="fb-xfbml-parse-ignore">
-                            <FacebookIcon round={true} size={40}/>
-                          </a>
-                        </div>
-                        <TwitterShareButton url={window.location.href+""+ (props.storyID ? "" : newStoryID)}>
-                          <TwitterIcon round={true} size={40}/>
-                        </TwitterShareButton>
+                        <Container>
+                          <Row>
+                            <Col lg={2}>
+                              <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : newStoryID)}>
+                                <EmailIcon round={true} size={40} />
+                              </a>
+                            </Col>
+                            <Col lg={2}>
+                              <div className="fb-share-button" data-href={"https://foldandpass.com/story/" + newStoryID} data-layout="button" data-size="large">
+                                <a target="_blank" rel="noopener noreferrer" href={"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ffoldandpass.com%2Fstory%" + newStoryID +"&amp;src=sdkpreparse"}
+                                  className="fb-xfbml-parse-ignore">
+                                  <FacebookIcon round={true} size={40}/>
+                                </a>
+                              </div>
+                            </Col>
+                            <Col lg={2}>
+                              <TwitterShareButton url={window.location.href+""+ (props.storyID ? "" : newStoryID)}>
+                                <TwitterIcon round={true} size={40}/>
+                              </TwitterShareButton>
+                            </Col>
+                          </Row>
+                        </Container>
+                        <p/>
                         <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
                         {isPublic
                           ? <p>It will now be in the public directory where anyone can find it and contibute until its finished.</p>

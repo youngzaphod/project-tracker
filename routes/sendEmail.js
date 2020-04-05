@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mailgun = require('mailgun-js');
 require('dotenv').config();
-//const mg = mailgun({apiKey: process.env.MAILGUN_APIKEY, domain: process.env.MAILGUN_DOMAIN});
+
 const mg = mailgun({
     apiKey: process.env.MAILGUN_APIKEY,
     domain: process.env.MAILGUN_DOMAIN
