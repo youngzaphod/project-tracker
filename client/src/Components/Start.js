@@ -14,8 +14,8 @@ import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-
 import '../App.css';
 
 const charLimit = 1000;
-const timeOut = 30 * 1000 * 60;
-const secondTimeOut = 1 * 1000 * 60;
+const timeOut = 30 * 60 * 1000;
+const secondTimeOut = 1 * 60 * 1000;
 
 function useIdle() {
   const [isIdle, setIsIdle] = useState(false);
@@ -52,7 +52,6 @@ function useIdle() {
 
 function Start(props) {
   const isIdle = useIdle();
-  // const isIdle = useIdle({timeToIdle: timeOut, inactivityEvents: []});
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
@@ -62,7 +61,6 @@ function Start(props) {
   const [success, setSuccess] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
-  const [logoutTimer, setLogoutTimer] = useState(null);
   const [newStoryID, setNewStoryID] = useState('');
   const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeybuckets are filled in
@@ -70,12 +68,12 @@ function Start(props) {
   // Unlock story on leaving the page when the user hasn't taken any action that would log out
   useEffect(() => {
     const unlockStory = (e) => {
-      e.preventDefault();
+      //e.preventDefault();
       console.log("Unlocking story. success, loggedOut", success, loggedOut);
       if (props.storyID && !success && !loggedOut) {       
         navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
       }
-      e.returnValue = "What??";
+      //e.returnValue = "What??";
     }
 
     // Add event listener to run code before window closes
@@ -318,40 +316,40 @@ function Start(props) {
     
   }
 
-  //Function for logging out user after second timer is done
-  const logoutUser = () => {
-    console.log("logout user here");
-
-    fetch(`/api/stories/${props.storyID}`, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ locked: false })
-    })
-    .then(response => response.json())
-    .then(resJson => {
-      //Story has been updated successfully
-      console.log("Story has been unlocked", resJson);
-      setLoggedOut(true);
-    })
-    .catch(err => {
-      console.log("Error unlocking story: ", err);
-    });
-  }
-
   // If user became idle, trigger timeout, else if user became active, clear timeout
   useEffect(() => {
-    
+
+    //Function for logging out user after second timer is done
+    const logoutUser = () => {
+      fetch(`/api/stories/${props.storyID}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ locked: false })
+      })
+      .then(response => response.json())
+      .then(resJson => {
+        //Story has been updated successfully
+        console.log("Story has been unlocked", resJson);
+        setLoggedOut(true);
+      })
+      .catch(err => {
+        console.log("Error unlocking story: ", err);
+      });
+    }
+    let logoutTimer;
+
     if (isIdle && !loggedOut && !success && !first && !storyObj.complete) {
       console.log("starting second timer");
-      setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
+      //setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
+      logoutTimer = setTimeout(logoutUser, secondTimeOut);
     } else {
       clearTimeout(logoutTimer);
     }
     return () => {clearTimeout(logoutTimer)}
-  }, [isIdle, loggedOut, success, first, storyObj.complete]);
+  }, [isIdle, loggedOut, success, first, storyObj.complete, props.storyID]);
 
   const handleRefresh = () => {
     console.log("Handling refresh: success, loggedOut", success, loggedOut);
