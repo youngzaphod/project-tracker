@@ -14,8 +14,8 @@ import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-
 import '../App.css';
 
 const charLimit = 1000;
-const timeOut = 30 * 60 * 1000;
-const secondTimeOut = 1 * 60 * 1000;
+const timeOut =  2 * 1 * 1000;
+const secondTimeOut = 1 * 1 * 1000;
 
 function useIdle() {
   const [isIdle, setIsIdle] = useState(false);
@@ -71,7 +71,7 @@ function Start(props) {
       //e.preventDefault();
       console.log("Unlocking story. success, loggedOut", success, loggedOut);
       if (props.storyID && !success && !loggedOut) {       
-        navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
+        navigator.sendBeacon(`/api/stories/${props.storyID}/${false}`, JSON.stringify({body: {locked: false}}));
       }
       //e.returnValue = "What??";
     }

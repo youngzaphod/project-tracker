@@ -84,7 +84,7 @@ router.get("/:story_id", (req, res) => {
 
 //modify Story document by _id
 router.put("/:story_id", (req, res) => {
-  console.log("req.body:", req.body);
+  console.log("stories router.put req.body:", req.body);
 
   Story.findOneAndUpdate(
     { _id: req.params.story_id },
@@ -101,7 +101,7 @@ router.put("/:story_id", (req, res) => {
 });
 
 //Used for when user closes browser before saving to unlock story
-router.post("/:story_id", (req, res) => {
+router.post("/:story_id/:locked/", (req, res) => {
   console.log("Unlocking from Beacon, params:", req.params);
   //console.log("Unlocking from Beacon, req:", req);
 
