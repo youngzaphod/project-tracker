@@ -50,7 +50,7 @@ router.post('/', function(req, res, next) {
         message = "Get your expectations nice and low, then check it out!";
         const data = {
             from: `Fold and Pass noreply@foldandpass.com`,
-            subject: "Story complete!",
+            subject: req.body.subject,
             template: "notification",
         };
         // Set up to track errors

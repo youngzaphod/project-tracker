@@ -51,7 +51,7 @@ function Author(props) {
         }
         );
 
-    }, []); // Run only one time at start
+    }, [props.authorEmail]); // Run only one time at start (props.authorEmail won't change)
   
 
     return (

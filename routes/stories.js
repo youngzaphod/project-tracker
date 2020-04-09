@@ -44,28 +44,6 @@ router.get("/complete", (req, res) => {
   });
 });
 
-/*
-//Show all incomplete stories in collection
-router.get("/incomplete", (req, res) => {
-  Story.find({ complete: false, isPublic: true })
-  .then(eachOne => {
-    //console.log(eachOne);
-    res.json(eachOne);
-  });
-});
-*/
-
-/*
-//Show all complete stories in collection
-router.get("/complete", (req, res) => {
-  Story.find({ complete: true, isPublic: true })
-  .then(eachOne => {
-    //console.log(eachOne);
-    res.json(eachOne);
-  });
-});
-*/
-
 //Create new Story document from data
 router.post("/", function(req, res) {
   //console.log("Adding body: ", req.body);
@@ -82,8 +60,8 @@ router.post("/", function(req, res) {
     locked: false
   })
     .then(story => {
+      console.log("Story created: ", story);
       res.json(story);
-      console.log(story);
     })
     .catch(err => {
       res.send(err);
@@ -124,7 +102,8 @@ router.put("/:story_id", (req, res) => {
 
 //Used for when user closes browser before saving to unlock story
 router.post("/:story_id", (req, res) => {
-  //console.log("req from Beacon:", req);
+  console.log("Unlocking from Beacon, params:", req.params);
+  //console.log("Unlocking from Beacon, req:", req);
 
   Story.findOneAndUpdate(
     { _id: req.params.story_id },
@@ -140,5 +119,26 @@ router.post("/:story_id", (req, res) => {
     });
 });
 
+/*
+//Show all incomplete stories in collection
+router.get("/incomplete", (req, res) => {
+  Story.find({ complete: false, isPublic: true })
+  .then(eachOne => {
+    //console.log(eachOne);
+    res.json(eachOne);
+  });
+});
+*/
+
+/*
+//Show all complete stories in collection
+router.get("/complete", (req, res) => {
+  Story.find({ complete: true, isPublic: true })
+  .then(eachOne => {
+    //console.log(eachOne);
+    res.json(eachOne);
+  });
+});
+*/
 
 module.exports = router;

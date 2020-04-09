@@ -6,7 +6,6 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
@@ -68,15 +67,30 @@ function Start(props) {
   const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeybuckets are filled in
 
-  const unlockStory = () => {
-    if (props.storyID && !success && !loggedOut) {
-      console.log("Unlocking story");
-      navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
+  // Unlock story on leaving the page when the user hasn't taken any action that would log out
+  useEffect(() => {
+    const unlockStory = (e) => {
+      e.preventDefault();
+      console.log("Unlocking story. success, loggedOut", success, loggedOut);
+      if (props.storyID && !success && !loggedOut) {       
+        navigator.sendBeacon(`/api/stories/${props.storyID}`, JSON.stringify({body: {locked: true}}));
+      }
+      e.returnValue = "What??";
     }
-  }
+
+    // Add event listener to run code before window closes
+    window.addEventListener("beforeunload", unlockStory);
+    return () => {
+      window.removeEventListener("beforeunload", unlockStory);
+
+    }
+
+  }, [success, loggedOut, props.storyID]);
+  
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
+
     // Get story by id, if ID exists
     if (props.storyID) {
       setFirst(false);
@@ -114,16 +128,8 @@ function Start(props) {
       );
       
     }
-    // Add event listener to run code before window closes
-    //window.addEventListener("beforeunload", confirmLeave);
-    window.addEventListener("unload", unlockStory);
-    return () => {
-      //window.removeEventListener("beforeunload", confirmLeave);
-      window.removeEventListener("unload", unlockStory);
 
-    }
-
-  }, []); // Run only one time at start
+  }, [props.history, props.storyID]); // Run only one time at start
 
   const checkStory = (newValue) => {
     if (newValue.length > charLimit) {
@@ -166,8 +172,9 @@ function Start(props) {
       //If story doesn't already exist, create new Story to be added
       console.log(story.substr(0, 15));
       console.log("isPublic");
+      let newTitle = story.substr(0, 15);
       let newStory = {
-        title: story.substr(0, 15),
+        title: newTitle,
         isPublic: isPublic,
         rounds: rounds,
         complete: false,
@@ -195,7 +202,7 @@ function Start(props) {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
           setNewStoryID(resJson._id);
-          sendEmails(false, resJson._id, [writerEmail]);
+          sendEmails(false, resJson._id, [writerEmail], newTitle);
         })
         .catch(err => {
           errorArray.push(`Issue adding story: ${err}`);
@@ -247,7 +254,7 @@ function Start(props) {
         console.log("Story update successful", resJson);
         setSuccess(true);
         setNewStoryID(resJson._id);
-        sendEmails(finished, resJson._id, newAuthors);
+        sendEmails(finished, resJson._id, newAuthors, storyObj.title);
       })
       .catch(err => {
         console.log("Error updating story: ", err);
@@ -257,16 +264,16 @@ function Start(props) {
     }
   }
 
-  const sendEmails = (finished, newStoryID, authors) => {
+  const sendEmails = (finished, storyID, authors, storyTitle) => {
     let errorArray = [];
     // Send email to the contributer
     let toSend = {
-      subject: "A link to your brilliance: " + storyObj.title,
+      subject: "A link to your brilliance: " + storyTitle,
       email: writerEmail,
       finished: false,
-      urlOne: window.location.origin + "/story/" + newStoryID,
+      urlOne: window.location.origin + "/story/" + storyID,
       urlOrigin: window.location.origin,
-      title: storyObj.title,
+      title: storyTitle,
       authors: authors,
     }
     fetch('/api/email', {
@@ -288,10 +295,10 @@ function Start(props) {
       // Send email to the contributer
       toSend = {
         finished: true,
-        subject: "Story complete: " + storyObj.title,
-        title: storyObj.title,
+        subject: "Story complete: " + storyTitle,
+        title: storyTitle,
         authors: authors,
-        urlOne: window.location.origin + "/story/" + newStoryID,
+        urlOne: window.location.origin + "/story/" + storyID,
         urlOrigin: window.location.origin
       }
       console.log("Sending complete notification emails: ", toSend);
@@ -344,7 +351,12 @@ function Start(props) {
       clearTimeout(logoutTimer);
     }
     return () => {clearTimeout(logoutTimer)}
-  }, [isIdle]);
+  }, [isIdle, loggedOut, success, first, storyObj.complete]);
+
+  const handleRefresh = () => {
+    console.log("Handling refresh: success, loggedOut", success, loggedOut);
+    window.location.reload(false);
+  }
   
     return (
       <Container fluid>
@@ -380,7 +392,7 @@ function Start(props) {
               </Modal.Body>
             }
             <Modal.Footer>
-              <Button onClick={() => {window.location.reload()}}>Refresh page</Button>
+              <Button onClick={handleRefresh}>Refresh page</Button>
             </Modal.Footer>
           </Modal>
         </Row>
