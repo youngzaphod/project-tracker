@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Switch, Route, BrowserRouter as Router} from 'react-router-dom';
 import Header from './Components/Header';
+import TempHeader from './Components/TempHeader';
 import Start from './Components/Start';
 import Open from './Components/Open';
 import Complete from './Components/Complete';
@@ -14,7 +15,7 @@ class App extends Component {
   render() {
     return (
         <Router>
-          <Header/>
+          <TempHeader/>
           <Switch>
             <Route exact path="/" render={props => (<TempHome/>)}/>
             <Route exact path="/story" render={props => (<Start/>)}/>
