@@ -63,7 +63,7 @@ function Start(props) {
   const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
   const [newStoryID, setNewStoryID] = useState('');
   const [first, setFirst] = useState(true);
-  const [hopo, setHopo] = useState(false); // Tracking if honeybuckets are filled in
+  const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
 
   // Unlock story on leaving the page when the user hasn't taken any action that would log out
   useEffect(() => {
@@ -76,8 +76,17 @@ function Start(props) {
       //e.returnValue = "What??";
     }
 
+    const doSomething = () => {
+      if (document.visibilityState === 'visible') {
+        console.log("Document became visible");
+      } else {
+        console.log("Dcoument became invisible");
+      }
+    }
+
     // Add event listener to run code before window closes
     window.addEventListener("beforeunload", unlockStory);
+    document.addEventListener("visibilitychange", doSomething);
     return () => {
       window.removeEventListener("beforeunload", unlockStory);
 

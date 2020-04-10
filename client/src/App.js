@@ -5,6 +5,7 @@ import Start from './Components/Start';
 import Open from './Components/Open';
 import Complete from './Components/Complete';
 import Home from './Components/Home';
+import TempHome from './Components/TempHome';
 import Author from './Components/Author';
 import Contact from './Components/Contact';
 import NotFound from './Components/NotFound';
@@ -15,7 +16,7 @@ class App extends Component {
         <Router>
           <Header/>
           <Switch>
-            <Route exact path="/" render={props => (<Home/>)}/>
+            <Route exact path="/" render={props => (<TempHome/>)}/>
             <Route exact path="/story" render={props => (<Start/>)}/>
             <Route path="/story/:storyID" render={props => (<Start storyID={props.match.params.storyID} history={props.history} />)}/>
             <Route exact path="/open" render={props => (<Open/>)}/>
