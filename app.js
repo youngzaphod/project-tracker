@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
-const http = require('http');
+const server = require('http').createServer(app);
 const storyRouter = require("./routes/stories");
 const emailRouter = require("./routes/sendEmail");
 const authorRouter = require("./routes/authors");
@@ -11,10 +11,25 @@ var createError = require('http-errors');
 const sanitize = require("mongo-sanitize");
 require('dotenv').config();
 
-const server = http.createServer(app);
+/*
+const io = require('socket.io')(server, {
+  handlePreflightRequest: (req, res) => {
+    console.log("Inside preflight req");
+    const headers = {
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
+        "Access-Control-Allow-Credentials": true
+    };
+    res.writeHead(200, headers);
+    res.end();
+  }
+});
+io.listen(4000);
+*/
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 // Connect to cluster at mongoDB Atlas
 const dbURL =

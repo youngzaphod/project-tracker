@@ -5,12 +5,29 @@ import Row from 'react-bootstrap/Row';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import io from 'socket.io-client';
+import ifvisible from 'ifvisible.js';
 
 import '../App.css';
 
+const socket = io(window.location.origin);
 
 
-function Contact(props) {
+ifvisible.setIdleDuration(5); // Idle after 5 seconds
+ifvisible.idle(() => {
+  console.log("I'm idlin'!");
+  socket.emit("test_message","WTF do I put here?");
+});
+
+socket.on("loggedOut", msg => {
+  console.log("You've been logged out!");
+});
+
+socket.on("id", id => {
+  console.log("ID:", id);
+});
+
+function TestSocket(props) {
   const [errors, setErrors] = useState([]); 
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -25,7 +42,7 @@ function Contact(props) {
     var errorArray = [];
 
     if (hopo) {
-      errorArray.push("You're showing up as spam for some reason 🤷 Please refresh the page and try again - IF you're a human.")
+      errorArray.push("You're showing up as spam for some reason 🤷 Please copy your work, refresh the page, and try again - IF you're a human.")
     }
 
     
@@ -161,4 +178,4 @@ function Contact(props) {
     );
 }
 
-export default Contact;
+export default TestSocket;

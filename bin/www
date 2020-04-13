@@ -20,6 +20,9 @@ console.log(`Server port set to ${port}`);
  */
 
 var server = http.createServer(app);
+const io = require('socket.io')(server);
+// Get socket module and pass it the io socket from here
+require('../sockets')(io);
 
 /**
  * Listen on provided port, on all network interfaces.
