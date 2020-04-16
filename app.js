@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
-const server = require('http').createServer(app);
 const storyRouter = require("./routes/stories");
 const emailRouter = require("./routes/sendEmail");
 const authorRouter = require("./routes/authors");

@@ -102,14 +102,15 @@ router.post("/:story_id/:locked/", (req, res) => {
     { _id: req.params.story_id },
     { $set: {locked: false} },
   )
-    .then(story => {
-      res.json(story);
-      //console.log("Unock via Beacon response:", story);
-    })
-    .catch(err => {
-      res.send(err);
-      console.log("Error! ", err);
-    });
+  .then(story => {
+    res.json(story);
+    //console.log("Unock via Beacon response:", story);
+  })
+  .catch(err => {
+    res.send(err);
+    console.log("Error! ", err);
+  });
+  
 });
 
 /*
