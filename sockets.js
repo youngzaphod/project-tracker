@@ -1,6 +1,8 @@
 
 const mongoose = require("mongoose");
 
+const timeUntilLogout = 30 * 60 * 1000;
+
 //Bring in models from external file
 const Story = require("./models/story");
 
@@ -25,7 +27,7 @@ module.exports = io => {
             // Clear timer then start new one when the user is idle
             clearTimeout(socket.timeout);
             if (socket.storyID && !socket.loggedOut) {
-                socket.timeout = setTimeout(logOutUser, 5000);
+                socket.timeout = setTimeout(logOutUser, timeUntilLogout);
             }
         });
 

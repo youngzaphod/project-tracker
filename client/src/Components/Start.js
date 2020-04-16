@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -24,6 +25,7 @@ ifvisible.setIdleDuration(timeOut); // Set how long it takes to give logout warn
 
 
 function Start(props) {
+  const history = useHistory();
   const [isIdle, setIsIdle] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
@@ -64,6 +66,7 @@ function Start(props) {
   });
 
   // Unlock story on leaving the page when the user hasn't taken any action that would log out
+  /*
   useEffect(() => {
     const unlockStory = (e) => {
       //e.preventDefault();
@@ -91,7 +94,7 @@ function Start(props) {
     }
 
   }, [success, loggedOut, props.storyID]);
-  
+  */
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
@@ -101,6 +104,8 @@ function Start(props) {
 
     ifvisible.focus(sendActiveMessage);
     ifvisible.wakeup(sendActiveMessage);
+
+    console.log(props.history);
 
 
     // Get story by id, if ID exists
@@ -413,7 +418,9 @@ function Start(props) {
               </Modal.Body>
             }
             <Modal.Footer>
-              <Button onClick={handleRefresh}>Refresh page</Button>
+              <Button onClick={() => history.goBack()}>Back</Button>
+              <Button onClick={() => history.push('/')}>Home</Button>
+              <Button onClick={handleRefresh}>Refresh</Button>
             </Modal.Footer>
           </Modal>
         </Row>

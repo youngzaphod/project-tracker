@@ -18,7 +18,7 @@ class App extends Component {
           <Header/>
           <Switch>
             <Route exact path="/" render={props => (<Home/>)}/>
-            <Route exact path="/story" render={props => (<Start/>)}/>
+            <Route exact path="/new" render={props => (<Start/>)}/>
             <Route path="/story/:storyID" render={props => (<Start storyID={props.match.params.storyID} history={props.history} />)}/>
             <Route exact path="/open" render={props => (<Open/>)}/>
             <Route exact path="/complete" render={props => (<Complete/>)}/>
