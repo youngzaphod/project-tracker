@@ -16,7 +16,7 @@ class App extends Component {
   render() {
     return (
         <Router>
-          <TempHeader/>
+          <Header/>
           <Switch>
             <Route exact path="/" render={props => (<Home/>)}/>
             <Route exact path="/new" render={props => (<Start/>)}/>
