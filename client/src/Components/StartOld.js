@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -10,23 +9,49 @@ import Modal from 'react-bootstrap/Modal';
 import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
-import io from 'socket.io-client';
-import ifvisible from 'ifvisible.js';
+
+
 import '../App.css';
 
 const charLimit = 1000;
-const timeOut =  3;
+const timeOut =  30 * 60 * 1000;
 const secondTimeOut = 1 * 60 * 1000;
 
-const socket = io(window.location.origin);
+function useIdle() {
+  const [isIdle, setIsIdle] = useState(false);
+  
+  useEffect(() => {
+    let idleTimer = setTimeout(() => setIsIdle(true), timeOut);
+    function goActive() {
+      setIsIdle(false);
+      // When action is taken, reset the timer
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setIsIdle(true), timeOut);
+    }
 
+    // Set all actions not considered idle 
+    window.addEventListener('click', goActive);
+    window.addEventListener('keypress', goActive);
+    window.addEventListener('mousedown', goActive);
+    window.addEventListener('touchstart', goActive);
+    window.addEventListener('touchmove', goActive);
+    // Clear listeners on return
+    return () => {
+      window.removeEventListener('click', goActive);
+      window.removeEventListener('keypress', goActive);
+      window.removeEventListener('mousedown', goActive);
+      window.removeEventListener('touchstart', goActive);
+      window.removeEventListener('touchmove', goActive);
+    }
+  }, [])
 
-ifvisible.setIdleDuration(timeOut); // Set how long it takes to give logout warning in seconds
+  return isIdle;
+}
+
 
 
 function Start(props) {
-  const history = useHistory();
-  const [isIdle, setIsIdle] = useState(false);
+  const isIdle = useIdle();
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
@@ -40,33 +65,7 @@ function Start(props) {
   const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
 
-  const sendIdleMessage = () => {
-    console.log("I'm idlin'!");
-    socket.emit("startIdle", 'idle');
-  }
-  const sendBlurMessage = () => {
-    console.log("I'm blurred'!");
-    socket.emit("startIdle", 'blur');
-  }
-
-  const sendActiveMessage = () => {
-    console.log("I'm active!");
-    socket.emit("startActive", 'active');
-  }
-
-  
-
-  socket.on("loggedOut", msg => {
-    console.log("Logged out message:", msg);
-    setLoggedOut(true);
-  });
-
-  socket.on("id", id => {
-    console.log("ID:", id);
-  });
-
   // Unlock story on leaving the page when the user hasn't taken any action that would log out
-  /*
   useEffect(() => {
     const unlockStory = (e) => {
       //e.preventDefault();
@@ -94,19 +93,10 @@ function Start(props) {
     }
 
   }, [success, loggedOut, props.storyID]);
-  */
+  
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
-    // Send active and idle messages to server, where it will keep time
-    ifvisible.idle(sendIdleMessage);
-    ifvisible.blur(sendBlurMessage);
-
-    ifvisible.focus(sendActiveMessage);
-    ifvisible.wakeup(sendActiveMessage);
-
-    console.log(props.history);
-
 
     // Get story by id, if ID exists
     if (props.storyID) {
@@ -136,13 +126,6 @@ function Start(props) {
             console.log("Setting loggedout on entry");
             setLoggedOut(true);
           }
-
-          // Send info to server for tracking loggedOut state and ID for backend logout
-          if (!theStory.locked && !theStory.complete) {
-            socket.emit('setup', { storyID: props.storyID, loggedOut: false });
-          }
-
-
         })
         .catch(err => {
           let errorArray = [`Sorry, there was an issue loading the story: ${err}`];
@@ -226,7 +209,6 @@ function Start(props) {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
           setNewStoryID(resJson._id);
-          socket.emit('logOut', 'success');
           sendEmails(false, resJson._id, [writerEmail], newTitle);
         })
         .catch(err => {
@@ -361,7 +343,6 @@ function Start(props) {
         //Story has been updated successfully
         console.log("Story has been unlocked", resJson);
         setLoggedOut(true);
-        socket.emit('logOut');
       })
       .catch(err => {
         console.log("Error unlocking story: ", err);
@@ -412,15 +393,13 @@ function Start(props) {
                 <p>Someone else is working on it - refresh later to see when it's available.</p>
               </Modal.Body>
              :<Modal.Body>
-                <p>You were idle for over 30 minutes and were logged out of this story. If you refresh the page
+                <p>You were either idle for over 30 minutes, or you just tried to leave the page. Either way, if you refresh the page and
                 you'll have access if no one else is editing.</p>
                 <div>{story}</div>
               </Modal.Body>
             }
             <Modal.Footer>
-              <Button onClick={() => history.goBack()}>Back</Button>
-              <Button onClick={() => history.push('/')}>Home</Button>
-              <Button onClick={handleRefresh}>Refresh</Button>
+              <Button onClick={handleRefresh}>Refresh page</Button>
             </Modal.Footer>
           </Modal>
         </Row>

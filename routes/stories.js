@@ -1,15 +1,8 @@
 const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const http = require('http');
-const server = http.createServer(app);
 
 //Bring in models from external file
 const Story = require("../models/story");
-//Keeping these so code doesn't break until I can get rid of them
-//const Milestone = require("../models/milestone");
-//const Project = require("../models/project");
 
 const router = express.Router();
 
@@ -109,14 +102,15 @@ router.post("/:story_id/:locked/", (req, res) => {
     { _id: req.params.story_id },
     { $set: {locked: false} },
   )
-    .then(story => {
-      res.json(story);
-      //console.log("Unock via Beacon response:", story);
-    })
-    .catch(err => {
-      res.send(err);
-      console.log("Error! ", err);
-    });
+  .then(story => {
+    res.json(story);
+    //console.log("Unock via Beacon response:", story);
+  })
+  .catch(err => {
+    res.send(err);
+    console.log("Error! ", err);
+  });
+  
 });
 
 /*
