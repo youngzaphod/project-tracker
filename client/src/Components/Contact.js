@@ -57,11 +57,11 @@ function Contact(props) {
     let errorArray = [];
     // Send email to the contributer
     let toSend = {
-      subject: "FnP Contact: " + subject,
-      email: "johndurso@gmail.com",
-      body: message + "<br/><br/>" + email
+      subject: subject,
+      body: message,
+      email: email
     }
-    fetch('/api/email', {
+    fetch('/api/email/contact', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -105,7 +105,7 @@ function Contact(props) {
                       </Form.Group>
 
                       <label className="hopo" ></label>
-                      <input className="hopo" tabIndex={-1} autoComplete="off" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
+                      <input className="hopo" tabIndex={-1} autoComplete="dsfad" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
                       <label className="hopo" ></label>
                       <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
 

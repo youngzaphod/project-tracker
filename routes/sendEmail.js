@@ -8,6 +8,34 @@ const mg = mailgun({
     domain: process.env.MAILGUN_DOMAIN
 });
 
+router.post('/contact', function(req, res, next) {
+    console.log('Contact email sending...');
+    const data = {
+        from: `Fold and Pass noreply@foldandpass.com`,
+        to: 'johndurso@gmail.com',
+        subject: req.body.subject,
+        template: "contactform",
+        'h:X-Mailgun-Variables': `{"title": "${req.body.subject}", "message": "${req.body.body}", "replyTo": "${req.body.email}"}`
+    };
+
+    mg.messages().send(data, function (error, info) {
+            if (error) {
+                console.log("Error sending addition email: ", error);
+                res.status(400).send({
+                    success: false,
+                    body: `Error sending addition email`,
+                    error: error
+                });
+            } else {
+                console.log("Successfully sent addition email!", info);
+                res.status(200).send({
+                    success: true,
+                    body: `Email sent`,
+                    info: info
+                });
+            }
+        });
+});
 
 /* Use POST data to create and send email */
 router.post('/', function(req, res, next) {
@@ -95,5 +123,7 @@ router.post('/', function(req, res, next) {
     }
 
 });
+
+
 
 module.exports = router;
