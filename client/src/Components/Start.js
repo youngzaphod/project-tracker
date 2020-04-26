@@ -10,15 +10,13 @@ import Modal from 'react-bootstrap/Modal';
 import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
-import io from 'socket.io-client';
+
+//import { socket } from '../Services/socket';
 import ifvisible from 'ifvisible.js';
 import '../App.css';
 
 const charLimit = 1000;
 const timeOut =  3;
-const secondTimeOut = 1 * 60 * 1000;
-
-const socket = io(window.location.origin);
 
 
 ifvisible.setIdleDuration(timeOut); // Set how long it takes to give logout warning in seconds
@@ -26,7 +24,6 @@ ifvisible.setIdleDuration(timeOut); // Set how long it takes to give logout warn
 
 function Start(props) {
   const history = useHistory();
-  const [isIdle, setIsIdle] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [rounds, setRounds] = useState(5);
   const [writerEmail, setWriterEmail] = useState('');
@@ -40,30 +37,7 @@ function Start(props) {
   const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
 
-  const sendIdleMessage = () => {
-    console.log("I'm idlin'!");
-    socket.emit("startIdle", 'idle');
-  }
-  const sendBlurMessage = () => {
-    console.log("I'm blurred'!");
-    socket.emit("startIdle", 'blur');
-  }
-
-  const sendActiveMessage = () => {
-    console.log("I'm active!");
-    socket.emit("startActive", 'active');
-  }
-
-  
-
-  socket.on("loggedOut", msg => {
-    console.log("Logged out message:", msg);
-    setLoggedOut(true);
-  });
-
-  socket.on("id", id => {
-    console.log("ID:", id);
-  });
+  //const socket = io();
 
   // Unlock story on leaving the page when the user hasn't taken any action that would log out
   /*
@@ -98,12 +72,37 @@ function Start(props) {
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
+
+    const sendIdleMessage = () => {
+      console.log("I'm idlin'!");
+      props.socket.emit("startIdle", 'idle');
+    }
+    const sendBlurMessage = () => {
+      console.log("I'm blurred'!");
+      props.socket.emit("startIdle", 'blur');
+    }
+
+    const sendActiveMessage = () => {
+      console.log("I'm active!");
+      props.socket.emit("startActive", 'active');
+    }
+
     // Send active and idle messages to server, where it will keep time
     ifvisible.idle(sendIdleMessage);
     ifvisible.blur(sendBlurMessage);
 
     ifvisible.focus(sendActiveMessage);
     ifvisible.wakeup(sendActiveMessage);
+
+    //const socket = io();
+    props.socket.on("loggedOut", msg => {
+      console.log("Logged out message:", msg);
+      setLoggedOut(true);
+    });
+
+    props.socket.on("id", id => {
+      console.log("ID:", id);
+    });
 
     console.log(props.history);
 
@@ -139,7 +138,7 @@ function Start(props) {
 
           // Send info to server for tracking loggedOut state and ID for backend logout
           if (!theStory.locked && !theStory.complete) {
-            socket.emit('setup', { storyID: props.storyID, loggedOut: false });
+            props.socket.emit('setup', { storyID: props.storyID, loggedOut: false });
           }
 
 
@@ -152,8 +151,21 @@ function Start(props) {
       );
       
     }
+    
+    return () => {
+      // Remove listeners when page is unloaded
+      ifvisible.off('blur');
+      ifvisible.off('idle');
+      ifvisible.off('focus');
+      ifvisible.off('wakeup');
+      props.socket.removeAllListeners();
 
-  }, [props.history, props.storyID]); // Run only one time at start
+      // Let server know page is being left so it can log out if needed, etc.
+      props.socket.emit('leavePage');
+      
+    }
+
+  }, [props]); // Run only one time at start
 
   const checkStory = (newValue) => {
     if (newValue.length > charLimit) {
@@ -226,7 +238,7 @@ function Start(props) {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
           setNewStoryID(resJson._id);
-          socket.emit('logOut', 'success');
+          props.socket.emit('logOut', 'success');
           sendEmails(false, resJson._id, [writerEmail], newTitle);
         })
         .catch(err => {
@@ -280,6 +292,7 @@ function Start(props) {
         setSuccess(true);
         setNewStoryID(resJson._id);
         sendEmails(finished, resJson._id, newAuthors, storyObj.title);
+        props.socket.emit('logOut', 'Successful save');
       })
       .catch(err => {
         console.log("Error updating story: ", err);
@@ -343,42 +356,6 @@ function Start(props) {
     
   }
 
-  // If user became idle, trigger timeout, else if user became active, clear timeout
-  useEffect(() => {
-
-    //Function for logging out user after second timer is done
-    const logoutUser = () => {
-      fetch(`/api/stories/${props.storyID}`, {
-        method: 'PUT',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ locked: false })
-      })
-      .then(response => response.json())
-      .then(resJson => {
-        //Story has been updated successfully
-        console.log("Story has been unlocked", resJson);
-        setLoggedOut(true);
-        socket.emit('logOut');
-      })
-      .catch(err => {
-        console.log("Error unlocking story: ", err);
-      });
-    }
-    let logoutTimer;
-
-    if (isIdle && !loggedOut && !success && !first && !storyObj.complete) {
-      console.log("starting second timer");
-      //setLogoutTimer(setTimeout(logoutUser, secondTimeOut));
-      logoutTimer = setTimeout(logoutUser, secondTimeOut);
-    } else {
-      clearTimeout(logoutTimer);
-    }
-    return () => {clearTimeout(logoutTimer)}
-  }, [isIdle, loggedOut, success, first, storyObj.complete, props.storyID]);
-
   const handleRefresh = () => {
     console.log("Handling refresh: success, loggedOut", success, loggedOut);
     window.location.reload(false);
@@ -386,22 +363,6 @@ function Start(props) {
   
     return (
       <Container fluid>
-        <Row>
-          <Modal
-            show={isIdle && !loggedOut && !success && !storyObj.complete && !first}
-            onHide={() =>{}}
-            aria-labelledby='contained-modeal-title-vcenter'
-            centered>
-            <Modal.Header>
-              <Modal.Title>You're about to lose your work...</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-              <p>You've been idle over 30 minutes!</p>
-              <p>Click or type within a minute to continue working, otherwise the page will automatically close and you'll lose your work!</p>
-            </Modal.Body>
-          </Modal>
-        </Row>
         <Row>
           <Modal backdrop='static' show={loggedOut && !success && !storyObj.complete} size='lg' aria-labelledby='contained-modeal-title-vcenter' centered>
             <Modal.Header>
