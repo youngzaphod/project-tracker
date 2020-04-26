@@ -11,7 +11,6 @@ import { Redirect } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
 
-//import { socket } from '../Services/socket';
 import ifvisible from 'ifvisible.js';
 import '../App.css';
 
@@ -36,39 +35,6 @@ function Start(props) {
   const [newStoryID, setNewStoryID] = useState('');
   const [first, setFirst] = useState(true);
   const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
-
-  //const socket = io();
-
-  // Unlock story on leaving the page when the user hasn't taken any action that would log out
-  /*
-  useEffect(() => {
-    const unlockStory = (e) => {
-      //e.preventDefault();
-      console.log("Unlocking story. success, loggedOut", success, loggedOut);
-      if (props.storyID && !success && !loggedOut) {       
-        navigator.sendBeacon(`/api/stories/${props.storyID}/${false}`, JSON.stringify({body: {locked: false}}));
-      }
-      //e.returnValue = "What??";
-    }
-
-    const doSomething = () => {
-      if (document.visibilityState === 'visible') {
-        console.log("Document became visible");
-      } else {
-        console.log("Dcoument became invisible");
-      }
-    }
-
-    // Add event listener to run code before window closes
-    window.addEventListener("beforeunload", unlockStory);
-    document.addEventListener("visibilitychange", doSomething);
-    return () => {
-      window.removeEventListener("beforeunload", unlockStory);
-
-    }
-
-  }, [success, loggedOut, props.storyID]);
-  */
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
@@ -100,11 +66,14 @@ function Start(props) {
       setLoggedOut(true);
     });
 
+    props.socket.on("disconnect", () => {
+      console.log("Disconnected, so logged out of story");
+      setLoggedOut(true);
+    });
+
     props.socket.on("id", id => {
       console.log("ID:", id);
     });
-
-    console.log(props.history);
 
 
     // Get story by id, if ID exists
@@ -373,8 +342,9 @@ function Start(props) {
                 <p>Someone else is working on it - refresh later to see when it's available.</p>
               </Modal.Body>
              :<Modal.Body>
-                <p>You were idle for over 30 minutes and were logged out of this story. If you refresh the page
+                <p>You were idle for over 30 minutes or otherwise disconnected from the server and were logged out of this story. If you refresh the page
                 you'll have access if no one else is editing.</p>
+                <p>Make sure to copy what you've written first, otherwise you'll lose it!</p>
                 <div>{story}</div>
               </Modal.Body>
             }
