@@ -3,13 +3,14 @@ import {Switch, Route, BrowserRouter as Router} from 'react-router-dom';
 import Header from './Components/Header';
 //import TempHeader from './Components/TempHeader';
 //import TempHome from './Components/TempHome';
-import Start from './Components/Start';
-import Open from './Components/Open';
-import Complete from './Components/Complete';
-import Home from './Components/Home';
-import Author from './Components/Author';
-import Contact from './Components/Contact';
-import NotFound from './Components/NotFound';
+import Start from './Pages/Start';
+import Open from './Pages/Open';
+import Complete from './Pages/Complete';
+import Home from './Pages/Home';
+import Author from './Pages/Author';
+import Contact from './Pages/Contact';
+import TestPage from './Pages/TestPage';
+import NotFound from './Pages/NotFound';
 import * as io from 'socket.io-client';
 
 const socket = io();
@@ -28,6 +29,7 @@ class App extends Component {
             <Route exact path="/complete" render={props => (<Complete/>)}/>
             <Route exact path="/author/:authorEmail" render={props => (<Author authorEmail={props.match.params.authorEmail}/>)}/>
             <Route exact path="/contact" render={props => (<Contact/>)}/>
+            <Route exact path="/testpage" render={props => (<TestPage/>)}/>
             <Route render={props => (<NotFound match={props.match}/>)}/>
           </Switch>
         </Router>
