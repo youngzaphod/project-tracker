@@ -21,7 +21,7 @@ function StoryDisplay(props) {
         <>
         {!props.first ?
             <>
-            <h3>{!props.storyObj.complete ? `Previously on ` : '' }<em>{props.storyObj.title}</em></h3>
+            <h3 className="noPad">{!props.storyObj.complete ? `Previously on ` : '' }<em>{props.storyObj.title}</em></h3>
             {
             props.storyObj.segments.map((seg, i) => {
                 return <p style={{ whiteSpace: "pre-wrap"}} key={seg._id}>{seg.content}</p>
@@ -29,7 +29,7 @@ function StoryDisplay(props) {
             }
             <h4>{prompt}</h4>
             </>
-            : <h3>{prompt}</h3>
+            : <h3 >{prompt}</h3>
         }
         
         {!props.first && !props.storyObj.complete && <em>round {props.storyObj.segCount + 1} out of {props.storyObj.rounds}</em> }

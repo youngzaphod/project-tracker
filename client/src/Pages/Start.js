@@ -8,6 +8,7 @@ import StoryDisplay from '../Components/StoryDisplay';
 import StoryForm from '../Components/StoryForm';
 import SuccessBox from '../Components/SuccessBox';
 import DisplayErrors from '../Components/DisplayErrors';
+import SocialShares from '../Components/SocialShares';
 //import { FaCog } from 'react-icons/fa';
 //import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
 
@@ -184,6 +185,7 @@ function Start(props) {
       console.log(`Updating story: _id = ${props.storyID}`);
       let newSegments = [...storyObj.segments];
       newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
+
       // Create new authors array - check that current author isn't already in the array to avoid duplicates
       let newAuthors = [];
       let count = 0;
@@ -223,6 +225,9 @@ function Start(props) {
         console.log("Story update successful", resJson);
         setSuccess(true);
         setNewStoryID(resJson._id);
+        let newStoryObj = storyObj;
+        newStoryObj.segments = newSegments;
+        setStoryObj(newStoryObj);
         sendEmails(finished, resJson._id, newAuthors, storyObj.title, writerEmail);
         props.socket.emit('logOut', 'Successful save');
       })
@@ -295,6 +300,25 @@ function Start(props) {
         <DisplayErrors errors={errors} />
         <Row className='justify-content-center'>
           <Col lg={6}>
+            <Row className='justify-content-end'>
+              <Col xs={12} sm="auto" >
+                {first ?
+                <SocialShares
+                  shareURL={window.location.href}
+                  text="Start a story, let your friends finish it"
+                />
+                :
+                <SocialShares
+                  shareURL={window.location.href + "" + props.storyID}
+                  text="Add to my story!"
+                />
+                }
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row className='justify-content-center'>
+          <Col lg={6}>
             <StoryDisplay storyObj={storyObj} first={first} />
           </Col>
         </Row>
@@ -303,10 +327,14 @@ function Start(props) {
             <Col lg={6}>
               <br/>
               {success
-                ? <SuccessBox
-                    storyID={props.storyID}
-                    newStoryID={newStoryID}
+                ? 
+                  <>
+                  <p>{story}</p>
+                  <SuccessBox
+                    shareURL={window.location.href+""+ (props.storyID ? "" : newStoryID)}
+                    // shareURL='foldandpass.com/story/5e8ec6a7f312c700044a3b58'
                     complete={storyObj.segCount + 1 === storyObj.rounds} />
+                  </>
                 : loggedOut
                   ? <LoggedOutMessage locked={storyObj.locked} story={story} />
                   : <StoryForm first={first} updateStory={updateStory} updateStoryText={setStory} />

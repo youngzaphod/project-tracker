@@ -13,8 +13,7 @@ function TestPage(props) {
         <Row className='justify-content-center'>
             <Col lg={6}>
                 <SuccessBox
-                    storyID={'5e8ec6a7f312c700044a3b58'}
-                    newStoryID={'5e8ec6a7f312c700044a3b58'}
+                    shareURL='foldandpass.com/story/5e8ec6a7f312c700044a3b58'
                     complete={false} />
             </Col>
         </Row>
