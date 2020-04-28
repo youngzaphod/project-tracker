@@ -18,12 +18,12 @@ function SocialShares(props) {
         <Container>
             <Row>
             <Col xs="auto">
-                <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ window.location.href + (props.storyID ? "" : props.newStoryID)}>
+                <a target="_blank" rel="noopener noreferrer" href={"mailto:?subject=Continue the story&body=It's not peer pressure, it's just your turn 😁 %0d%0a %0d%0a I contributed to a story on foldandpass.com. Write with me here: %0d%0a"+ props.shareURL}>
                 <EmailIcon round={true} size={40} />
                 </a>
             </Col>
             <Col xs="auto">
-                <FacebookShareButton url={props.shareURL } className="share" quote={props.text} hashtag='#collaborate'>
+                <FacebookShareButton url={props.shareURL} className="share" quote={props.text} hashtag='#collaborate'>
                     <FacebookIcon size={40} round={true} />
                 </FacebookShareButton>
             </Col>

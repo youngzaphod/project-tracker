@@ -309,7 +309,7 @@ function Start(props) {
                 />
                 :
                 <SocialShares
-                  shareURL={window.location.href + "" + props.storyID}
+                  shareURL={window.location.href}
                   text="Add to my story!"
                 />
                 }
