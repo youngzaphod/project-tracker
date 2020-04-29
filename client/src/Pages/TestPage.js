@@ -14,7 +14,9 @@ function TestPage(props) {
             <Col lg={6}>
                 <SuccessBox
                     shareURL='foldandpass.com/story/5e8ec6a7f312c700044a3b58'
-                    complete={false} />
+                    complete={true}
+                    title={"Big titles"}
+                />
             </Col>
         </Row>
       </Container>

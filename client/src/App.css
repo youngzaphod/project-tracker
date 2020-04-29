@@ -39,3 +39,9 @@ h3.noPad {
   width: 0;
   z-index: -1;
 }
+
+.blurred-text {
+  color:transparent;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  font-size: 80%;
+}

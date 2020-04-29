@@ -27,7 +27,7 @@ function SuccessBox(props) {
             </p>
             <p>
             </p>
-            <SocialShares shareURL={props.shareURL} text='Check out the story I just completed' />
+            <SocialShares shareURL={props.shareURL} text='Check out the story I just completed' title={props.title} />
             <p/>
             <p>Everyone that worked on this story will get notified via email that it's complete.</p>
             <p>If you selected 'Public', the story will be posted in our Finished stories page as well.</p>
@@ -43,7 +43,7 @@ function SuccessBox(props) {
             </p>
             <p>
             </p>
-            <SocialShares shareURL={props.shareURL} text='Want to write with me? ' />
+            <SocialShares shareURL={props.shareURL} text='Want to write with me? ' title={props.title} />
             <p/>
             <p>You'll also get an email with a link to the story, and will be notified via email once more when it's complete.</p>
             <p>If you selected 'Public', your story will be in the public directory where anyone can find it and contibute until its finished.</p>

@@ -27,7 +27,7 @@ function Start(props) {
   const [loggedOut, setLoggedOut] = useState(false);
   const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
-  const [storyObj, setStoryObj] = useState({segCount: '', segments: []});
+  const [storyObj, setStoryObj] = useState({segCount: 0, segments: []});
   const [newStoryID, setNewStoryID] = useState('');
   const [first, setFirst] = useState(true);
 
@@ -92,6 +92,7 @@ function Start(props) {
             locked: theStory.locked,
             complete: theStory.complete,
             rounds: theStory.rounds,
+            fold: theStory.fold,
             authors: theStory.authors
           });
 
@@ -134,27 +135,29 @@ function Start(props) {
   }, [props]); // Run only one time at start
 
   // Update or Create Story in database 
-  const updateStory = (story, writerEmail, rounds, isPublic) => {
+  const updateStory = (data) => {
     let errorArray = [];
 
     if (!props.storyID) {
       //If story doesn't already exist, create new Story to be added
-      console.log(story.substr(0, 15));
+      console.log(data.newText.substr(0, 15));
       console.log("isPublic");
-      let newTitle = story.substr(0, 15);
+      let newTitle = data.newText.substr(0, 15);
+      let segments = [{
+          author: data.writerEmail,
+          content: data.newText,
+          order: 1
+      }];
       let newStory = {
         title: newTitle,
-        isPublic: isPublic,
-        rounds: rounds,
+        isPublic: data.isPublic,
+        fold: data.fold,
+        rounds: data.rounds,
         complete: false,
         locked: false,
         segCount: 1,
-        segments: [{
-          author: writerEmail,
-          content: story,
-          order: 1
-        }],
-        authors: [writerEmail]
+        segments: segments,
+        authors: [data.writerEmail]
       }
 
       // Add new Story to db
@@ -171,8 +174,9 @@ function Start(props) {
           console.log('Response after adding new story: ', resJson);
           setSuccess(true);
           setNewStoryID(resJson._id);
+          setStoryObj({ segments: segments, segCount: 1, rounds: data.rounds, complete: false, title: newTitle });
           props.socket.emit('logOut', 'success');
-          sendEmails(false, resJson._id, [writerEmail], newTitle);
+          sendEmails(false, resJson._id, [data.writerEmail], newTitle);
         })
         .catch(err => {
           errorArray.push(`Issue adding story: ${err}`);
@@ -182,9 +186,8 @@ function Start(props) {
       );
     } else {
       // Add segment to existing story
-      console.log(`Updating story: _id = ${props.storyID}`);
       let newSegments = [...storyObj.segments];
-      newSegments.push({author: writerEmail, content: story, order: storyObj.segCount});
+      newSegments.push({author: data.writerEmail, content: data.newText, order: storyObj.segCount});
 
       // Create new authors array - check that current author isn't already in the array to avoid duplicates
       let newAuthors = [];
@@ -192,18 +195,16 @@ function Start(props) {
       let keys = Object.keys(storyObj.authors);
       for(let key in keys) {
         newAuthors.push(storyObj.authors[key]);
-        console.log(`Author ${key}`, storyObj.authors[key]);
-        if (storyObj.authors[key] === writerEmail) {
+        if (storyObj.authors[key] === data.writerEmail) {
           count++;
         }
       }
       if (count ===0) {
-        newAuthors.push(writerEmail);
+        newAuthors.push(data.writerEmail);
       }
 
       // Build story object for updating
       let finished = storyObj.segCount + 1 === storyObj.rounds ? true : false; // Increment segCount and check if story is complete
-      console.log("segCount", storyObj.segCount, "rounds", storyObj.rounds);
       let storyUpdate = {
         complete: finished,
         segCount: storyObj.segCount + 1,
@@ -222,13 +223,12 @@ function Start(props) {
       .then(response => response.json())
       .then(resJson => {
         //Story has been updated successfully
-        console.log("Story update successful", resJson);
         setSuccess(true);
         setNewStoryID(resJson._id);
-        let newStoryObj = storyObj;
+        let newStoryObj = {...storyObj};
         newStoryObj.segments = newSegments;
         setStoryObj(newStoryObj);
-        sendEmails(finished, resJson._id, newAuthors, storyObj.title, writerEmail);
+        sendEmails(finished, resJson._id, newAuthors, storyObj.title, data.writerEmail);
         props.socket.emit('logOut', 'Successful save');
       })
       .catch(err => {
@@ -265,8 +265,6 @@ function Start(props) {
     })
     // Send to list of contributors if story is complete
     if (finished) {
-      // Get list of contributors
-      console.log("Authors:", authors)
       // Send email to the contributer
       toSend = {
         finished: true,
@@ -302,24 +300,17 @@ function Start(props) {
           <Col lg={6}>
             <Row className='justify-content-end'>
               <Col xs={12} sm="auto" >
-                {first ?
                 <SocialShares
                   shareURL={window.location.href}
-                  text="Start a story, let your friends finish it"
+                  text={ first ? "Start a story, let your friends finish it" : "Add to my story!" }
                 />
-                :
-                <SocialShares
-                  shareURL={window.location.href}
-                  text="Add to my story!"
-                />
-                }
               </Col>
             </Row>
           </Col>
         </Row>
         <Row className='justify-content-center'>
           <Col lg={6}>
-            <StoryDisplay storyObj={storyObj} first={first} />
+            <StoryDisplay storyObj={storyObj} first={first} success={success} />
           </Col>
         </Row>
         {!storyObj.complete && 
@@ -329,15 +320,21 @@ function Start(props) {
               {success
                 ? 
                   <>
-                  <p>{story}</p>
                   <SuccessBox
                     shareURL={window.location.href+""+ (props.storyID ? "" : newStoryID)}
                     // shareURL='foldandpass.com/story/5e8ec6a7f312c700044a3b58'
-                    complete={storyObj.segCount + 1 === storyObj.rounds} />
+                    complete={storyObj.segCount + 1 === storyObj.rounds}
+                    title={storyObj.title}
+                  />
                   </>
                 : loggedOut
                   ? <LoggedOutMessage locked={storyObj.locked} story={story} />
-                  : <StoryForm first={first} updateStory={updateStory} updateStoryText={setStory} />
+                  : <StoryForm
+                      first={first}
+                      updateStory={updateStory}
+                      updateStoryText={setStory}
+                      lastText={storyObj.segCount === 0 ? '' : storyObj.segments[storyObj.segments.length - 1].content}
+                    />
               }
             </Col>
           </Row>

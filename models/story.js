@@ -11,6 +11,7 @@ const segmentSchema = new Schema({
 const storySchema = new Schema({
 	title:	String,
 	isPublic: Boolean,
+	fold: Boolean,
 	complete: Boolean,
 	segments: [segmentSchema],
 	segCount: Number,

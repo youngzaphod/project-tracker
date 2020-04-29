@@ -43,6 +43,7 @@ router.post("/", function(req, res) {
   Story.create({
     title: req.body.title,
     isPublic: req.body.isPublic,
+    fold: req.body.fold,
     nextEmail: req.body.nextEmail,
     complete: req.body.complete,
     segCount: req.body.segCount,
@@ -112,27 +113,5 @@ router.post("/:story_id/:locked/", (req, res) => {
   });
   
 });
-
-/*
-//Show all incomplete stories in collection
-router.get("/incomplete", (req, res) => {
-  Story.find({ complete: false, isPublic: true })
-  .then(eachOne => {
-    //console.log(eachOne);
-    res.json(eachOne);
-  });
-});
-*/
-
-/*
-//Show all complete stories in collection
-router.get("/complete", (req, res) => {
-  Story.find({ complete: true, isPublic: true })
-  .then(eachOne => {
-    //console.log(eachOne);
-    res.json(eachOne);
-  });
-});
-*/
 
 module.exports = router;

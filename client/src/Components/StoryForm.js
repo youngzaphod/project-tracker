@@ -5,27 +5,46 @@ import Alert from 'react-bootstrap/Alert';
 import DisplayErrors from './DisplayErrors';
 
 const charLimit = 1000;
+const maxLength = 40;
 
 function StoryForm(props) {
     const [story, setStory] = useState('');
+    const [beginning, setBeginning] = useState('');
     const [errors, setErrors] = useState([]);
     const [writerEmail, setWriterEmail] = useState('');
     const [isPublic, setIsPublic] = useState(true);
+    const [fold, setFold] = useState(false);
     const [rounds, setRounds] = useState(5);
     const [confirm, setConfirm] = useState(false);
     const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
 
     useEffect(() => {
-        
-    }, [props]);
+        if (props.lastText !== '') {
+            // Set beginning length to the content length if it's less than maximum
+            let displayLength = props.lastText.length < maxLength ? props.lastText.length : maxLength;
+
+            // Get last displayLength characters from the content
+            setBeginning('. . .' + props.lastText.slice(-displayLength));
+            // Set story to the same so they start by matching
+            setStory('. . .' + props.lastText.slice(-displayLength));
+            console.log("Running useEffect. Setting story and beginning to:", '...' + props.lastText.slice(-displayLength));
+        }
+    }, [props.lastText]);
 
     const checkStory = (newValue) => {
-        if (newValue.length > charLimit) {
-            newValue = newValue.substr(0, charLimit);
-            setErrors(errors);
+        // If user attempts to change previous text, don't update and show alert
+        if (newValue.substr(0, beginning.length) === beginning) {
+            if (newValue.length > charLimit) {
+                newValue = newValue.substr(0, charLimit);
+                setErrors(errors);
+            }
+            setStory(newValue);
+            // Bubble up new part of story, taking out the prompt, and then remove trailing whitespace
+            props.updateStoryText(newValue.substr(beginning.length).replace(/\s+$/, ''));
+            console.log("Substring, new writing:", newValue.substr(beginning.length));
+            //props.updateStoryText(newValue.substr(beginning.length));
         }
-        setStory(newValue);
-        props.updateStoryText(newValue);
+        
     }
 
     //Check for errors on each field and add to error array
@@ -49,7 +68,8 @@ function StoryForm(props) {
         setErrors(errorArray);
         // If no errors, move on to updating story
         if (errorArray.length === 0) {
-        confirm ? props.updateStory(story, writerEmail, rounds, isPublic) : setConfirm(true);
+            let newText = story.substr(beginning.length);
+            confirm ? props.updateStory({ newText, writerEmail, rounds, isPublic, fold }) : setConfirm(true);
         }
     }
     
@@ -106,6 +126,16 @@ function StoryForm(props) {
                       id='public'
                       defaultChecked = {true}
                       onClick = {(e) => setIsPublic(e.target.checked)}
+                    />
+                  </Form.Group>
+                  <Form.Group controlId='makePublic'>
+                    <Form.Check
+                      name='fold'
+                      type='checkbox'
+                      label='Fold before passing? Checking this will let the next person see only the last few words of what you wrote.'
+                      id='fold'
+                      defaultChecked = {false}
+                      onClick = {(e) => setFold(e.target.checked)}
                     />
                   </Form.Group>
                   </>

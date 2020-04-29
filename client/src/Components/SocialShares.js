@@ -23,12 +23,12 @@ function SocialShares(props) {
                 </a>
             </Col>
             <Col xs="auto">
-                <FacebookShareButton url={props.shareURL} className="share" quote={props.text} hashtag='#collaborate'>
+                <FacebookShareButton url={props.shareURL} className="share" quote={props.title + '...'} hashtag='#collaborate'>
                     <FacebookIcon size={40} round={true} />
                 </FacebookShareButton>
             </Col>
             <Col xs="auto">
-                <TwitterShareButton url={props.shareURL} title={`${props.text} ${props.shareURL}`} via='foldandpass' hashtags={['create', 'collaborate']}>
+                <TwitterShareButton url={props.shareURL} title={props.text} via='foldandpass' hashtags={['create', 'collaborate']}>
                 <TwitterIcon round={true} size={40}/>
                 </TwitterShareButton>
             </Col>

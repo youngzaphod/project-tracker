@@ -1,9 +1,28 @@
 import React, { useState, useEffect } from 'react';
 
+const maxLength = 40;
+
 function StoryDisplay(props) {
     const [prompt, setPrompt] = useState('');
+    const [displayText, setDisplayText] = useState('');
+
 
     useEffect(() => {
+        console.log("Running useEffect in StoryDisplay.js");
+        // If story is folded and incomplete, get the last few words from the previous segment to display after blurred text
+        if (props.storyObj.fold && !props.storyObj.complete) {
+            // Get the content from the last segment
+            let text = props.storyObj.segments[props.storyObj.segCount - 1].content;
+
+            // Set display text length to the content length if it's less than maximum
+            let displayLength = text.length < maxLength ? text.length : maxLength;
+
+            // Get last displayLength characters from the content
+            setDisplayText(text.slice(-displayLength));
+        }
+
+
+        // Set the intro and prompt based on where in the story we are
         if (!props.first) {
             if (!props.storyObj.complete) {
                 if (props.storyObj.rounds - props.storyObj.segCount === 1) {
@@ -18,21 +37,32 @@ function StoryDisplay(props) {
     }, [props]);
     
     return (
-        <>
-        {!props.first ?
-            <>
-            <h3 className="noPad">{!props.storyObj.complete ? `Previously on ` : '' }<em>{props.storyObj.title}</em></h3>
-            {
-            props.storyObj.segments.map((seg, i) => {
-                return <p style={{ whiteSpace: "pre-wrap"}} key={seg._id}>{seg.content}</p>
-            })
-            }
-            <h4>{prompt}</h4>
-            </>
-            : <h3 >{prompt}</h3>
-        }
+        <>     
+        {!props.first && 
+            <h3 className="noPad"style={{ paddingBottom: '30px'}}>{!props.storyObj.complete ? `Previously on ` : '' }<em>{props.storyObj.title}</em></h3> }
         
-        {!props.first && !props.storyObj.complete && <em>round {props.storyObj.segCount + 1} out of {props.storyObj.rounds}</em> }
+        {!props.storyObj.fold || props.storyObj.complete ?
+            props.storyObj.segments.map((seg, i) => {
+                return <span style={{ whiteSpace: "pre-wrap"}} key={seg._id ? seg._id : '2038402138'}>
+                    {seg.content}
+                    </span>
+            })
+            : 
+            <>
+                <p><em>Since the original author chose to fold the paper, you can only see the last few words:</em></p>
+                <span style={{ whiteSpace: "pre-wrap"}}>. . .{displayText}</span>
+                { props.success &&
+                    <span style={{ whiteSpace: "pre-wrap"}}>
+                        {props.storyObj.segments[props.storyObj.segments.length - 1].content}
+                    </span>
+                }
+            </>
+        }
+            
+        { !props.success && <h5 style={{paddingTop: '30px'}}>{prompt}</h5> }
+        
+        {!props.first && !props.storyObj.complete && !props.success &&
+            <em>round {props.storyObj.segCount + 1} out of {props.storyObj.rounds}</em> }
         </>
     );
 
