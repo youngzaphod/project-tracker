@@ -9,26 +9,11 @@ const authorRouter = require("./routes/authors");
 var createError = require('http-errors');
 const sanitize = require("mongo-sanitize");
 require('dotenv').config();
+require('./scripts/connectDB')(mongoose);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
-// Connect to cluster at mongoDB Atlas
-const dbURL =
-  "mongodb+srv://" + process.env.DB_NAME + ":" + process.env.DB_PASS + "@clusterfuck-wglwx.mongodb.net/" +
-    process.env.COLLECTION + "?retryWrites=true";
-  console.log("DB name", process.env.DB_NAME);
-  console.log("DB pass", process.env.DB_PASS);
-
-mongoose.connect(dbURL, { useNewUrlParser: true }, err => {
-  console.log("Attempted mongodb connection...");
-  if (err) {
-    console.log("DB connection error: ", err);
-  } else {
-    console.log("Connection successful");
-  }
-});
 
 // Production mode path
 if (process.env.NODE_ENV === "production") {

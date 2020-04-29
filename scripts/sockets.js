@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const timeUntilLogout = 30 * 60 * 1000;
 
 //Bring in models from external file
-const Story = require("./models/story");
+const Story = require("../models/story");
 
 module.exports = io => {
 
