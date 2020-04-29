@@ -5,7 +5,7 @@ require('./connectDB')(mongoose);
 const Story = require("../models/story");
 console.log("Running AddSpace.js");
 
-Story.find({'_id': '5ea9fa7baedf5e2274955b21'}, { "segments": 1})
+Story.find({}, { "segments": 1})
 .then(items => {
     console.log("Got all segments, begin processing");
     items.forEach(item => {

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import lorem from './dummyText.js';
 
 const maxLength = 40;
 
 function StoryDisplay(props) {
     const [prompt, setPrompt] = useState('');
     const [displayText, setDisplayText] = useState('');
+    const [dummyText, setDummyText] = useState('');
 
 
     useEffect(() => {
@@ -20,6 +22,28 @@ function StoryDisplay(props) {
             // Get last displayLength characters from the content
             setDisplayText(text.slice(-displayLength));
         }
+
+        // Run through segments to create dummy content length
+        let dum = "Caught you, cheater! You thought you were clever, but this is just dummy text! Nice try, though, would've done the same myself.";
+        let i = 0;
+        props.storyObj.segments.forEach(seg => {
+            console.log("Round", i);
+            let sec = seg.content.split('\n');  // Split into array by newlines
+            console.log(`Split into ${sec.length} sections`);
+            // Iterate over array adding each element to dummy text
+            let j = 0;
+            sec.forEach(el => {
+                j++;
+                console.log(`el.length: ${el.length}`);
+                dum += lorem.substr(0, el.length);
+                //Only add newline if not the last section
+                if (j !== sec.length) {
+                    dum += '\n';
+                }
+            });
+        });
+        console.log("Dum length", dum.length);
+        setDummyText(dum);
 
 
         // Set the intro and prompt based on where in the story we are
@@ -50,7 +74,8 @@ function StoryDisplay(props) {
             : 
             <>
                 <p><em>Since the original author chose to fold the paper, you can only see the last few words:</em></p>
-                <span style={{ whiteSpace: "pre-wrap"}}>. . .{displayText}</span>
+                <span className="blurred-text" style={{ whiteSpace: "pre-wrap"}}>{dummyText}</span>
+                <span style={{ whiteSpace: "pre-wrap"}}>{displayText}</span>
                 { props.success &&
                     <span style={{ whiteSpace: "pre-wrap"}}>
                         {props.storyObj.segments[props.storyObj.segments.length - 1].content}
