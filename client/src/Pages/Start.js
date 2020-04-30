@@ -176,7 +176,7 @@ function Start(props) {
           setNewStoryID(resJson._id);
           setStoryObj({ segments: segments, segCount: 1, rounds: data.rounds, complete: false, title: newTitle });
           props.socket.emit('logOut', 'success');
-          sendEmails(false, resJson._id, [data.writerEmail], newTitle);
+          sendEmails(false, resJson._id, [data.writerEmail], newTitle, data.writerEmail);
         })
         .catch(err => {
           errorArray.push(`Issue adding story: ${err}`);

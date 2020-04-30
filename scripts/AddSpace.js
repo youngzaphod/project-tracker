@@ -1,5 +1,19 @@
 const mongoose = require("mongoose");
-require('./connectDB')(mongoose);
+
+const collection = 'FNPproduction';
+
+const dbURL =
+  "mongodb+srv://" + process.env.DB_NAME + ":" + process.env.DB_PASS + "@clusterfuck-wglwx.mongodb.net/" +
+    collection + "?retryWrites=true";
+
+mongoose.connect(dbURL, { useNewUrlParser: true }, err => {
+    console.log("Attempted mongodb connection...");
+    if (err) {
+        console.log("DB connection error: ", err);
+    } else {
+        console.log("Connection successful");
+    }
+});
 
 //Bring in models from external file
 const Story = require("../models/story");
