@@ -68,7 +68,7 @@ function StoryForm(props) {
         setErrors(errorArray);
         // If no errors, move on to updating story
         if (errorArray.length === 0) {
-            let newText = story.substr(beginning.length);
+            let newText = story.substr(beginning.length).replace(/\s+$/, '');
             confirm ? props.updateStory({ newText, writerEmail, rounds, isPublic, fold }) : setConfirm(true);
         }
     }

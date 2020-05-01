@@ -14,6 +14,7 @@ class Header extends Component {
             <Nav.Link href='/story/'>Start a story</Nav.Link>
             <Nav.Link href='/open/'>Open stories</Nav.Link>
             <Nav.Link href='/complete/'>Finished stories</Nav.Link>
+            <Nav.Link href='/faqs/'>FAQs</Nav.Link>
             <Nav.Link href='/contact/'>Contact</Nav.Link>
           </Nav>
         </Navbar.Collapse>

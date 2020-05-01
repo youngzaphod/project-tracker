@@ -55,24 +55,50 @@ router.post('/', function(req, res, next) {
         mg.messages().send(data, function (error, info) {
             if (error) {
                 console.log("Error sending addition email: ", error);
-                res.status(400).send({
+                    res.status(400).send({
                     success: false,
                     body: `Error sending addition email`,
                     error: error
                 });
             } else {
                 console.log("Successfully sent addition email!", info);
-                res.status(200).send({
-                    success: true,
-                    body: `Email sent`,
-                    info: info
-                });
+                // Also notify original author, if they aren't the one that just contributed
+                if (req.body.authors[0] !== req.body.email) {
+                    message = "You have a collaborator! You can see what they wrote or wait until the end."
+                    let newData = {
+                        from: `Fold and Pass noreply@foldandpass.com`,
+                        to: req.body.authors[0],
+                        subject: "Someone contributed to your story",
+                        template: "notification",
+                        'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + req.body.authors[0]}", "message": "${message}"}`
+                    };
+                    console.log("Sending email to original author");
+                    mg.messages().send(newData, function (error, info) {
+                        if (error) {
+                            console.log("Error sending original author email: ", error);
+                            res.status(400).send({
+                                success: false,
+                                body: `Error sending original author email`,
+                                error: error
+                            });
+                        } else {
+                            console.log("Successfully sent original author email!", info);
+                            res.status(200).send({
+                                success: true,
+                                body: `Email sent`,
+                                info: info
+                            });
+                        }
+                    });
+                }
             }
         });
+
+        
     }
     
 
-    // Send completion emails
+    // Send completion emails, sent to everoyone who contributed
     if (req.body.finished) {
         console.log("Completion emails being sent");
         message = "Get your expectations nice and low, then check it out!";

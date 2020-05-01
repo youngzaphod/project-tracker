@@ -17,7 +17,7 @@ router.get("/", (req, res) => {
 router.get("/incomplete", (req, res) => {
   Story.aggregate([
     { $match: { complete: false, isPublic: true } },
-    { $sample: { size: 10 } }
+    { $sample: { size: 20 } }
   ])
   .then(eachOne => {
     //console.log(eachOne);
