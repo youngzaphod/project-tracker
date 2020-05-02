@@ -27,7 +27,6 @@ function StoryForm(props) {
             setBeginning('. . .' + props.lastText.slice(-displayLength));
             // Set story to the same so they start by matching
             setStory('. . .' + props.lastText.slice(-displayLength));
-            console.log("Running useEffect. Setting story and beginning to:", '...' + props.lastText.slice(-displayLength));
         }
     }, [props.lastText]);
 
@@ -41,8 +40,6 @@ function StoryForm(props) {
             setStory(newValue);
             // Bubble up new part of story, taking out the prompt, and then remove trailing whitespace
             props.updateStoryText(newValue.substr(beginning.length).replace(/\s+$/, ''));
-            console.log("Substring, new writing:", newValue.substr(beginning.length));
-            //props.updateStoryText(newValue.substr(beginning.length));
         }
         
     }
@@ -52,7 +49,7 @@ function StoryForm(props) {
         var errorArray = [];
 
         if(hopo) {
-        errorArray.push("You're showing up as spam for some reason - please copy your work, refresh the page, and try again. But only if you're a human.");
+        errorArray.push("You're showing up as spam for some reason - copy your work, refresh the page, and try again. If that doesn't work, try typing your email in manually, instead of using autofill. This should be fixed soon!");
         }
         
         if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {

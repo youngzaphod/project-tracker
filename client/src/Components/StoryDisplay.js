@@ -56,7 +56,7 @@ function StoryDisplay(props) {
                 }
             }
         } else {
-            setPrompt(`Start a story, then send it to a friend or the world to complete it`);
+            setPrompt(`Start a story (or a poem/play/essay - whatever you like), then send it to a friend or the world to complete it`);
         }
     }, [props]);
     

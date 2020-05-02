@@ -13,6 +13,7 @@ import FAQs from './Pages/FAQs';
 import TestPage from './Pages/TestPage';
 import NotFound from './Pages/NotFound';
 import * as io from 'socket.io-client';
+import GAListener from './Components/GAListener';
 
 const socket = io();
 
@@ -21,6 +22,7 @@ class App extends Component {
   render() {
     return (
         <Router>
+        <GAListener>
           <Header/>
           <Switch>
             <Route exact path="/" render={props => (<Home/>)}/>
@@ -34,6 +36,7 @@ class App extends Component {
             <Route exact path="/testpage" render={props => (<TestPage/>)}/>
             <Route render={props => (<NotFound match={props.match}/>)}/>
           </Switch>
+        </GAListener>
         </Router>
     );
   }
