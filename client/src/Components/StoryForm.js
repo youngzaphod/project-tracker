@@ -85,22 +85,24 @@ function StoryForm(props) {
                 }
               } else {
                 console.log("Error validating. Err", resJson["error-codes"]);
-                errorArray.push("Error validating. This seems to be a site error, please let us know if it persists via the Contact page");
+                errorArray.push("Error validating. This seems to be an error with Google ReCAPTCHA. Let us know if this persists via the Contact page.");
               }
             })
             .catch(err => {
               errorArray.push(`Issue getting captcha response: ${err}`);
               console.log('Issue getting captcha response:', err);
+            })
+            .then(() => {
+              console.log("Setting errorArray in then", errorArray);
+              setErrors(errorArray);
             });
           });
         });
       } else {
-        if (!confirm && errorArray.length === 0) {
-          setConfirm(true);
-        }
+        // If confirm is true here then there are errors, if it's false, there's no errors and we set confirm to true
+        confirm ? setErrors(errorArray) : setConfirm(true);
       }
       
-      setErrors(errorArray);
     }
     
     return (

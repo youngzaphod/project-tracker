@@ -36,6 +36,7 @@ function Contact(props) {
     }
 
     if (errorArray.length === 0) {
+      setSending(true);
       window.grecaptcha.ready(function() {
         window.grecaptcha.execute('6LcZlPEUAAAAADope5VYwZJ6jo_ommCMfPJYOA6s', {action: 'contact'}).then(function(token) {
           //fech from /captcha route here
@@ -53,24 +54,27 @@ function Contact(props) {
             if (resJson.success) {
               resJson.score > .6 ? sendEmail() : errorArray.push("You're showing as spam, refresh and try again please");
             } else {
-              errorArray.push("There's an error sending the info. Very sorry, please try again later!");
+              console.log("There's an error sending the info. Very sorry, please try again later!");
+              errorArray.push("There is an error doing spam filtering; This seems to be an error with Google ReCAPTCHA. Please try again later.");
             }           
           })
           .catch(err => {
             errorArray.push(`Issue getting captcha response: ${err}`);
             console.log('Issue getting captcha response:', err);
+          })
+          .then(() => {
+            setErrors(errorArray);
           });
         });
       });
+    } else {
+      setErrors(errorArray);
     }
-
-    setErrors(errorArray);
     
   }
 
    const sendEmail = () => {
      console.log("Sending email from contact form...");
-     setSending(true);
     let errorArray = [];
     // Send email to the contributer
     let toSend = {

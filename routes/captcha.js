@@ -5,7 +5,7 @@ require('dotenv').config();
 
 
 router.post('/', (req, res, next) => {
-    console.log("Executing captcha.js");
+    console.log("Executing captcha.js, KEY:", process.env.RECAPTCHA_SECRET_KEY);
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.token}`;
     axios(url, { method: 'POST' })
     .then(response => res.send(response.data))

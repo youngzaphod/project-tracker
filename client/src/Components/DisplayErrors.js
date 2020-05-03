@@ -5,6 +5,7 @@ import Alert from 'react-bootstrap/Alert';
 
 
 function DisplayErrors(props) {
+
     return (
         <>
         {props.errors.length !== 0 &&
@@ -13,7 +14,7 @@ function DisplayErrors(props) {
                 {
                 props.errors.map((msg, i) => (
                     <Alert key={i} variant='danger'>
-                    {msg}
+                        Something went wrong: {msg}
                     </Alert>
                 ))}
                 </Col>

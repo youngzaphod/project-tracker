@@ -24,7 +24,6 @@ function StoryDisplay(props) {
 
         // Run through segments to create dummy content length
         let dum = "Caught you, cheater! You thought you were clever, but this is just dummy text! Nice try, though, would've done the same myself.";
-        let i = 0;
         props.storyObj.segments.forEach(seg => {
             let sec = seg.content.split('\n');  // Split into array by newlines
             // Iterate over array adding each element to dummy text
