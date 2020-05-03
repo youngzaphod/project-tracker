@@ -10,7 +10,6 @@ function StoryDisplay(props) {
 
 
     useEffect(() => {
-        console.log("Running useEffect in StoryDisplay.js");
         // If story is folded and incomplete, get the last few words from the previous segment to display after blurred text
         if (props.storyObj.fold && !props.storyObj.complete) {
             // Get the content from the last segment
@@ -27,14 +26,11 @@ function StoryDisplay(props) {
         let dum = "Caught you, cheater! You thought you were clever, but this is just dummy text! Nice try, though, would've done the same myself.";
         let i = 0;
         props.storyObj.segments.forEach(seg => {
-            console.log("Round", i);
             let sec = seg.content.split('\n');  // Split into array by newlines
-            console.log(`Split into ${sec.length} sections`);
             // Iterate over array adding each element to dummy text
             let j = 0;
             sec.forEach(el => {
                 j++;
-                console.log(`el.length: ${el.length}`);
                 dum += lorem.substr(0, el.length);
                 //Only add newline if not the last section
                 if (j !== sec.length) {
@@ -42,7 +38,6 @@ function StoryDisplay(props) {
                 }
             });
         });
-        console.log("Dum length", dum.length);
         setDummyText(dum);
 
 

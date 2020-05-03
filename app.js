@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const storyRouter = require("./routes/stories");
 const emailRouter = require("./routes/sendEmail");
 const authorRouter = require("./routes/authors");
+const captchaRouter = require("./routes/captcha");
 var createError = require('http-errors');
 const sanitize = require("mongo-sanitize");
 require('dotenv').config();
@@ -36,6 +37,7 @@ app.use(cleanBody);
 app.use("/api/stories", storyRouter);
 app.use("/api/email", emailRouter);
 app.use("/api/authors", authorRouter);
+app.use("/api/captcha", captchaRouter);
 
 // Handles any requests that don't match the ones above for production build
 if (process.env.NODE_ENV === "production") {

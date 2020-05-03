@@ -20,14 +20,14 @@ router.post('/contact', function(req, res, next) {
 
     mg.messages().send(data, function (error, info) {
             if (error) {
-                console.log("Error sending addition email: ", error);
+                console.log("Error sending contact email: ", error);
                 res.status(400).send({
                     success: false,
-                    body: `Error sending addition email`,
+                    body: `Error sending contact email`,
                     error: error
                 });
             } else {
-                console.log("Successfully sent addition email!", info);
+                console.log("Successfully sent contact email!", info);
                 res.status(200).send({
                     success: true,
                     body: `Email sent`,

@@ -16,7 +16,7 @@ function StoryForm(props) {
     const [fold, setFold] = useState(false);
     const [rounds, setRounds] = useState(5);
     const [confirm, setConfirm] = useState(false);
-    const [hopo, setHopo] = useState(false); // Tracking if honeypots are filled in
+    const [publishing, setPublishing] = useState(false);
 
     useEffect(() => {
         if (props.lastText !== '') {
@@ -46,28 +46,59 @@ function StoryForm(props) {
 
     //Check for errors on each field and add to error array
     const handleSubmit = () => {
-        var errorArray = [];
+      
+      var errorArray = [];
+      
+      if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {
+      errorArray.push("You must enter a valid email address for yourself.");
+      }
+      if (story ==='') {
+      errorArray.push("You forgot the most important part - the story!");
+      }
+      if (story.length < 3) {
+      errorArray.push("Give the story a little more thought. You can do at least 3 characters, can't you?");
+      }
 
-        if(hopo) {
-        errorArray.push("You're showing up as spam for some reason - copy your work, refresh the page, and try again. If that doesn't work, try typing your email in manually, instead of using autofill. This should be fixed soon!");
+      if (errorArray.length === 0 && confirm) {
+        setPublishing(true);
+        window.grecaptcha.ready(function() {
+          window.grecaptcha.execute('6LcZlPEUAAAAADope5VYwZJ6jo_ommCMfPJYOA6s', {action: 'storyadd'}).then(function(token) {
+            //fech from /captcha route here
+            fetch('/api/captcha/', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ token: token })
+            })
+            .then(response => response.json())
+            .then(resJson => {
+              console.log("Successful captcha:", resJson);
+              if (resJson.score > .6) {
+                if (confirm) {
+                  let newText = story.substr(beginning.length).replace(/\s+$/, '');
+                  props.updateStory({ newText, writerEmail, rounds, isPublic, fold });
+                } else {
+                  setConfirm(true);
+                }
+              } else {
+                errorArray.push("You're showing as spam, save what you wrote, refresh, and try again please");
+              }
+            })
+            .catch(err => {
+              errorArray.push(`Issue getting captcha response: ${err}`);
+              console.log('Issue getting captcha response:', err);
+            });
+          });
+        });
+      } else {
+        if (!confirm && errorArray.length === 0) {
+          setConfirm(true);
         }
-        
-        if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(writerEmail)) {
-        errorArray.push("You must enter a valid email address for yourself.");
-        }
-        if (story ==='') {
-        errorArray.push("You forgot the most important part - the story!");
-        }
-        if (story.length < 3) {
-        errorArray.push("Give the story a little more thought. You can do at least 3 characters, can't you?");
-        }
-        
-        setErrors(errorArray);
-        // If no errors, move on to updating story
-        if (errorArray.length === 0) {
-            let newText = story.substr(beginning.length).replace(/\s+$/, '');
-            confirm ? props.updateStory({ newText, writerEmail, rounds, isPublic, fold }) : setConfirm(true);
-        }
+      }
+      
+      setErrors(errorArray);
     }
     
     return (
@@ -86,11 +117,6 @@ function StoryForm(props) {
                     There's no signup, we just need an email to send you notifications when your story is complete, and a link where you can see all the stories you have contributed to.
                   </Form.Text>
                 </Form.Group>
-
-                <label className="hopo"></label>
-                <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
-                <label className="hopo"></label>
-                <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
 
                 {props.first &&
                   <>
@@ -143,9 +169,15 @@ function StoryForm(props) {
                   <Alert variant="warning">
                     <h4>One more step...</h4>
                     <p>You can't edit later, so if you haven't yet give it a second read before confirming you want to publish.</p>
-                    <Button variant="primary" onClick={handleSubmit}>
-                      Confirm Publish
-                    </Button>
+                    { publishing ?
+                      <Button variant="primary">
+                        Publishing...
+                      </Button>
+                      :
+                      <Button variant="primary" onClick={handleSubmit}>
+                        Confirm Publish
+                      </Button>
+                    }
                   </Alert>
                   :
                   <Button variant="primary" onClick={handleSubmit}>

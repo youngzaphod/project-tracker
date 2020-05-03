@@ -17,17 +17,11 @@ function Contact(props) {
   const [email, setEmail] = useState('');
   const [success, setSuccess] = useState(false);
   const [sending, setSending] = useState(false);
-  const [hopo, setHopo] = useState(false);
 
   //Check for errors on each field and add to error array
   const handleSubmit = () => {
     console.log("Handling submit");
     var errorArray = [];
-
-    if (hopo) {
-      errorArray.push("You're showing up as spam for some reason 🤷 Please refresh the page and try again - IF you're a human.")
-    }
-
     
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)) {
       errorArray.push("You must enter a valid email address!");
@@ -41,14 +35,33 @@ function Contact(props) {
       errorArray.push("You must enter a message!");
     }
 
-    
-    
-    // If no errors, move on to updating story
     if (errorArray.length === 0) {
-      sendEmail();
-    } else {
-      setErrors(errorArray);
+      window.grecaptcha.ready(function() {
+        window.grecaptcha.execute('6LcZlPEUAAAAADope5VYwZJ6jo_ommCMfPJYOA6s', {action: 'contact'}).then(function(token) {
+          //fech from /captcha route here
+          fetch('/api/captcha/', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token: token })
+          })
+          .then(response => response.json())
+          .then(resJson => {
+            console.log("Successful captcha:", resJson);
+            resJson.score > .6 ? sendEmail() : errorArray.push("You're showing as spam, refresh and try again please");
+          })
+          .catch(err => {
+            errorArray.push(`Issue getting captcha response: ${err}`);
+            console.log('Issue getting captcha response:', err);
+          });
+        });
+      });
     }
+
+    setErrors(errorArray);
+    
   }
 
    const sendEmail = () => {
@@ -103,12 +116,6 @@ function Contact(props) {
                         <Form.Label>Subject</Form.Label>
                         <Form.Control as="input" placeholder="Be concise here" rows="20" value={subject} onChange={e => setSubject(e.target.value)} />
                       </Form.Group>
-
-                      <label className="hopo" ></label>
-                      <input className="hopo" tabIndex={-1} autoComplete="dsfad" type="text" id="name" name="name" placeholder="Your name here" onChange={() => setHopo(true)}/>
-                      <label className="hopo" ></label>
-                      <input className="hopo" tabIndex={-1} autoComplete="drtrdwsz" type="email" id="email" name="email" placeholder="Your e-mail here" onChange={() => setHopo(true)}/>
-
                       <Form.Group controlId="formMessage">
                         <Form.Label>
                           Message
@@ -154,6 +161,9 @@ function Contact(props) {
                       }
                       
                     </Form>
+                </div>
+                <div className='g-recaptcha' data-sitekey='6LcZlPEUAAAAADope5VYwZJ6jo_ommCMfPJYOA6s' data-size='invisible'>
+
                 </div>
             </Col>
         </Row>
