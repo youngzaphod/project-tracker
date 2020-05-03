@@ -75,15 +75,17 @@ function StoryForm(props) {
             .then(response => response.json())
             .then(resJson => {
               console.log("Successful captcha:", resJson);
-              if (resJson.score > .6) {
-                if (confirm) {
+              if (resJson.success) {
+                if (resJson.score > .6) {
                   let newText = story.substr(beginning.length).replace(/\s+$/, '');
                   props.updateStory({ newText, writerEmail, rounds, isPublic, fold });
                 } else {
-                  setConfirm(true);
+                  console.log("Score:", resJson.score);
+                  errorArray.push("You are showing up as spam for some reason. Please copy your writing, refresh and try again. If the problem persists, describe the issue in the Contact form");
                 }
               } else {
-                errorArray.push("You're showing as spam, save what you wrote, refresh, and try again please");
+                console.log("Error validating. Err", resJson["error-codes"]);
+                errorArray.push("Error validating. This seems to be a site error, please let us know if it persists via the Contact page");
               }
             })
             .catch(err => {

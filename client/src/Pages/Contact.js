@@ -50,7 +50,11 @@ function Contact(props) {
           .then(response => response.json())
           .then(resJson => {
             console.log("Successful captcha:", resJson);
-            resJson.score > .6 ? sendEmail() : errorArray.push("You're showing as spam, refresh and try again please");
+            if (resJson.success) {
+              resJson.score > .6 ? sendEmail() : errorArray.push("You're showing as spam, refresh and try again please");
+            } else {
+              errorArray.push("There's an error sending the info. Very sorry, please try again later!");
+            }           
           })
           .catch(err => {
             errorArray.push(`Issue getting captcha response: ${err}`);
