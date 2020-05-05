@@ -168,25 +168,31 @@ function StoryForm(props) {
                   </>
                 }
                 <DisplayErrors errors={errors} />
-
-                {confirm ?
-                  <Alert variant="warning">
-                    <h4>One more step...</h4>
-                    <p>You can't edit later, so if you haven't yet give it a second read before confirming you want to publish.</p>
-                    { publishing ?
-                      <Button variant="primary">
-                        Publishing...
-                      </Button>
-                      :
-                      <Button variant="primary" onClick={handleSubmit}>
-                        Confirm Publish
-                      </Button>
-                    }
+                {!props.connected ?
+                  <Alert variant='warning'>
+                    <h4>Uh oh, there's problem with your connection!</h4>
+                    <p>This could be because of our server, your internet connection, or something in between.</p>
+                    <p>This page will automatically reconnect when possible, or you can copy your work somewhere else
+                    (so you don't lose it) and try refreshing</p>
                   </Alert>
-                  :
-                  <Button variant="primary" onClick={handleSubmit}>
-                    Publish
-                  </Button>
+                : confirm ?
+                    <Alert variant="warning">
+                      <h4>One more step...</h4>
+                      <p>You can't edit later, so if you haven't yet give it a second read before confirming you want to publish.</p>
+                      { publishing ?
+                        <Button variant="primary">
+                          Publishing...
+                        </Button>
+                        :
+                        <Button variant="primary" onClick={handleSubmit}>
+                          Confirm Publish
+                        </Button>
+                      }
+                    </Alert>
+                    :
+                    <Button variant="primary" onClick={handleSubmit}>
+                      Publish
+                    </Button>
                 }
               </Form>
     );

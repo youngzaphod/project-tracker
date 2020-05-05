@@ -30,6 +30,7 @@ function Start(props) {
   const [storyObj, setStoryObj] = useState({segCount: 0, segments: []});
   const [newStoryID, setNewStoryID] = useState('');
   const [first, setFirst] = useState(true);
+  const [connected, setConnected] = useState(true);
 
   // Get previous segments from story, if they exist:
   useEffect(() => {
@@ -61,9 +62,22 @@ function Start(props) {
       setLoggedOut(true);
     });
 
+    props.socket.on("connect", () => {
+      console.log("Connected");
+        setConnected(true);
+        // If story was unlocked on earlier connection, see if it's still available
+        props.socket.emit("checkout", props.storyID, (data) => {
+          if (data === 'available') {
+            setLoggedOut(false);
+          } else {
+            setLoggedOut(true);
+          }
+        });
+    });
+
     props.socket.on("disconnect", () => {
       console.log("Disconnected, so logged out of story");
-      setLoggedOut(true);
+      setConnected(false); 
     });
 
     props.socket.on("id", id => {
@@ -96,6 +110,8 @@ function Start(props) {
             authors: theStory.authors
           });
 
+          /*
+
           if (theStory.locked && !theStory.complete) {
             console.log("Setting loggedout on entry");
             setLoggedOut(true);
@@ -105,8 +121,14 @@ function Start(props) {
           if (!theStory.locked && !theStory.complete) {
             props.socket.emit('setup', { storyID: props.storyID, loggedOut: false });
           }
-          setLoaded(true);
+          */
 
+          props.socket.emit('setup', { storyID: props.storyID, loggedOut: false }, data => {
+            if (data === 'unavailable') {
+              setLoggedOut(true);
+            }
+            setLoaded(true);
+          });
         })
         .catch(err => {
           let errorArray = [`Sorry, there was an issue loading the story: ${err}`];
@@ -333,6 +355,7 @@ function Start(props) {
                       first={first}
                       updateStory={updateStory}
                       updateStoryText={setStory}
+                      connected={connected}
                       lastText={storyObj.segCount === 0 ? '' : storyObj.segments[storyObj.segments.length - 1].content}
                     />
               }

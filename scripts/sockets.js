@@ -16,12 +16,35 @@ module.exports = io => {
         
         socket.emit("id", socket.id);
 
-        socket.on("setup", data => {
+        const isAvailable = (storyID) => {
+            console.log("Attempting checkout of", storyID);
+            // Check if anyone else has story checked out and return false if so (unavailable)
+            for(var sock in io.sockets.sockets) {
+                let el = io.sockets.sockets[sock];
+                if (el.storyID === storyID && !el.loggedOut && el.id !== socket.id) {
+                    console.log(`StoryID ${storyID} is already checked out by connection ${el.id}`);
+                    return false;
+                }
+            }
+
+            // If no other connection is on it, return true
+            console.log(`StoryID ${storyID} is available!`);
+            return true;
+        }
+
+        socket.on("setup", (data, callback) => {
             // When story is loaded on the front end, this data is sent
             console.log("Setup, storyID:", data.storyID);
             console.log("Setup, socket ID:", socket.id);
             socket.storyID = data.storyID;
-            socket.loggedOut = data.loggedOut;
+            socket.loggedOut = !isAvailable(data.storyID);
+            socket.loggedOut ? callback('unavailable') : callback('available');
+        });
+
+        socket.on("checkout", (storyID, callback) => {
+            socket.storyID = storyID;
+            socket.loggedOut = !isAvailable(storyID);
+            socket.loggedOut ? callback('unavailable') : callback('available');
         });
 
         socket.on('startIdle', (typeIdle) => {
