@@ -26,22 +26,21 @@ function Complete(props) {
             },
         })
         .then(response => response.json())
-        .then(theStories => {
-            let temp = [];
-            for(let i in theStories) {
-                temp.push({
-                    id: theStories[i]._id,
-                    title: theStories[i].title,
-                    segCount: theStories[i].segCount,
-                    rounds: theStories[i].rounds
-                });
+        .then(resJson => {
+            if (resJson.success) {
+                let temp = [];
+                for(let i in resJson.stories) {
+                    temp.push({
+                        id: resJson.stories[i]._id,
+                        title: resJson.stories[i].title,
+                        segCount: resJson.stories[i].segCount,
+                        rounds: resJson.stories[i].rounds
+                    });
+                }
+                setStories(temp);
+            } else {
+                setErrors(["Sorry, there was an issue loading stories"]);
             }
-            /*
-            theStories.foreach((story, i) => {
-                temp.push({id: story._id, title: story.title, segCount: story.segCount, rounds: story.rounds});
-            });
-            */
-            setStories(temp);
         })
         .catch(err => {
             let errorArray = [`Sorry, there was an issue loading stories: ${err}`];

@@ -28,7 +28,8 @@ function StoryForm(props) {
             // Set story to the same so they start by matching
             setStory('. . .' + props.lastText.slice(-displayLength));
         }
-    }, [props.lastText]);
+        setErrors(props.errors);
+    }, [props.lastText, props.errors]);
 
     const checkStory = (newValue) => {
         // If user attempts to change previous text, don't update and show alert

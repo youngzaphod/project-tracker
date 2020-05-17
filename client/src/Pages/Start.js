@@ -93,35 +93,22 @@ function Start(props) {
           headers: { Accept: 'application/json' },
         })
         .then(response => response.json())
-        .then(theStory => {
-          if (theStory.error) {
+        .then(resJson => {
+          if (resJson.error) {
             console.log("Should redirect now...");
             props.history.push("/NotFound");
             return <Redirect to="/NotFound" />
           }
           setStoryObj({
-            title: theStory.title,
-            segCount: theStory.segCount,
-            segments: theStory.segments,
-            locked: theStory.locked,
-            complete: theStory.complete,
-            rounds: theStory.rounds,
-            fold: theStory.fold,
-            authors: theStory.authors
+            title: resJson.story.title,
+            segCount: resJson.story.segCount,
+            segments: resJson.story.segments,
+            locked: resJson.story.locked,
+            complete: resJson.story.complete,
+            rounds: resJson.story.rounds,
+            fold: resJson.story.fold,
+            authors: resJson.story.authors
           });
-
-          /*
-
-          if (theStory.locked && !theStory.complete) {
-            console.log("Setting loggedout on entry");
-            setLoggedOut(true);
-          }
-
-          // Send info to server for tracking loggedOut state and ID for backend logout
-          if (!theStory.locked && !theStory.complete) {
-            props.socket.emit('setup', { storyID: props.storyID, loggedOut: false });
-          }
-          */
 
           props.socket.emit('setup', { storyID: props.storyID, loggedOut: false }, data => {
             if (data === 'unavailable') {
@@ -191,21 +178,26 @@ function Start(props) {
           },
           body: JSON.stringify(newStory)
         })
-        .then(response => response.json())
-        .then(resJson => {
-          console.log('Response after adding new story: ', resJson);
+      .then(response => response.json())
+      .then(resJson => {
+        console.log('Response after adding new story: ', resJson);
+        if (resJson.success) {
+        
           setSuccess(true);
-          setNewStoryID(resJson._id);
+          setNewStoryID(resJson.story._id);
           setStoryObj({ segments: segments, segCount: 1, rounds: data.rounds, complete: false, title: newTitle });
           props.socket.emit('logOut', 'success');
-          sendEmails(false, resJson._id, [data.writerEmail], newTitle, data.writerEmail);
-        })
-        .catch(err => {
-          errorArray.push(`Issue adding story: ${err}`);
-          console.log('Issue adding story: ', err);
-          setErrors(errorArray);
+          sendEmails(false, resJson.story._id, [data.writerEmail], newTitle, data.writerEmail);
+        } else {
+          setErrors(["Sory, we couldn't add the story this time, please try again later."]);
         }
-      );
+        
+      })
+      .catch(err => {
+        errorArray.push(`Issue adding story: ${err}`);
+        console.log('Issue adding story: ', err);
+        setErrors(errorArray);
+      });
     } else {
       // Add segment to existing story
       let newSegments = [...storyObj.segments];
@@ -221,7 +213,7 @@ function Start(props) {
           count++;
         }
       }
-      if (count ===0) {
+      if (count === 0) {
         newAuthors.push(data.writerEmail);
       }
 
@@ -244,17 +236,24 @@ function Start(props) {
       })
       .then(response => response.json())
       .then(resJson => {
-        //Story has been updated successfully
-        setSuccess(true);
-        setNewStoryID(resJson._id);
-        let newStoryObj = {...storyObj};
-        newStoryObj.segments = newSegments;
-        setStoryObj(newStoryObj);
-        sendEmails(finished, resJson._id, newAuthors, storyObj.title, data.writerEmail);
-        props.socket.emit('logOut', 'Successful save');
+        console.log(resJson);
+        if (resJson.success) {
+          //Story has been updated successfully
+          setSuccess(true);
+          let newStoryObj = {...storyObj};
+          newStoryObj.segments = newSegments;
+          setStoryObj(newStoryObj);
+          sendEmails(finished, resJson._id, newAuthors, storyObj.title, data.writerEmail);
+          props.socket.emit('logOut', 'Successful save');
+        } else {
+          console.log("Error updating story:", resJson.error.message);
+          errorArray.push("Sorry, we couldn't update the story at this time, please try again later!");
+          setErrors(errorArray);
+        }
+        
       })
       .catch(err => {
-        console.log("Error updating story: ", err);
+        console.log("Error fetching for story update: ", err);
         errorArray.push(err);
         setErrors(errorArray);
       });
@@ -317,7 +316,7 @@ function Start(props) {
       <>
       {loaded &&
       <Container fluid>
-        <DisplayErrors errors={errors} />
+      <DisplayErrors errors={errors} />
         <Row className='justify-content-center'>
           <Col lg={6}>
             <Row className='justify-content-end'>
@@ -356,6 +355,7 @@ function Start(props) {
                       updateStory={updateStory}
                       updateStoryText={setStory}
                       connected={connected}
+                      errors={errors}
                       lastText={storyObj.segCount === 0 ? '' : storyObj.segments[storyObj.segments.length - 1].content}
                     />
               }
