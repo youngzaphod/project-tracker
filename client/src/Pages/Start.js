@@ -243,7 +243,7 @@ function Start(props) {
           let newStoryObj = {...storyObj};
           newStoryObj.segments = newSegments;
           setStoryObj(newStoryObj);
-          sendEmails(finished, resJson._id, newAuthors, storyObj.title, data.writerEmail);
+          sendEmails(finished, props.storyID, newAuthors, storyObj.title, data.writerEmail);
           props.socket.emit('logOut', 'Successful save');
         } else {
           console.log("Error updating story:", resJson.error.message);

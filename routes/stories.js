@@ -132,6 +132,7 @@ router.put("/:story_id", async function(req, res) {
     await session.commitTransaction();
     res.status(200).send({
       success: true,
+      _id: req.params.story_id,
     });
   })
   .catch(async function(err) {
@@ -157,7 +158,7 @@ async function updateAuthor(email, storyID, session) {
       if (!auth.stories.includes(storyID)) {
           auth.stories.push(storyID);       
         return auth.save().then(result => {
-          console.log("Successfully updated author", result);
+          console.log("Successfully updated author");
         });
       } else {
         console.log("Already contains story");
@@ -171,7 +172,7 @@ async function updateAuthor(email, storyID, session) {
         completion: true,
         dateCreated: Date.now()
       }).then(result => {
-        console.log("Successfully created author", result);
+        console.log("Successfully created author");
       });
     }
   })
