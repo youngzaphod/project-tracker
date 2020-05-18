@@ -4,6 +4,8 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Alert from 'react-bootstrap/Alert';
 import Table from 'react-bootstrap/Table';
+import Collapse from 'react-bootstrap/Collapse';
+import AuthorForm from '../Components/AuthorForm.js';
 import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 
@@ -12,8 +14,14 @@ import '../App.css';
 
 
 function Author(props) {
-  const [errors, setErrors] = useState([]);
-  const [stories, setStories] = useState([]);
+    const [errors, setErrors] = useState([]);
+    const [stories, setStories] = useState([]);
+    const [cont, setCont] = useState(false);
+    const [comp, setComp] = useState(false);
+    const [username, setUsername] = useState('Anonymous');
+    const [loaded, setLoaded] = useState(false);
+    const [success, setSuccess] = useState(false);
+
 
 
   // Get all incomplete stories
@@ -26,32 +34,67 @@ function Author(props) {
             },
         })
         .then(response => response.json())
-        .then(theStories => {
-            let temp = [];
-            for(let i in theStories) {
-                temp.push({
-                    id: theStories[i]._id,
-                    title: theStories[i].title,
-                    segCount: theStories[i].segCount,
-                    rounds: theStories[i].rounds
-                });
+        .then(resJson => {
+            if (resJson.success) {
+                let temp = [];
+                for(let i in resJson.stories) {
+                    temp.push({
+                        id: resJson.stories[i]._id,
+                        title: resJson.stories[i].title,
+                        segCount: resJson.stories[i].segCount,
+                        rounds: resJson.stories[i].rounds
+                    });
+                }
+                setStories(temp);
+                setCont(resJson.author.contribution);
+                setComp(resJson.author.completion);
+                setUsername(resJson.author.username);
+                if (temp.length === 0) {
+                    setErrors(["There are no stories to display!"]);
+                }
+            } else {
+                setErrors(["Sorry, there's a problem loading your page, try again later or fill out the contact form."]);
             }
-
-            console.log("temp:", temp);
-            setStories(temp);
-            if (temp.length === 0) {
-                setErrors(["Sorry, there are no stories to display!"]);
-            }
+            
             
         })
         .catch(err => {
-            let errorArray = [`Sorry, there was an issue loading stories: ${err}`];
-            console.log('Issue loading story: ', err);
+            let errorArray = [`Sorry, there was an issue loading the info: ${err}`];
+            console.log('Issue loading info: ', err);
             setErrors(errorArray);
-        }
-        );
+        })
+        .then(() => setLoaded(true));
 
     }, [props.authorEmail]); // Run only one time at start (props.authorEmail won't change)
+
+    const updateAuthor = (contribution, completion, username) => {
+        fetch(`/api/authors/${props.authorEmail}`, {
+            method: 'PUT',
+            headers: {
+            Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contribution: contribution,
+                completion: completion,
+                username: username
+            })
+        }).then(response => response.json())
+        .then(resJson => {
+            if (resJson.success) {
+                setSuccess(true);
+                setUsername(username);
+                setComp(contribution);
+                setCont(completion);
+                setTimeout(() => setSuccess(false), 3000);
+                setErrors([]);
+            } else {
+                setErrors([resJson.error]);
+            }
+        }).catch(err => {
+            setErrors([err]);
+        });
+    }
   
 
     return (
@@ -69,6 +112,23 @@ function Author(props) {
             </Row>
           : null
         }
+        {loaded &&
+        <Row className='justify-content-center'>
+            <Col lg={3}>
+                <h3>Settings</h3>
+                <AuthorForm cont={cont} comp={comp} username={username} updateAuthor={updateAuthor} />
+            </Col>
+        </Row>
+        }
+        <Collapse in={success} >
+        <Row className='justify-content-center'>
+            <Col lg={3}>
+                <br/>
+                <br/>
+                <Alert variant='success'>Successfully updated settings and username</Alert>
+            </Col>
+        </Row>
+        </Collapse>
         <Row className='justify-content-center'>
             <Col lg={6}>
                 <h3 align="center">Showing all stories where {props.authorEmail} has contributed</h3>

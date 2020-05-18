@@ -14,7 +14,7 @@ function DisplayErrors(props) {
                 {
                 props.errors.map((msg, i) => (
                     <Alert key={i} variant='danger'>
-                        Something went wrong: {msg}
+                        {msg}
                     </Alert>
                 ))}
                 </Col>

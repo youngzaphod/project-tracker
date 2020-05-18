@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
 const authorSchema = new Schema({
-	email:	String,
-	username: String,
+	email:	{ type: String, unique: true, required: true },
+	username: { type: String, unique: true },
     stories: [Schema.ObjectId],
 	contribution: Boolean,
     completion: Boolean,
