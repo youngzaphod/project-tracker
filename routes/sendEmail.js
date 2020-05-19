@@ -45,27 +45,6 @@ router.post('/', function(req, res, next) {
     // Set up to track errors
     let errorArray = [];
     let infoArray = [];
-
-    // Send email to most recent contributor - doesn't depend on settings
-    if (!req.body.finished) {
-        let message = "You are now a contributing author to the soon-to-be-released..."
-        const data = {
-            from: `Fold and Pass noreply@foldandpass.com`,
-            to: req.body.email,
-            subject: req.body.subject,
-            template: "notification",
-            'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + req.body.email}", "message": "${message}"}`
-        };
-        mg.messages().send(data, function (error, info) {
-            if (error) {
-                console.log(`Error sending addition email to ${req.body.email}, adding to array: `, error);
-                errorArray.push(error);
-            } else {
-                console.log(`Successfully sent addition email to ${req.body.email}, adding to array: `, info);
-                infoArray.push(info);
-            }
-        });   
-    }
     
     // Get new unique set of authors, so we don't send duplicate emails
     let authors = [...new Set(req.body.authors)];
@@ -76,6 +55,7 @@ router.post('/', function(req, res, next) {
         .then(auth => {
             console.log("Processing email for", auth.email);
             console.log("Settings: (completion, contribution, finished)", auth.completion, auth.contribution, req.body.finished);
+            // Create new pass ID if author doesn't have one
             if (req.body.finished && auth.completion) {
                 let message = "Get your expectations nice and low, then check it out!";
                 const data = {
@@ -83,7 +63,7 @@ router.post('/', function(req, res, next) {
                     from: `Fold and Pass noreply@foldandpass.com`,
                     subject: req.body.subject,
                     template: "notification",
-                    'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + email}", "message": "${message}"}`,
+                    'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + email + "/" + auth.passID}", "message": "${message}"}`,
                 };
                 
                 mg.messages().send(data, function (error, info) {
@@ -98,14 +78,21 @@ router.post('/', function(req, res, next) {
             }
 
             // Send contribution email only if not finished AND not to most recent author
-            if (!req.body.finished && auth.contribution && auth.email !== req.body.email) {
+            if (!req.body.finished && ((auth.contribution && auth.email !== req.body.email) || auth.email === req.body.email)) {
                 let message = "You have a collaborator! You can see what they wrote or wait until it's finished.";
+                let subject = "Someone contributed to your story";
+
+                // Update message and subject if sending to person who contributed
+                if (auth.email === req.body.email) {
+                    message = "You are now a contributing author to the soon-to-be-released...";
+                    subject = req.body.subject;
+                }
                 const data = {
                     to: auth.email,
                     from: `Fold and Pass noreply@foldandpass.com`,
-                    subject: "Someone contributed to your story",
+                    subject: subject,
                     template: "notification",
-                    'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + email}", "message": "${message}"}`,
+                    'h:X-Mailgun-Variables': `{"title": "${req.body.title}", "linkOne": "${req.body.urlOne}", "linkAll": "${req.body.urlOrigin + "/author/" + email + "/" + auth.passID}", "message": "${message}"}`,
                 };
                 console.log("About to send contribution email to", auth.email)
                 mg.messages().send(data, function (error, info) {

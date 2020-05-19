@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const shortid = require('shortid');
 
 //Bring in models from external file
 const Story = require("../models/story");
@@ -168,6 +169,7 @@ async function updateAuthor(email, storyID, session) {
       return Author.create({
         email: email,
         stories: [storyID],
+        passID: short.generate(),
         contribution: true,
         completion: true,
         dateCreated: Date.now()

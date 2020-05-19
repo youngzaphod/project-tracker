@@ -26,7 +26,7 @@ function Author(props) {
 
   // Get all incomplete stories
     useEffect(() => {
-        fetch(`/api/authors/${props.authorEmail}`, {
+        fetch(`/api/authors/${props.authorEmail}/${props.passID}`, {
             method: 'GET',
             headers: {
             Accept: 'application/json',
@@ -49,11 +49,12 @@ function Author(props) {
                 setCont(resJson.author.contribution);
                 setComp(resJson.author.completion);
                 setUsername(resJson.author.username);
+                setLoaded(true);
                 if (temp.length === 0) {
                     setErrors(["There are no stories to display!"]);
                 }
             } else {
-                setErrors(["Sorry, there's a problem loading your page, try again later or fill out the contact form."]);
+                setErrors([resJson.error]);
             }
             
             
@@ -62,13 +63,12 @@ function Author(props) {
             let errorArray = [`Sorry, there was an issue loading the info: ${err}`];
             console.log('Issue loading info: ', err);
             setErrors(errorArray);
-        })
-        .then(() => setLoaded(true));
+        });
 
     }, [props.authorEmail]); // Run only one time at start (props.authorEmail won't change)
 
     const updateAuthor = (contribution, completion, username) => {
-        fetch(`/api/authors/${props.authorEmail}`, {
+        fetch(`/api/authors/${props.authorEmail}/${props.passID}`, {
             method: 'PUT',
             headers: {
             Accept: 'application/json',
@@ -89,10 +89,11 @@ function Author(props) {
                 setTimeout(() => setSuccess(false), 3000);
                 setErrors([]);
             } else {
-                setErrors([resJson.error]);
+                setErrors(["Issue saving information, please try again later"]);
             }
         }).catch(err => {
-            setErrors([err]);
+            console.log('Issue saving info: ', err);
+            setErrors(["Issue saving information, please try again later"]);
         });
     }
   
@@ -112,14 +113,14 @@ function Author(props) {
             </Row>
           : null
         }
-        {loaded &&
+        { loaded &&
+        <>
         <Row className='justify-content-center'>
             <Col lg={3}>
                 <h3>Settings</h3>
                 <AuthorForm cont={cont} comp={comp} username={username} updateAuthor={updateAuthor} />
             </Col>
         </Row>
-        }
         <Collapse in={success} >
         <Row className='justify-content-center'>
             <Col lg={3}>
@@ -131,7 +132,7 @@ function Author(props) {
         </Collapse>
         <Row className='justify-content-center'>
             <Col lg={6}>
-                <h3 align="center">Showing all stories where {props.authorEmail} has contributed</h3>
+                <h3 align="center">Showing all stories where {username} has contributed</h3>
             </Col>
         </Row>
         <Row className='justify-content-center'>
@@ -158,6 +159,8 @@ function Author(props) {
                 </Table>
             </Col>
         </Row>
+        </>
+        }
       </Container>
     );
 }
