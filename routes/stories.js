@@ -97,12 +97,26 @@ router.post("/", async function(req, res) {
 
 //Get complete Story document by requested _id
 router.get("/:story_id", (req, res) => {
+  console.log("Getting story...");
   Story.findOneAndUpdate({_id: req.params.story_id}, {locked: true})
     .then(story => {
-      res.status(200).send({
-        success: true,
-        story: story,
-      });
+      if (story) {
+        console.log("Found story, getting usernames");
+        return Author.find( { email: { $in: story.authors } }, { username: 1, _id: 0 })
+        .then(usernames => {
+          console.log("Found usernames:", usernames);
+          res.status(200).send({
+            success: true,
+            story: story,
+            usernames: usernames
+          });
+        });
+      } else {
+        res.status(400).send({
+          success: false,
+          error: "Couldn't find story"
+        });
+      }
     })
     .catch(err => {
       res.status(500).send({

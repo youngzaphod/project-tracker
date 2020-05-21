@@ -3,7 +3,7 @@ let Schema = mongoose.Schema;
 
 
 const segmentSchema = new Schema({
-	author: String,	//Email address
+	author: String,	// Email
 	content: String,																							
 	order: Number
 })

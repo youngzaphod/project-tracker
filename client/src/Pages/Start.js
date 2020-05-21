@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import { Redirect } from 'react-router-dom';
 import LoggedOutMessage from '../Components/LoggedOutMessage';
 import StoryDisplay from '../Components/StoryDisplay';
+import AuthorDisplay from '../Components/AuthorDisplay';
 import StoryForm from '../Components/StoryForm';
 import SuccessBox from '../Components/SuccessBox';
 import DisplayErrors from '../Components/DisplayErrors';
@@ -107,8 +108,11 @@ function Start(props) {
             complete: resJson.story.complete,
             rounds: resJson.story.rounds,
             fold: resJson.story.fold,
-            authors: resJson.story.authors
+            authors: resJson.story.authors,
+            usernames: resJson.usernames
           });
+          console.log("Usernames:", resJson.usernames);
+          console.log("Story", resJson.story);
 
           props.socket.emit('setup', { storyID: props.storyID, loggedOut: false }, data => {
             if (data === 'unavailable') {
@@ -333,6 +337,17 @@ function Start(props) {
           <Col lg={6}>
             <StoryDisplay storyObj={storyObj} first={first} success={success} />
           </Col>
+        </Row>
+        <Row className='justify-content-center'>
+          { storyObj.complete && 
+          <Col lg={6}>
+            <Row className='justify-content-end'>
+              <Col lg={1}>
+                <AuthorDisplay usernames={storyObj.usernames} />
+              </Col>
+            </Row>
+          </Col>
+          }
         </Row>
         {!storyObj.complete && 
           <Row className='justify-content-center'>

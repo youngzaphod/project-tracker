@@ -30,14 +30,12 @@ h3.noPad {
   padding-top: 0px;
 }
 
-.hopo {
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 0;
-  width: 0;
-  z-index: -1;
+.author:hover {
+  text-decoration: none;
+}
+
+.author:hover::after {
+  content: '🡺'
 }
 
 .blurred-text {
