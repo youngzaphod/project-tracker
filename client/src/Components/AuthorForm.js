@@ -23,7 +23,7 @@ function AuthorForm(props) {
       if (username !== username.replace(/\W/g, '')) {
         errorArray.push("Username must contain only letters and numbers");
       }
-      if (username.length > 15 || username.length < 5 && username.length !== 0) {
+      if ((username.length > 15 || username.length < 5) && username.length !== 0) {
         errorArray.push("Username must be between 5 and 15 characters, or blank to display as 'Anonymous'");
       }
       if (username.toLowerCase() === 'anonymous') {

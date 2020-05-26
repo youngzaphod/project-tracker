@@ -9,8 +9,6 @@ import AuthorForm from '../Components/AuthorForm.js';
 import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 
-import '../App.css';
-
 
 
 function Author(props) {
@@ -65,7 +63,7 @@ function Author(props) {
             setErrors(errorArray);
         });
 
-    }, [props.authorEmail]); // Run only one time at start (props.authorEmail won't change)
+    }, [props.authorEmail, props.passID]); // Run only one time at start (props.authorEmail won't change)
 
     const updateAuthor = (contribution, completion, username) => {
         fetch(`/api/authors/${props.authorEmail}/${props.passID}`, {

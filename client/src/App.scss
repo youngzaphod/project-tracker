@@ -1,0 +1,48 @@
+
+//@import "~bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/mixins";
+
+$body-bg: #f4fbfd;
+$link-color: #03718f;
+
+$theme-colors: (
+  primary: #03718f,
+
+);
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+
+
+
+/*
+.header-style {
+  background-color: #03718f;
+  color: black;
+}
+*/
+
+h3 {
+  padding-top: 30px;
+}
+
+h3.noPad {
+  padding-top: 0px;
+}
+
+.author:hover {
+  text-decoration: none;
+}
+
+.author:hover::after {
+  content: '🡺'
+}
+
+.blurred-text {
+  color:transparent;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  font-size: 100%;
+}
+

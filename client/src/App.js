@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Switch, Route, BrowserRouter as Router} from 'react-router-dom';
 import Header from './Components/Header';
+import Footer from './Components/Footer';
 //import TempHeader from './Components/TempHeader';
 //import TempHome from './Components/TempHome';
 import Start from './Pages/Start';
@@ -15,6 +16,7 @@ import TestPage from './Pages/TestPage';
 import NotFound from './Pages/NotFound';
 import * as io from 'socket.io-client';
 import GAListener from './Components/GAListener';
+import './App.scss';
 
 const socket = io();
 
@@ -38,6 +40,7 @@ class App extends Component {
             <Route exact path="/testpage" render={props => (<TestPage/>)}/>
             <Route render={props => (<NotFound match={props.match}/>)}/>
           </Switch>
+          <Footer/>
         </GAListener>
         </Router>
     );

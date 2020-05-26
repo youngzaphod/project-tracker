@@ -7,8 +7,6 @@ import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 
-import '../App.css';
-
 
 
 function Open(props) {

@@ -7,10 +7,6 @@ import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
 //import { FaCog } from 'react-icons/fa';
 
-import '../App.css';
-
-
-
 function AuthorPublic(props) {
   const [errors, setErrors] = useState([]);
   const [stories, setStories] = useState([]);

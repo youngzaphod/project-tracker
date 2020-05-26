@@ -162,6 +162,31 @@ router.put("/:story_id", async function(req, res) {
   .then(() => session.endSession());
 });
 
+//modify Story document by _id
+router.put("/likes/:story_id", function(req, res) {
+  console.log("stories router.put req.body:", req.body);
+  Story.findOneAndUpdate(
+    { _id: req.params.story_id },
+    { $set: req.body },
+  )
+  .then(story => {
+    console.log("Like update success");
+    res.status(200).send({
+      success: true,
+      story: story,
+      _id: req.params.story_id,
+    });
+  })
+  .catch(err => {
+    console.log("Sending 500 status");
+    res.status(500).send({
+      success: false,
+      error: err,
+    });
+    console.log("Error updating story! ", err);
+  });
+});
+
 
 async function updateAuthor(email, storyID, session) {
   return Author.findOne({ email: email }).session(session)

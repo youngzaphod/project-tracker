@@ -6,6 +6,7 @@ import { Redirect } from 'react-router-dom';
 import LoggedOutMessage from '../Components/LoggedOutMessage';
 import StoryDisplay from '../Components/StoryDisplay';
 import AuthorDisplay from '../Components/AuthorDisplay';
+import LikeDisplay from '../Components/LikeDisplay';
 import StoryForm from '../Components/StoryForm';
 import SuccessBox from '../Components/SuccessBox';
 import DisplayErrors from '../Components/DisplayErrors';
@@ -14,7 +15,6 @@ import SocialShares from '../Components/SocialShares';
 //import { TwitterShareButton, EmailIcon, FacebookIcon, TwitterIcon } from "react-share";
 
 import ifvisible from 'ifvisible.js';
-import '../App.css';
 
 const timeOut =  3;
 
@@ -109,7 +109,8 @@ function Start(props) {
             rounds: resJson.story.rounds,
             fold: resJson.story.fold,
             authors: resJson.story.authors,
-            usernames: resJson.usernames
+            usernames: resJson.usernames,
+            likes: resJson.story.likes ? resJson.story.likes : 0,
           });
           console.log("Usernames:", resJson.usernames);
           console.log("Story", resJson.story);
@@ -315,6 +316,36 @@ function Start(props) {
     }
     
   }
+
+  const updateLikes = (newLikes) => {
+    let errorArray = [];
+    fetch(`/api/stories/likes/${props.storyID}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ likes: newLikes })
+    })
+    .then(response => response.json())
+    .then(resJson => {
+      console.log(resJson);
+      if (resJson.success) {
+        //Likes have been updated successfully
+        console.log("Likes updated successfully");
+      } else {
+        console.log("Error updating likes:", resJson.error.message);
+        errorArray.push("Sorry, we couldn't log your 'like' of the story at this time, please try again later!");
+        setErrors(errorArray);
+      }
+      
+    })
+    .catch(err => {
+      console.log("Error updating likes: ", err);
+      errorArray.push(err);
+      setErrors(errorArray);
+    });
+  }
   
     return (
       <>
@@ -342,6 +373,9 @@ function Start(props) {
           { storyObj.complete && 
           <Col lg={6}>
             <Row className='justify-content-end'>
+              <Col lg={5}>
+                <LikeDisplay updateLikes={updateLikes} likes={storyObj.likes} />
+              </Col>
               <Col lg={1}>
                 <AuthorDisplay usernames={storyObj.usernames} />
               </Col>

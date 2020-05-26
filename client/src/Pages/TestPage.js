@@ -4,8 +4,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import SuccessBox from '../Components/SuccessBox';
 
-
-
 function TestPage(props) {
 
     return (

@@ -18,7 +18,8 @@ const storySchema = new Schema({
 	lastUpdate: Date,
 	locked: Boolean,
 	rounds: Number,
-	authors: [String]
+	authors: [String],
+	likes: Number
 })
 
 const story = mongoose.model('story', storySchema);

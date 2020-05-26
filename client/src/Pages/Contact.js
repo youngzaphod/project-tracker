@@ -6,10 +6,6 @@ import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-import '../App.css';
-
-
-
 function Contact(props) {
   const [errors, setErrors] = useState([]); 
   const [subject, setSubject] = useState('');
@@ -159,11 +155,11 @@ function Contact(props) {
                       </Alert>
 
                       : sending ?
-                        <Button variant="primary">
+                        <Button className='btn-primary' variant="primary">
                           Sending...
                         </Button>
                         :
-                        <Button variant="primary" onClick={handleSubmit}>
+                        <Button className='btn-primary' variant="primary" onClick={handleSubmit}>
                           Send
                         </Button>
                       }

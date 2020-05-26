@@ -5,10 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Alert from 'react-bootstrap/Alert';
 import { Link } from 'react-router-dom';
 
-import '../App.css';
-
-
-
 function NotFound(props) {
   console.log("props.match", props.match);
   if (props.match.path) {
