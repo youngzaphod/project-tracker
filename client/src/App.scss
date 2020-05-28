@@ -1,11 +1,11 @@
-
-//@import "~bootstrap/scss/variables";
+@import url('https://fonts.googleapis.com/css2?family=Life+Savers:wght@700&display=swap');
 @import "../node_modules/bootstrap/scss/functions";
 @import "../node_modules/bootstrap/scss/variables";
 @import "../node_modules/bootstrap/scss/mixins";
 
 $body-bg: #f4fbfd;
 $link-color: #03718f;
+$primary: #03718f;
 
 $theme-colors: (
   primary: #03718f,
@@ -14,15 +14,30 @@ $theme-colors: (
 
 @import "../node_modules/bootstrap/scss/bootstrap";
 
-
-
-
-/*
-.header-style {
-  background-color: #03718f;
-  color: black;
+// Define styles for keeping footer at bottom
+#page-container {
+  position: relative;
+  min-height: calc(100vh - 2rem);
 }
-*/
+
+#content-wrap {
+  padding-bottom: 60px;    /* Footer height */
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;            /* Footer height */
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Life Savers', cursive;
+}
+
+span, p {
+  font-size: 18px;
+}
 
 h3 {
   padding-top: 30px;
@@ -44,5 +59,14 @@ h3.noPad {
   color:transparent;
   text-shadow: 0 0 10px rgba(0,0,0,0.5);
   font-size: 100%;
+}
+
+button.heart {
+  padding: 0;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  background: none
 }
 

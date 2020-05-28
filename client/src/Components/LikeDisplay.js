@@ -10,7 +10,6 @@ function LikeDisplay(props) {
         // Get cookie to see if like has already come from this computer
         let decode = decodeURIComponent(document.cookie);
         if (decode.split(';').some(item => item.includes('liked=true'))) {
-            console.log("Found liked=true cookie");
             setLiked(true);
         }
 
@@ -37,9 +36,9 @@ function LikeDisplay(props) {
     return (
         <>
         { liked ?
-            <img fill='red' src={ window.location.origin + '/heart-full.svg'} width={likeSize} alt='heart full' onClick={updateLike} />
+            <button className='heart' ><img fill='red' src={ window.location.origin + '/heart-full.svg'} width={likeSize} alt='heart full' onClick={updateLike} /></button>
             :
-            <img src={ window.location.origin + '/heart-empty.svg'} width={likeSize} alt='heart empty' onClick={updateLike} />
+            <button className='heart' ><img src={ window.location.origin + '/heart-empty.svg'} width={likeSize} alt='heart empty' onClick={updateLike} /></button>
         }
         </>
     )

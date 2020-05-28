@@ -6,6 +6,7 @@ class Footer extends Component {
   
   render() {
     return (
+      <div id="footer">
       <Navbar bg='dark' variant='dark' expand='lg'>
         <Container lg={6}>
         <Navbar.Brand href='/'>
@@ -23,6 +24,7 @@ class Footer extends Component {
         </Navbar.Collapse>
         </Container>
       </Navbar>
+      </div>
     );
   }
 }

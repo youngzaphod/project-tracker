@@ -82,7 +82,7 @@ function Start(props) {
     });
 
     props.socket.on("id", id => {
-      console.log("ID:", id);
+      //console.log("ID:", id);
     });
 
 
@@ -112,8 +112,6 @@ function Start(props) {
             usernames: resJson.usernames,
             likes: resJson.story.likes ? resJson.story.likes : 0,
           });
-          console.log("Usernames:", resJson.usernames);
-          console.log("Story", resJson.story);
 
           props.socket.emit('setup', { storyID: props.storyID, loggedOut: false }, data => {
             if (data === 'unavailable') {
@@ -329,7 +327,7 @@ function Start(props) {
     })
     .then(response => response.json())
     .then(resJson => {
-      console.log(resJson);
+      //console.log(resJson);
       if (resJson.success) {
         //Likes have been updated successfully
         console.log("Likes updated successfully");
@@ -372,7 +370,7 @@ function Start(props) {
         <Row className='justify-content-center'>
           { storyObj.complete && 
           <Col lg={6}>
-            <Row className='justify-content-end'>
+            <Row className='justify-content-beginning'>
               <Col lg={5}>
                 <LikeDisplay updateLikes={updateLikes} likes={storyObj.likes} />
               </Col>
