@@ -82,8 +82,8 @@ function Author(props) {
             if (resJson.success) {
                 setSuccess(true);
                 setUsername(username);
-                setComp(contribution);
-                setCont(completion);
+                setComp(completion);
+                setCont(contribution);
                 setTimeout(() => setSuccess(false), 3000);
                 setErrors([]);
             } else {

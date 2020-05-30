@@ -23,8 +23,8 @@ function AuthorForm(props) {
       if (username !== username.replace(/\W/g, '')) {
         errorArray.push("Username must contain only letters and numbers");
       }
-      if ((username.length > 15 || username.length < 5) && username.length !== 0) {
-        errorArray.push("Username must be between 5 and 15 characters, or blank to display as 'Anonymous'");
+      if ((username.length > 20 || username.length < 5) && username.length !== 0) {
+        errorArray.push("Username must be between 5 and 20 characters, or blank to display as 'Anonymous'");
       }
       if (username.toLowerCase() === 'anonymous') {
         errorArray.push("You can't name yourself anonymous. If you want to show as anonymous, delete your username and save.");
@@ -43,7 +43,7 @@ function AuthorForm(props) {
           <Form.Label>New Username:</Form.Label>
           <Form.Control required placeholder="Username" value={username ? username : ''} onChange={e => setUsername(e.target.value.replace(/\W/g, ''))} />
           <Form.Text className="text-muted">
-            Must be at least 5 characters, using only letters and numbers. Leave blank to display as 'Anonymous'.
+            Must be 5 to 20 characters, using only letters and numbers.
           </Form.Text>
         </Form.Group>
         <Form.Group controlId='contribution'>

@@ -14,6 +14,7 @@ router.get("/:authorEmail/:passID", (req, res) => {
     console.log("Successfully got stories for author", req.params.authorEmail);
     return Author.findOne({ email: req.params.authorEmail })
     .then(auth => {
+      console.log(`URL passID: ${req.params.passID}, DB passID: ${auth.passID}`);
       if (auth && auth.passID === req.params.passID) {
         res.status(200).send({
           success: true,
@@ -95,38 +96,7 @@ router.put("/:authorEmail/:passID", (req, res) => {
       success: false,
       error: err
     });
-  })
-
-  /*
-  console.log("Updating author settings");
-  Author.findOneAndUpdate(
-    { email: req.params.authorEmail },
-    { $set: req.body })
-  .then(response => {
-    if (response) {
-      console.log("Response", response);
-      res.status(200).send({
-        success: true,
-        response: response
-      });
-    } else {
-      res.status(400).send({
-        success: false,
-        error: "No author found to update!"
-      });
-    }
-
-  })
-  .catch(err => {
-    console.log("Error updating author settings", err);
-    let message = err.code === 11000 ? "Couldn't update settings, that username is already in use."
-     : "Sorry, there was an issue updating settings, please try again later";
-    res.status(500).send({
-      success: false,
-      error: message
-    });
   });
-  */
 
 });
 

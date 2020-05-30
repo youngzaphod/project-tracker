@@ -208,9 +208,10 @@ async function updateAuthor(email, storyID, session) {
       return Author.create({
         email: email,
         stories: [storyID],
-        passID: short.generate(),
+        passID: shortid.generate(),
         contribution: true,
         completion: true,
+        username: 'Anon' + shortid.generate().replace(/\W/g, ''),
         dateCreated: Date.now()
       }).then(result => {
         console.log("Successfully created author");
