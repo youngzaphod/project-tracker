@@ -23,7 +23,7 @@
     "nodemailer": "6.4.6",
     "shortid": "2.2.15",
     "socket.io": "2.3.0",
-    "validator": "10.11.0"
+    "validator": "13.7.0"
   },
   "engines": {
     "node": "10.15.0"
