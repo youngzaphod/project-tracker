@@ -38,5 +38,8 @@
   "resolutions": {
     "ajv": "6.8.1"
   },
+  "overrides": {
+    "browserslist": "^4.28.7"
+  },
   "devDependencies": {}
 }
